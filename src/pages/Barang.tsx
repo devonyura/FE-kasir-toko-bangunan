@@ -1,11 +1,15 @@
+// Halaman utama manajemen data barang
+
 import { useEffect, useState } from "react";
 import { axiosInstance } from "@/utils/axios";
 import { Button } from "@/components/ui/button";
-import BarangDialogForm from "@/components/barang/BarangDialogForm";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
+
+import BarangDialogForm from "@/components/barang/BarangDialogForm";
 import DeleteConfirmDialog from "@/components/barang/DeleteConfirmDialog";
 
+// Tipe data barang
 type Barang = {
   id: string;
   nama_barang: string;
@@ -20,31 +24,21 @@ export default function BarangPage() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  // edit state
+  // State untuk tambah/edit
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editData, setEditData] = useState<Barang | null>(null);
 
-  // delete state
+  // State untuk delete
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null);
 
-  const handleSuccess = (message: string) => {
-    setDialogOpen(false);
-    setSuccessMessage(message);
-    fetchBarang();
-    // hilangkan pesan setelah 3 detik
-    setTimeout(() => {
-      setSuccessMessage("");
-    }, 3000);
-  };
-
+  // Fetch data barang dari backend
   const fetchBarang = async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/barang");
       setBarangs(res.data.data);
-    } catch (err) {
-      console.error("Error fetch barang:", err);
+    } catch {
       setError("Gagal memuat data barang.");
     } finally {
       setLoading(false);
@@ -55,8 +49,17 @@ export default function BarangPage() {
     fetchBarang();
   }, []);
 
+  // Handler sukses create/edit
+  const handleSuccess = (message: string) => {
+    setDialogOpen(false);
+    setSuccessMessage(message);
+    fetchBarang();
+    setTimeout(() => setSuccessMessage(""), 3000);
+  };
+
   return (
     <div className="p-4">
+      {/* Header dan tombol tambah */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold">Data Barang</h1>
         <Button
@@ -69,6 +72,7 @@ export default function BarangPage() {
         </Button>
       </div>
 
+      {/* Alert error */}
       {error && (
         <Alert variant="destructive" className="mb-4">
           <AlertCircleIcon className="h-5 w-5" />
@@ -77,6 +81,7 @@ export default function BarangPage() {
         </Alert>
       )}
 
+      {/* Alert sukses */}
       {successMessage && (
         <Alert variant="default" className="mb-4 border-green-500 bg-green-50">
           <AlertCircleIcon className="h-5 w-5 text-green-600" />
@@ -87,6 +92,7 @@ export default function BarangPage() {
         </Alert>
       )}
 
+      {/* Tabel data */}
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -98,7 +104,7 @@ export default function BarangPage() {
                 <th className="border px-4 py-2 text-left">Kategori</th>
                 <th className="border px-4 py-2 text-left">Kode</th>
                 <th className="border px-4 py-2 text-left">Keterangan</th>
-                <th className="border px-4 py-2">Aksi</th>
+                <th className="border px-4 py-2 text-center">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -144,37 +150,33 @@ export default function BarangPage() {
           </table>
         </div>
       )}
+
+      {/* Dialog tambah/edit */}
       <BarangDialogForm
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         initialData={editData}
-        onSuccess={(message) => {
-          handleSuccess(message);
-          setDialogOpen(false);
-          fetchBarang();
-        }}
+        onSuccess={handleSuccess}
       />
+
+      {/* Dialog hapus */}
       <DeleteConfirmDialog
         open={deleteDialogOpen}
         onCancel={() => setDeleteDialogOpen(false)}
         onConfirm={async () => {
           if (!selectedDeleteId) return;
-
           try {
             const res = await axiosInstance.delete(
-              `barang/${selectedDeleteId}`
+              `/barang/${selectedDeleteId}`
             );
             if (res.data?.status === "success") {
               setSuccessMessage(res.data.message || "Barang dihapus");
-              setTimeout(() => {
-                setSuccessMessage("");
-              }, 3000);
               fetchBarang();
+              setTimeout(() => setSuccessMessage(""), 3000);
             }
           } catch (err: unknown) {
             const msg =
-              err.response?.data?.message ||
-              "Terjadi kesalahan saat menghapus barang";
+              err?.response?.data?.message || "Gagal menghapus barang.";
             setError(msg);
           } finally {
             setDeleteDialogOpen(false);

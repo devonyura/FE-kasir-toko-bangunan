@@ -1,4 +1,5 @@
-// BarangDialogForm.tsx
+// Form tambah/edit barang (modal dialog)
+
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -16,6 +17,7 @@ import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 
+// Tipe props form
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -36,6 +38,7 @@ export default function BarangDialogForm({
   initialData,
 }: Props) {
   const isEdit = !!initialData;
+
   const [nama_barang, setNama_barang] = useState("");
   const [kategori_id, setKategori_id] = useState("");
   const [kode_barang, setKode_barang] = useState("");
@@ -43,6 +46,7 @@ export default function BarangDialogForm({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Reset / isi default saat dialog dibuka
   useEffect(() => {
     if (open) {
       if (isEdit && initialData) {
@@ -51,7 +55,6 @@ export default function BarangDialogForm({
         setKode_barang(initialData.kode_barang);
         setKeterangan(initialData.keterangan);
       } else {
-        // mode tambah
         setNama_barang("");
         setKategori_id("");
         setKode_barang("");
@@ -66,46 +69,26 @@ export default function BarangDialogForm({
     setError("");
     setLoading(true);
     try {
-      const payload = {
-        nama_barang,
-        kategori_id,
-        kode_barang,
-        keterangan,
-      };
-
+      const payload = { nama_barang, kategori_id, kode_barang, keterangan };
       const res = isEdit
         ? await axiosInstance.put(`/barang/${initialData?.id}`, payload)
-        : await axiosInstance.post("/barang", {
-            nama_barang,
-            kategori_id,
-            kode_barang,
-            keterangan,
-          });
-      // if (res?.status === 201 && res.data.status === "success") {
-      if (res?.data?.status === "success") {
+        : await axiosInstance.post("/barang", payload);
+
+      if (res.data?.status === "success") {
         onSuccess(res.data.message);
-        setNama_barang("");
-        setKategori_id("");
-        setKode_barang("");
-        setKeterangan("");
         const closeBtn = document.getElementById(
           "close-dialog-btn"
         ) as HTMLButtonElement;
         if (closeBtn) closeBtn.click();
-        return;
       } else {
-        setError("Gagal menambahkan barang.");
+        setError("Gagal menyimpan data.");
       }
     } catch (err: unknown) {
-      console.log("err:", err);
       const errors = err?.response?.data?.errors;
-
       if (errors && typeof errors === "object") {
-        // Ambil semua pesan error dan gabungkan jadi satu string
-        const errorMessages = Object.values(errors).join(" ");
-        setError(errorMessages);
+        const allMessages = Object.values(errors).join(" ");
+        setError(allMessages);
       } else {
-        // Jika bukan validasi, pakai pesan umum
         const msg = err?.response?.data?.message || "Gagal menyimpan data.";
         setError(msg);
       }
@@ -125,6 +108,7 @@ export default function BarangDialogForm({
             </DialogDescription>
           </DialogHeader>
 
+          {/* Alert error */}
           {error && (
             <Alert variant="destructive" className="mb-4">
               <AlertCircleIcon className="h-5 w-5" />
@@ -133,6 +117,7 @@ export default function BarangDialogForm({
             </Alert>
           )}
 
+          {/* Form input */}
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="nama">Nama Barang</Label>
@@ -171,6 +156,7 @@ export default function BarangDialogForm({
             </div>
           </div>
 
+          {/* Tombol aksi */}
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline" id="close-dialog-btn">

@@ -1,4 +1,5 @@
-// DeleteConfirmDialog.tsx
+// Komponen dialog konfirmasi hapus data
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,6 +11,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+// Props untuk dialog konfirmasi
 interface Props {
   open: boolean;
   onConfirm: () => void;
