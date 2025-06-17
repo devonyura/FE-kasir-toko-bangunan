@@ -1,16 +1,111 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-:root {
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --border: 240 5.9% 90%;
-  --muted: 240 4.8% 95.9%;
+body {
+  text-transform: capitalize;
 }
 
-.dark {
-  --background: 240 10% 4%;
-  --foreground: 0 0% 100%;
-  --border: 240 3.7% 15.9%;
-  --muted: 240 4% 16%;
+@layer base {
+  :root {
+    --background: oklch(0.956 0.032 172.5);
+    --foreground: oklch(0.145 0.134 64);
+    --muted: oklch(0.902 0.023 166.15);
+    --muted-foreground: oklch(0.448 0.029 176.61);
+    --popover: oklch(0.98 0.03 64);
+    --popover-foreground: oklch(0.145 0.134 64);
+    --card: oklch(0.98 0.03 64);
+    --card-foreground: oklch(0.145 0.134 64);
+    --border: oklch(0.865 0.022 165.32);
+    --input: oklch(0.838 0.021 163.06);
+    --primary: oklch(0.34 0.175 176);
+    --primary-foreground: oklch(0.964 0.02 166);
+    --secondary: oklch(0.54 0.22 174.67);
+    --secondary-foreground: oklch(0.96 0.02 166.15);
+    --accent: oklch(0.84 0.025 149.27);
+    --accent-foreground: oklch(0.34 0.175 175.93);
+    --destructive: oklch(0.54 0.25 7.89);
+    --destructive-foreground: oklch(1 0 0); /* putih */
+    --ring: oklch(0.34 0.175 165.32);
+    --chart-1: oklch(0.34 0.175 176);
+    --chart-2: oklch(0.54 0.22 174.67);
+    --chart-3: oklch(0.84 0.025 149.27);
+    --chart-4: oklch(0.56 0.24 174.67);
+    --chart-5: oklch(0.34 0.18 176);
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: oklch(0.054 0.1 183.39);
+    --foreground: oklch(0.96 0.05 64);
+    --muted: oklch(0.12 0.06 184);
+    --muted-foreground: oklch(0.65 0.02 184);
+    --popover: oklch(0.035 0.08 180);
+    --popover-foreground: oklch(0.96 0.05 64);
+    --card: oklch(0.037 0.08 178.87);
+    --card-foreground: oklch(0.96 0.05 64);
+    --border: oklch(0.18 0.03 171.43);
+    --input: oklch(0.13 0.03 171.43);
+    --primary: oklch(0.46 0.26 175.34);
+    --primary-foreground: oklch(0.96 0.02 166.15);
+    --secondary: oklch(0.64 0.3 173.41);
+    --secondary-foreground: oklch(1 0 166.15); /* putih */
+    --accent: oklch(0.43 0.14 168.39);
+    --accent-foreground: oklch(0.9 0.03 175.34);
+    --destructive: oklch(0.54 0.25 345.35);
+    --destructive-foreground: oklch(1 0 0);
+    --ring: oklch(0.85 0.24 168.39);
+    --chart-1: oklch(0.46 0.26 175.34);
+    --chart-2: oklch(0.64 0.3 173.41);
+    --chart-3: oklch(0.43 0.14 168.39);
+    --chart-4: oklch(0.67 0.3 173.41);
+    --chart-5: oklch(0.46 0.28 175.34);
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

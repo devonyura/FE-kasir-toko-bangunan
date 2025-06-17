@@ -25,14 +25,16 @@ export default function DeleteConfirmDialog({
   onConfirm,
   onCancel,
   title = "Hapus Data",
-  description = "Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.",
+  description = "Apakah Anda yakin ingin menghapus data ini?\nTindakan ini tidak dapat dibatalkan.",
 }: Props) {
   return (
     <AlertDialog open={open} onOpenChange={onCancel}>
       <AlertDialogContent className="bg-background bg-white">
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogDescription className="whitespace-pre-line">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Batal</AlertDialogCancel>

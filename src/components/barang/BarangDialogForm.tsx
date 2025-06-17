@@ -1,5 +1,3 @@
-// Form tambah/edit barang (modal dialog)
-
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -16,12 +14,19 @@ import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import KelolaKategoriDialog from "@/components/barang/KelolaKategoriDialog";
 
-// Tipe props form
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: (message: string) => void;
+  onSuccess: (message: string, id?: string) => void;
   initialData?: {
     id: string;
     nama_barang: string;
@@ -29,6 +34,11 @@ interface Props {
     kode_barang: string;
     keterangan: string;
   } | null;
+}
+
+interface Kategori {
+  id: string;
+  nama_kategori: string;
 }
 
 export default function BarangDialogForm({
@@ -43,12 +53,28 @@ export default function BarangDialogForm({
   const [kategori_id, setKategori_id] = useState("");
   const [kode_barang, setKode_barang] = useState("");
   const [keterangan, setKeterangan] = useState("");
+  const [kategoriList, setKategoriList] = useState<Kategori[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Reset / isi default saat dialog dibuka
+  // Tambahkan state dialog open
+  const [kelolaKategoriOpen, setKelolaKategoriOpen] = useState(false);
+
+  // Fetch list kategori
+  const fetchKategori = async () => {
+    try {
+      const res = await axiosInstance.get("/kategori");
+      if (res.data?.status === "success") {
+        setKategoriList(res.data.data);
+      }
+    } catch {
+      setKategoriList([]);
+    }
+  };
+
   useEffect(() => {
     if (open) {
+      fetchKategori();
       if (isEdit && initialData) {
         setNama_barang(initialData.nama_barang);
         setKategori_id(initialData.kategori_id);
@@ -62,7 +88,7 @@ export default function BarangDialogForm({
       }
       setError("");
     }
-  }, [initialData, isEdit, open]);
+  }, [open, isEdit, initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +101,8 @@ export default function BarangDialogForm({
         : await axiosInstance.post("/barang", payload);
 
       if (res.data?.status === "success") {
-        onSuccess(res.data.message);
+        const id = res.data?.data?.id;
+        onSuccess(res.data.message, id);
         const closeBtn = document.getElementById(
           "close-dialog-btn"
         ) as HTMLButtonElement;
@@ -98,77 +125,109 @@ export default function BarangDialogForm({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] bg-background bg-white">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>{isEdit ? "Edit" : "Tambah"} Barang</DialogTitle>
-            <DialogDescription>
-              {isEdit ? "Ubah" : "Isi"} data barang di bawah ini
-            </DialogDescription>
-          </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          className="sm:max-w-[500px]"
+          onInteractOutside={(e) => e.preventDefault()}
+        >
+          <form onSubmit={handleSubmit}>
+            <DialogHeader>
+              <DialogTitle>{isEdit ? "Edit" : "Tambah"} Barang</DialogTitle>
+              <DialogDescription>
+                {isEdit ? "Ubah" : "Isi"} data barang di bawah ini
+              </DialogDescription>
+            </DialogHeader>
 
-          {/* Alert error */}
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertCircleIcon className="h-5 w-5" />
-              <AlertTitle>Gagal Menyimpan</AlertTitle>
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+            {error && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircleIcon className="h-5 w-5" />
+                <AlertTitle>Gagal Menyimpan</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
-          {/* Form input */}
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="nama">Nama Barang</Label>
-              <Input
-                id="nama"
-                value={nama_barang}
-                onChange={(e) => setNama_barang(e.target.value)}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="kategori">Kategori ID</Label>
-              <Input
-                id="kategori"
-                value={kategori_id}
-                onChange={(e) => setKategori_id(e.target.value)}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="kode">Kode Barang</Label>
-              <Input
-                id="kode"
-                value={kode_barang}
-                onChange={(e) => setKode_barang(e.target.value)}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="keterangan">Keterangan</Label>
-              <Input
-                id="keterangan"
-                value={keterangan}
-                onChange={(e) => setKeterangan(e.target.value)}
-              />
-            </div>
-          </div>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="nama">Nama Barang</Label>
+                <Input
+                  id="nama"
+                  value={nama_barang}
+                  onChange={(e) => setNama_barang(e.target.value)}
+                  required
+                />
+              </div>
 
-          {/* Tombol aksi */}
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline" id="close-dialog-btn">
-                Cancel
+              {/* Select Kategori */}
+              <div className="grid gap-2">
+                <Label htmlFor="kategori">Kategori</Label>
+                <div className="flex items-center justify-start gap-4">
+                  <div className="flex-1 max-w-sm">
+                    <Select
+                      value={kategori_id}
+                      onValueChange={setKategori_id}
+                      required
+                    >
+                      <SelectTrigger id="kategori">
+                        <SelectValue placeholder="Pilih kategori" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {kategoriList.map((kategori) => (
+                          <SelectItem key={kategori.id} value={kategori.id}>
+                            {kategori.nama_kategori}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setKelolaKategoriOpen(true)}
+                  >
+                    Kelola Kategori
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="kode">Kode Barang</Label>
+                <Input
+                  id="kode"
+                  value={kode_barang}
+                  onChange={(e) => setKode_barang(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="keterangan">Keterangan</Label>
+                <Input
+                  id="keterangan"
+                  value={keterangan}
+                  onChange={(e) => setKeterangan(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button type="button" variant="outline" id="close-dialog-btn">
+                  Cancel
+                </Button>
+              </DialogClose>
+              <Button type="submit" disabled={loading}>
+                {loading ? "Menyimpan..." : "Simpan"}
               </Button>
-            </DialogClose>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Menyimpan..." : "Simpan"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <KelolaKategoriDialog
+        open={kelolaKategoriOpen}
+        onOpenChange={setKelolaKategoriOpen}
+        onKategoriChange={fetchKategori}
+      />
+    </>
   );
 }
