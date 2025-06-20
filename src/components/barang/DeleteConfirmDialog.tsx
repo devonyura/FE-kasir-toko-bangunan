@@ -29,7 +29,7 @@ export default function DeleteConfirmDialog({
 }: Props) {
   return (
     <AlertDialog open={open} onOpenChange={onCancel}>
-      <AlertDialogContent className="bg-background bg-white">
+      <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>
           <AlertDialogDescription className="whitespace-pre-line">

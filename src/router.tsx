@@ -9,6 +9,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Barang from "./pages/Barang";
 import ProtectedRoute from "./components/ProtectedRoute";
+import TransaksiBeliPage from "./pages/transaksi/TransaksiBeliPage";
 
 export const router = createBrowserRouter([
   {
@@ -25,10 +26,11 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: "barang", element: <Barang /> },
+      { path: "transaksi-beli", element: <TransaksiBeliPage /> },
       { path: "transaksi", element: <Transaksi /> },
       { path: "stok", element: <Stok /> },
       { path: "laporan", element: <Laporan /> },
     ],
   },
-  { path: "/register", element: <Register /> }
+  { path: "/register", element: <Register /> },
 ]);

@@ -147,7 +147,7 @@ export default function SatuanDialogForm({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-[500px] bg-background bg-white"
+        className="sm:max-w-[500px]"
         onInteractOutside={(event) => {
           event.preventDefault();
         }}

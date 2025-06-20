@@ -8,6 +8,7 @@ import { useAuthStore } from "../../store/auth";
 const menuItems = [
   { label: "Dashboard", path: "/" },
   { label: "Data Barang", path: "/Barang" },
+  { label: "Transaksi Beli", path: "/transaksi-beli" },
   { label: "Transaksi", path: "/transaksi" },
   { label: "Stok Barang", path: "/stok" },
   { label: "Laporan", path: "/laporan" },
@@ -16,16 +17,16 @@ const menuItems = [
 export default function Sidebar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const logout = useAuthStore((state)=> state.logout)
-  const navigate = useNavigate()
+  const logout = useAuthStore((state) => state.logout);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    const confim = confirm("yakin ingin keluar?")
+    const confim = confirm("yakin ingin keluar?");
     if (confim) {
-      logout()
-      navigate("/login")
+      logout();
+      navigate("/login");
     }
-  }
+  };
 
   return (
     <>
@@ -51,13 +52,17 @@ export default function Sidebar() {
               to={item.path}
               onClick={() => setIsOpen(false)}
               className={`px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition ${
-                location.pathname === item.path ? "bg-gray-100 font-semibold" : ""
+                location.pathname === item.path
+                  ? "bg-gray-100 font-semibold"
+                  : ""
               }`}
             >
               {item.label}
             </Link>
           ))}
-          <Button variant="link" onClick={handleLogout}>Logout</Button>
+          <Button variant="link" onClick={handleLogout}>
+            Logout
+          </Button>
         </nav>
       </aside>
     </>

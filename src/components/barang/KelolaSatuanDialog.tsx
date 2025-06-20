@@ -62,8 +62,10 @@ export default function KelolaSatuanDialog({
 
   const fetchSatuan = useCallback(async () => {
     try {
+      console.log("barangId:", barangId);
       const res = await axiosInstance.get(`/satuan-barang/barang/${barangId}`);
       setSatuanList(res.data.data || []);
+      console.log("satuan:", res.data.data);
     } catch {
       setError("Gagal memuat data satuan.".err);
     }
@@ -84,35 +86,6 @@ export default function KelolaSatuanDialog({
       fetchBarangInfo();
     }
   }, [open, barangId, fetchSatuan, fetchBarangInfo]);
-
-  // const handleDelete = async () => {
-  //   setError("");
-  //   try {
-  //     const res = await axiosInstance.delete(
-  //       `/satuan-barang/${selectedDeleteId}`
-  //     );
-
-  //     // Cek status dari response (biasanya DELETE tidak ada res.data)
-  //     if (res.status === 200 || res.status === 204) {
-  //       fetchSatuan(); // Refresh list
-  //       setDeleteDialogOpen(false); // Tutup dialog
-  //       setSelectedDeleteId(null);
-  //       setSuccessMessage(message);
-  //     } else {
-  //       setError("Gagal menghapus satuanXX.");
-  //     }
-  //     setSuccessMessage(message);
-  //   } catch (err: any) {
-  //     if (!successMessage) {
-  //       const msg =
-  //         err?.response?.data?.message ??
-  //         err?.response?.data?.error ??
-  //         "Gagal menghapus satuan.";
-  //       setError(msg);
-  //     }
-  //   }
-  //   setTimeout(() => setSuccessMessage(""), 3000);
-  // };
 
   return (
     <>
@@ -162,7 +135,7 @@ export default function KelolaSatuanDialog({
           )}
 
           {/* ✅ Tombol tambah */}
-          <div className="flex justify-end mb-3">
+          <div className="flex justify-end mb-3 gap-2">
             <Button
               onClick={() => {
                 fetchSatuan();
@@ -226,27 +199,29 @@ export default function KelolaSatuanDialog({
                         {Number(satuan.is_satuan_default) === 1 ? "✅" : "-"}
                       </td>
 
-                      <td className="border px-2 py-1 text-center space-x-2">
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedSatuan(satuan);
-                            setSatuanFormOpen(true);
-                          }}
-                        >
-                          <PencilIcon className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedDeleteId(satuan.id);
-                            setDeleteDialogOpen(true);
-                          }}
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </Button>
+                      <td className="border px-2 py-1 text-center">
+                        <div className="flex justify-center items-center gap-x-2 sm:gap-x-1">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => {
+                              setSelectedSatuan(satuan);
+                              setSatuanFormOpen(true);
+                            }}
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => {
+                              setSelectedDeleteId(satuan.id);
+                              setDeleteDialogOpen(true);
+                            }}
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   );

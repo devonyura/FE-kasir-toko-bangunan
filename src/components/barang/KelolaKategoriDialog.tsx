@@ -53,7 +53,7 @@ export default function KelolaKategoriDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Kelola Kategori</DialogTitle>
           </DialogHeader>
@@ -78,7 +78,7 @@ export default function KelolaKategoriDialog({
             </Button>
           </div>
 
-          <ul className="space-y-2">
+          <ul className="space-y-2 max-h-50 overflow-y-auto pr-2">
             {kategoriList.map((kat) => (
               <li key={kat.id} className="flex justify-between items-center">
                 <span>{kat.nama_kategori}</span>
