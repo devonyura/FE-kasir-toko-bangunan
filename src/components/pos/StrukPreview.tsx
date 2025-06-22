@@ -1,130 +1,124 @@
 // src/components/pos/StrukPreview.tsx
-import { useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { rupiahFormat } from "@/lib/formatter";
 import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { useRef, useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { useReactToPrint } from "react-to-print";
 
 interface Props {
-  transaksi: {
-    id: number;
-    tanggal: string;
-    total: number;
-    bayar: number;
-    kembali: number;
-    detail: {
-      nama_barang: string;
-      nama_satuan: string;
-      qty: number;
-      harga: number;
-      subtotal: number;
-    }[];
-  };
-  onClose: () => void;
+  data: unknown; // payload transaksi
 }
 
-export default function StrukPreview({ transaksi, onClose }: Props) {
-  const printRef = useRef<HTMLDivElement>(null);
+export default function StrukPreview({ data }: Props) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isReady, setIsReady] = useState(false);
 
-  const handlePrint = () => {
-    const content = printRef.current;
-    if (!content) return;
+  // trigger saat pertama kali render
+  useEffect(() => {
+    setIsReady(true);
+  }, []);
 
-    const printWindow = window.open("", "", "width=400,height=600");
-    if (!printWindow) return;
-
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Struk Transaksi</title>
-          <style>
-            body { font-family: monospace; font-size: 12px; padding: 10px; }
-            .center { text-align: center; }
-            table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-            td { padding: 2px 0; }
-            .total td { font-weight: bold; border-top: 1px solid #000; }
-          </style>
-        </head>
-        <body>${content.innerHTML}</body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+  const print = () => {
+    setTimeout(() => {
+      if (ref.current) {
+        handlePrint();
+      }
+    }, 300);
   };
+
+  const handlePrint = useReactToPrint({
+    content: () => ref.current,
+    documentTitle: `Struk_${data.tanggal}`,
+    removeAfterPrint: true,
+  });
+
+  const tglFormatted = format(new Date(data.tanggal), "EEEE, dd MMMM yyyy", {
+    locale: id,
+  });
 
   return (
     <div className="space-y-4">
-      <div ref={printRef}>
-        <div className="center">
-          <h2>TOKO BANGUNAN</h2>
-          <p>Jl. Contoh No. 123, Kota</p>
-          <p>Telp: 0812-3456-7890</p>
+      <div
+        ref={ref}
+        className="bg-white p-4 text-black text-xs max-w-sm mx-auto"
+        suppressHydrationWarning
+      >
+        <div className="text-center font-bold text-sm uppercase">
+          TOKO BANGUNAN MAKMUR JAYA
         </div>
+        <div className="text-center text-[10px] mb-2">
+          Jl. Poros Palu - Donggala KM.10, Kec. Labuan, Kota Palu
+        </div>
+
+        <hr className="my-1" />
+
+        <div className="flex justify-between">
+          <span>Tanggal</span>
+          <span>{tglFormatted}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Kasir</span>
+          <span>{data.user?.username || "-"}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Pelanggan</span>
+          <span>{data.customer}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Status</span>
+          <span>{data.sisa_piutang > 0 ? "Hutang" : "Lunas"}</span>
+        </div>
+
+        <hr className="my-1" />
+
+        {data.detail.map((item: unknown, idx: number) => (
+          <div key={idx} className="flex justify-between">
+            <div>
+              {item.nama_barang} ({item.nama_satuan}) x {item.qty}
+            </div>
+            <div>Rp{item.subtotal.toLocaleString()}</div>
+          </div>
+        ))}
+
+        <hr className="my-1" />
+
+        <div className="flex justify-between">
+          <span>Total</span>
+          <span>Rp{data.total.toLocaleString()}</span>
+        </div>
+
+        {data.ongkir > 0 && (
+          <div className="flex justify-between">
+            <span>Ongkir</span>
+            <span>Rp{data.ongkir.toLocaleString()}</span>
+          </div>
+        )}
+
+        <div className="flex justify-between">
+          <span>Dibayar</span>
+          <span>Rp{data.dibayar.toLocaleString()}</span>
+        </div>
+
+        {data.sisa_piutang > 0 ? (
+          <div className="flex justify-between">
+            <span>Sisa Piutang</span>
+            <span>Rp{data.sisa_piutang.toLocaleString()}</span>
+          </div>
+        ) : (
+          <div className="flex justify-between">
+            <span>Kembali</span>
+            <span>Rp{data.kembali.toLocaleString()}</span>
+          </div>
+        )}
+
         <hr className="my-2" />
-
-        <div>
-          <p>
-            Tanggal: {format(new Date(transaksi.tanggal), "dd/MM/yyyy HH:mm")}
-          </p>
-          <p>ID Transaksi: #{transaksi.id}</p>
-        </div>
-
-        <table>
-          <tbody>
-            {transaksi.detail.map((item, idx) => (
-              <>
-                <tr key={idx}>
-                  <td colSpan={2}>
-                    {item.nama_barang} ({item.nama_satuan})
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    {item.qty} x {rupiahFormat(item.harga)}
-                  </td>
-                  <td style={{ textAlign: "right" }}>
-                    {rupiahFormat(item.subtotal)}
-                  </td>
-                </tr>
-              </>
-            ))}
-          </tbody>
-        </table>
-
-        <table>
-          <tbody>
-            <tr className="total">
-              <td>Total</td>
-              <td style={{ textAlign: "right" }}>
-                {rupiahFormat(transaksi.total)}
-              </td>
-            </tr>
-            <tr>
-              <td>Bayar</td>
-              <td style={{ textAlign: "right" }}>
-                {rupiahFormat(transaksi.bayar)}
-              </td>
-            </tr>
-            <tr>
-              <td>Kembali</td>
-              <td style={{ textAlign: "right" }}>
-                {rupiahFormat(transaksi.kembali)}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div className="center mt-4">
-          <p>Terima kasih telah berbelanja!</p>
+        <div className="text-center text-[10px] italic">
+          Terima kasih atas kunjungan Anda!
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 print:hidden">
-        <Button variant="outline" onClick={onClose}>
-          Tutup
-        </Button>
-        <Button onClick={handlePrint}>Cetak</Button>
+      <div className="text-center">
+        <Button onClick={print}>Cetak Struk</Button>
       </div>
     </div>
   );

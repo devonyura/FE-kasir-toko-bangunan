@@ -18,6 +18,22 @@ export interface SatuanBarang {
 }
 
 // Item keranjang (cart)
+// export interface KeranjangItem {
+//   barang_id: string;
+//   nama_barang: string;
+//   satuan_id: string;
+//   nama_satuan: string;
+//   qty: number;
+//   harga_jual: number;
+//   subtotal: number;
+// }
+
+export interface Satuan {
+  id: string;
+  nama_satuan: string;
+  harga_jual: number;
+}
+
 export interface KeranjangItem {
   barang_id: string;
   nama_barang: string;
@@ -26,6 +42,7 @@ export interface KeranjangItem {
   qty: number;
   harga_jual: number;
   subtotal: number;
+  semua_satuan: Satuan[]; // 🆕 untuk dropdown satuan
 }
 
 // Detail transaksi jual (untuk kirim ke backend)

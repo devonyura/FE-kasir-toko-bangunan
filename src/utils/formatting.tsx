@@ -6,6 +6,6 @@ export function rupiahFormat(value: string | number, withRp: boolean = true) {
   const number = parseInt(cleanValue, 10);
 
   return withRp
-    ? "Rp." + number.toLocaleString("id-ID")
+    ? "Rp" + number.toLocaleString("id-ID")
     : "" + number.toLocaleString("id-ID");
 }

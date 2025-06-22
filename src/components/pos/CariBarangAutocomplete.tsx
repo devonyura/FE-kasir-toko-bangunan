@@ -1,5 +1,4 @@
-// src/components/pos/CariBarangAutocomplete.tsx
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { axiosInstance } from "@/utils/axios";
 import { cn } from "@/lib/utils";
@@ -27,6 +26,42 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
   const [selectedIdx, setSelectedIdx] = useState<number>(-1);
   const timeoutRef = useRef<number>();
 
+  const handleSelect = useCallback(
+    (barang: Barang) => {
+      if (typeof onSelectBarang === "function") {
+        onSelectBarang(barang);
+        setQuery("");
+        setResults([]);
+        setSelectedIdx(-1);
+      } else {
+        console.error("onSelectBarang tidak tersedia atau bukan fungsi");
+      }
+    },
+    [onSelectBarang]
+  );
+
+  const fetchBarang = useCallback(
+    async (cari: string) => {
+      try {
+        const res = await axiosInstance.get(`/barang?search=${cari}`);
+        const data = res.data.data || [];
+        setResults(data);
+        console.log(`data: ${data.kode_barang} == ${cari}`);
+
+        // ✅ Auto-select jika ada barang yang kode_barang === query
+        const match = data.find((b: Barang) => b.kode_barang === cari);
+        if (match) {
+          handleSelect(match);
+        }
+      } catch {
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [handleSelect]
+  );
+
   useEffect(() => {
     if (query.trim().length < 2) {
       setResults([]);
@@ -36,20 +71,9 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
     setLoading(true);
     clearTimeout(timeoutRef.current);
     timeoutRef.current = window.setTimeout(() => {
-      fetchBarang(query);
-    }, 500);
-  }, [query]);
-
-  const fetchBarang = async (cari: string) => {
-    try {
-      const res = await axiosInstance.get(`/barang?search=${cari}`);
-      setResults(res.data.data || []);
-    } catch {
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+      fetchBarang(query.trim());
+    }, 300);
+  }, [query, fetchBarang]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "ArrowDown") {
@@ -60,25 +84,14 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
       handleSelect(results[selectedIdx]);
     }
   };
-
-  const handleSelect = (barang: Barang) => {
-    if (typeof onSelectBarang === "function") {
-      onSelectBarang(barang);
-      setQuery("");
-      setResults([]);
-      setSelectedIdx(-1);
-    } else {
-      console.error("onSelectBarang tidak tersedia atau bukan fungsi");
-    }
-  };
-
   return (
     <div className="relative w-full max-w-md">
       <Input
-        placeholder="Cari barang..."
+        placeholder="Cari barang atau scan barcode..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
+        autoFocus
       />
       {loading && (
         <div className="text-sm text-muted-foreground">Memuat...</div>
@@ -97,8 +110,7 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
               <div>{barang.nama_barang}</div>
               <div className="text-xs text-muted-foreground">
                 {barang.nama_kategori} • {barang.satuan_default?.nama_satuan} •
-                Rp
-                {barang.satuan_default?.harga_jual?.toLocaleString()}
+                Rp{barang.satuan_default?.harga_jual?.toLocaleString()}
               </div>
             </li>
           ))}
