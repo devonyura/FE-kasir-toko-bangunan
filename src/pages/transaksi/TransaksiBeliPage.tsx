@@ -1,5 +1,5 @@
 // src/pages/transaksi/TransaksiBeliPage.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { axiosInstance } from "@/utils/axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,22 +19,41 @@ export default function TransaksiBeliPage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [formOpen, setFormOpen] = useState(false);
 
+  // untuk paaaginatioon!
+  const [page, setPage] = useState(1);
+  const [perPage] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
   // pelunsanhutang
   const [selectedTransaksi, setSelectedTransaksi] =
     useState<TransaksiBeli | null>(null);
   const [pelunasanDialogOpen, setPelunasanDialogOpen] = useState(false);
 
-  const fetchData = async () => {
+  // const fetchData = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const res = await axiosInstance.get("/transaksi-beli");
+  //     setData(res.data?.data || []);
+  //   } catch (err: unknown) {
+  //     setError(`Gagal memuat data transaksi: ${err}`);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get("/transaksi-beli");
+      const res = await axiosInstance.get("/transaksi-beli", {
+        params: { page, perPage },
+      });
       setData(res.data?.data || []);
+      setTotalPages(res.data?.pagination?.totalPages || 1);
     } catch (err: unknown) {
       setError(`Gagal memuat data transaksi: ${err}`);
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, perPage]);
 
   const handleSuccess = (message: string) => {
     setFormOpen(false);
@@ -45,7 +64,7 @@ export default function TransaksiBeliPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [page, fetchData]);
   const handlePelunasan = (transaksi: TransaksiBeli) => {
     setSelectedTransaksi(transaksi);
     setPelunasanDialogOpen(true);
@@ -98,10 +117,33 @@ export default function TransaksiBeliPage() {
           <Loader2Icon className="animate-spin mr-2 h-4 w-4" /> Loading...
         </Button>
       ) : (
-        <DataTable
-          columns={columns(handlePelunasan, handlePrint)}
-          data={data}
-        />
+        <>
+          <DataTable
+            columns={columns(handlePelunasan, handlePrint)}
+            data={data}
+          />
+          {totalPages > 1 && (
+            <div className="flex justify-end items-center gap-2 mt-4">
+              <Button
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage(page - 1)}
+              >
+                Sebelumnya
+              </Button>
+              <span className="text-sm">
+                Halaman {page} dari {totalPages}
+              </span>
+              <Button
+                size="sm"
+                disabled={page >= totalPages}
+                onClick={() => setPage(page + 1)}
+              >
+                Berikutnya
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       <TransaksiBeliDialogForm

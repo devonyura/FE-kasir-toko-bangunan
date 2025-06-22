@@ -90,8 +90,8 @@ export default function DetailStokDialog({
                 </tr>
               </thead>
               <tbody>
-                {logs.map((log) => (
-                  <tr key={log.id}>
+                {logs.map((log, idx) => (
+                  <tr key={idx}>
                     <td className="px-2 py-1 border">{log.tanggal}</td>
                     <td className="px-2 py-1 border capitalize">{log.jenis}</td>
                     <td className="px-2 py-1 border text-right">

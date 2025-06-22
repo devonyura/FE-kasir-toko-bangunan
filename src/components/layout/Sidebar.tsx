@@ -9,7 +9,7 @@ const menuItems = [
   { label: "Dashboard", path: "/" },
   { label: "Data Barang", path: "/Barang" },
   { label: "Transaksi Beli", path: "/transaksi-beli" },
-  { label: "Transaksi", path: "/transaksi" },
+  { label: "Kasir", path: "/kasir" },
   { label: "Stok Barang", path: "/stok" },
   { label: "Laporan", path: "/laporan" },
 ];
