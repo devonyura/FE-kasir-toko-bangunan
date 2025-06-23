@@ -1,4 +1,3 @@
-// File: src/components/transaksi-beli/PelunasanTransaksiDialogForm.tsx
 import { useEffect, useState } from "react";
 import {
   Dialog,
@@ -15,9 +14,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import { axiosInstance } from "@/utils/axios";
 import { format } from "date-fns";
-// import { id } from "date-fns/locale";
-import { rupiahFormat } from "../../utils/formatting";
-import ConfirmDialog from "../common/ConfirmDialog";
+import { rupiahFormat } from "@/utils/formatting";
+import ConfirmDialog from "@/components/common/ConfirmDialog";
 
 interface Props {
   open: boolean;
@@ -25,10 +23,10 @@ interface Props {
   transaksi: {
     id: string;
     tanggal: string;
-    nama_supplier: string;
+    customer: string;
     total: string;
     dibayar: string;
-    sisa_hutang: string;
+    sisa_piutang: string;
     status: string;
   } | null;
   onSuccess: () => void;
@@ -45,8 +43,8 @@ export default function PelunasanTransaksiDialogForm({
   const [openConfirm, setOpenConfirm] = useState(false);
 
   useEffect(() => {
-    if (open) {
-      setJumlahBayar(transaksi?.sisa_hutang || "");
+    if (open && transaksi) {
+      setJumlahBayar(transaksi.sisa_piutang || "");
       setError("");
     }
   }, [open, transaksi]);
@@ -56,13 +54,15 @@ export default function PelunasanTransaksiDialogForm({
       const payload = {
         dibayar: parseFloat(jumlahBayar),
       };
+
       const res = await axiosInstance.put(
-        `/transaksi-beli/lunas/${transaksi?.id}`,
+        `/transaksi-jual/lunas/${transaksi?.id}`,
         payload
       );
 
       if (res.data?.status === "success") {
-        onSuccess();
+        // console.log(res.data.message);
+        onSuccess(res.data.message);
         onOpenChange(false);
       } else {
         setError("Gagal memproses pelunasan.");
@@ -81,7 +81,7 @@ export default function PelunasanTransaksiDialogForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]" aria-describedby="">
         <DialogHeader>
-          <DialogTitle>Pelunasan Hutang</DialogTitle>
+          <DialogTitle>Pelunasan Piutang</DialogTitle>
         </DialogHeader>
 
         {error && (
@@ -94,8 +94,8 @@ export default function PelunasanTransaksiDialogForm({
 
         <div className="grid gap-4">
           <div>
-            <Label>Supplier</Label>
-            <Input value={transaksi.nama_supplier} disabled />
+            <Label>Customer</Label>
+            <Input value={transaksi.customer} disabled />
           </div>
           <div>
             <Label>Tanggal Transaksi</Label>
@@ -113,9 +113,9 @@ export default function PelunasanTransaksiDialogForm({
             <Input value={rupiahFormat(Number(transaksi.dibayar))} disabled />
           </div>
           <div>
-            <Label>Sisa Hutang</Label>
+            <Label>Sisa Piutang</Label>
             <Input
-              value={rupiahFormat(Number(transaksi.sisa_hutang))}
+              value={rupiahFormat(Number(transaksi.sisa_piutang))}
               disabled
             />
           </div>
@@ -125,7 +125,7 @@ export default function PelunasanTransaksiDialogForm({
               type="number"
               value={jumlahBayar}
               onChange={(e) => setJumlahBayar(e.target.value)}
-              max={parseFloat(transaksi.sisa_hutang)}
+              max={parseFloat(transaksi.sisa_piutang)}
               required
             />
           </div>
@@ -135,22 +135,15 @@ export default function PelunasanTransaksiDialogForm({
           <DialogClose asChild>
             <Button variant="outline">Batal</Button>
           </DialogClose>
-          <Button
-            onClick={() => {
-              setOpenConfirm(true);
-            }}
-          >
-            Lunasi Sekarang
-          </Button>
+          <Button onClick={() => setOpenConfirm(true)}>Lunasi Sekarang</Button>
         </DialogFooter>
       </DialogContent>
+
       <ConfirmDialog
         open={openConfirm}
-        title="Simpan Pelunasan"
-        message="Yakin simpan pelunasan ini?"
-        onCancel={() => {
-          setOpenConfirm(false);
-        }}
+        title="Konfirmasi Pelunasan"
+        message="Yakin ingin menyimpan pelunasan ini?"
+        onCancel={() => setOpenConfirm(false)}
         onConfirm={handleSubmit}
       />
     </Dialog>

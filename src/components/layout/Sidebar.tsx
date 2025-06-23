@@ -9,6 +9,7 @@ const menuItems = [
   { label: "Dashboard", path: "/" },
   { label: "Data Barang", path: "/Barang" },
   { label: "Transaksi Beli", path: "/transaksi-beli" },
+  { label: "Transaksi Jual (Hutang/Piutang Pembeli)", path: "/transaksi-jual" },
   { label: "Kasir", path: "/kasir" },
   { label: "Stok Barang", path: "/stok" },
   { label: "Laporan", path: "/laporan" },

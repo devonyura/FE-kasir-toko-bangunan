@@ -24,7 +24,7 @@ export default function ConfirmDialog({
 }: ConfirmDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onCancel}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px]" aria-describedby="">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>

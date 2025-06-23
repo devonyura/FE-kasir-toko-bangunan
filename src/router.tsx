@@ -11,6 +11,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import TransaksiBeliPage from "./pages/transaksi/TransaksiBeliPage";
 import StokPage from "./pages/stok/StokPage";
 import KasirPage from "./pages/kasir/KasirPage";
+import TransaksiJualPage from "./pages/transaksi/TransaksiJualPage";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "barang", element: <Barang /> },
       { path: "transaksi-beli", element: <TransaksiBeliPage /> },
+      { path: "transaksi-jual", element: <TransaksiJualPage /> },
       { path: "kasir", element: <KasirPage /> },
       { path: "stok", element: <StokPage /> },
       { path: "laporan", element: <Laporan /> },
