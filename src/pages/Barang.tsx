@@ -1,3 +1,4 @@
+// src/pages/Barang.tsx
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon, Loader2Icon } from "lucide-react";

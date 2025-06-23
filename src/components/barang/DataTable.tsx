@@ -1,3 +1,4 @@
+// src/components/barang/DataTable.tsx
 import {
   flexRender,
   getCoreRowModel,

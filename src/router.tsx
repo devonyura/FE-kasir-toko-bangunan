@@ -12,6 +12,7 @@ import TransaksiBeliPage from "./pages/transaksi/TransaksiBeliPage";
 import StokPage from "./pages/stok/StokPage";
 import KasirPage from "./pages/kasir/KasirPage";
 import TransaksiJualPage from "./pages/transaksi/TransaksiJualPage";
+import UserPage from "./pages/UserPage";
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
         <Layout />
       </ProtectedRoute>
     ),
+    errorElement: <div>Terjadi kesalahan aplikasi</div>,
     children: [
       { index: true, element: <Home /> },
       { path: "barang", element: <Barang /> },
@@ -33,6 +35,7 @@ export const router = createBrowserRouter([
       { path: "kasir", element: <KasirPage /> },
       { path: "stok", element: <StokPage /> },
       { path: "laporan", element: <Laporan /> },
+      { path: "users", element: <UserPage /> },
     ],
   },
   { path: "/register", element: <Register /> },

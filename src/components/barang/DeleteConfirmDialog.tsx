@@ -1,5 +1,4 @@
-// Komponen dialog konfirmasi hapus data
-
+// src/components/barang/DeleteConfirmDialog.tsx
 import {
   AlertDialog,
   AlertDialogAction,

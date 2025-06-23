@@ -13,3 +13,17 @@ axiosInstance.interceptors.request.use((config) => {
   config.headers["Content-Type"] = "application/json"
   return config;
 });
+
+// Intercept response for token expired
+// axiosInstance.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     if (error.response?.status === 401) {
+//       const auth = useAuthStore.getState();
+//       auth.logout();
+//       window.location.href = "/login";
+//       alert("Sesi login kamu telah habis. Silakan login kembali.");
+//     }
+//     return Promise.reject(error);
+//   }
+// );

@@ -1,10 +1,26 @@
-// src/components/ProtectedRoute.tsx
-import { Navigate } from "react-router-dom";
-import { useAuthStore } from "../store/Auth";
-import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuthStore } from "@/store/auth";
+import { useAlertStore } from "@/store/alert";
+import { useRef } from "react";
 
+export default function ProtectedRoute({
+  children,
+}: {
+  children: JSX.Element;
+}) {
+  const token = useAuthStore((state) => state.token);
+  const { showAlert } = useAlertStore();
+  const location = useLocation();
+  const alerted = useRef(false); // supaya showAlert hanya sekali
 
-export default function ProtectedRoute({ children }: { children: JSX.Element }) {
-  const user = useAuthStore.getState().user;
-  return user ? children : <Navigate to="/login" replace />;
+  if (!token) {
+    if (!alerted.current) {
+      showAlert("Silakan login kembali", "destructive");
+      alerted.current = true;
+    }
+
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
 }

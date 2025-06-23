@@ -1,3 +1,4 @@
+// src/components/berang/Columns.tsx
 import { ArrowUpDown } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";

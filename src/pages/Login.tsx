@@ -1,18 +1,19 @@
 // src/pages/Login.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "../store/auth";
 import { useMutation } from "@tanstack/react-query";
 import { EyeIcon, EyeOffIcon } from "lucide-react"; // Icon opsional
+import { useAlertStore } from "@/store/alert";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
-  const login = useAuthStore((state) => state.login);
+  const { showAlert } = useAlertStore();
+  const { user, login } = useAuthStore();
   const navigate = useNavigate();
 
   const mutation = useMutation({
@@ -22,6 +23,13 @@ export default function Login() {
       else alert("Login gagal. Periksa kembali username/password.");
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      showAlert("Kamu sudah login!!!", "default");
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate, showAlert]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">

@@ -13,6 +13,7 @@ const menuItems = [
   { label: "Kasir", path: "/kasir" },
   { label: "Stok Barang", path: "/stok" },
   { label: "Laporan", path: "/laporan" },
+  { label: "Akun Manager", path: "/users" },
 ];
 
 export default function Sidebar() {
