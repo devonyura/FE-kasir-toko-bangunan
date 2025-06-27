@@ -24,7 +24,7 @@ export default function TabelKeranjang({ items, onUpdate, onDelete }: Props) {
           <tr>
             <th className="border px-2 py-1">Barang</th>
             <th className="border px-2 py-1">Satuan</th>
-            <th className="border px-2 py-1">Qty</th>
+            <th className="border px-2 py-1 w-[110px]">Qty</th>
             <th className="border px-2 py-1">Harga</th>
             <th className="border px-2 py-1">Subtotal</th>
             <th className="border px-2 py-1">Aksi</th>

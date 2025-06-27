@@ -1,8 +1,10 @@
-// src/components/transaksi-jual/Columns.tsx
-
+// import { rupiahFormat } from "@/utils/formatting";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { TransaksiJual } from "./types";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+// import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+// import { cn } from "@/lib/utils"; // jika kamu pakai util classnames
 
 export const columns = (
   handlePelunasan: (transaksi: TransaksiJual) => void,
@@ -11,6 +13,16 @@ export const columns = (
   {
     accessorKey: "tanggal",
     header: "Tanggal",
+    cell: ({ row }) => {
+      const raw = row.getValue("tanggal") as string;
+      const date = new Date(raw);
+      if (isNaN(date.getTime())) return "-";
+      return format(date, "EEEE, dd MMMM yyyy", { locale: id });
+    },
+  },
+  {
+    accessorKey: "no_nota",
+    header: "No Nota",
   },
   {
     accessorKey: "customer",
@@ -51,10 +63,6 @@ export const columns = (
         </span>
       );
     },
-  },
-  {
-    accessorKey: "username",
-    header: "User",
   },
   {
     id: "actions",

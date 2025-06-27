@@ -8,14 +8,20 @@ import { AlertCircleIcon } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { axiosInstance } from "@/utils/axios";
 import type { KeranjangItem } from "@/types/pos";
-import { printStrukCustom } from "@/components/pos/StrukManualThermalLanscape";
+import { rupiahFormat } from "@/utils/formatting";
+// import { printStrukCustom } from "@/components/pos/StrukManualThermalLanscape";
 
 interface Props {
   keranjang: KeranjangItem[];
   onSuccess: () => void;
+  onCetak: (notaId: string) => void;
 }
 
-export default function PanelPembayaran({ keranjang, onSuccess }: Props) {
+export default function PanelPembayaran({
+  keranjang,
+  onSuccess,
+  onCetak,
+}: Props) {
   const [totalBarang, setTotalBarang] = useState(0);
   const [bayar, setBayar] = useState("");
   const [kembali, setKembali] = useState(0);
@@ -23,7 +29,6 @@ export default function PanelPembayaran({ keranjang, onSuccess }: Props) {
   const [isOngkir, setIsOngkir] = useState("Tidak");
   const [status, setStatus] = useState<"Lunas" | "Piutang">("Lunas");
   const [customer, setCustomer] = useState("Umum"); // ✅ TAMBAH INI
-  // const [strukData, setStrukData] = useState<unknown | null>(null);
 
   const [error, setError] = useState("");
 
@@ -55,8 +60,14 @@ export default function PanelPembayaran({ keranjang, onSuccess }: Props) {
     const userId = JSON.parse(localStorage.getItem("auth-storage") || "{}")
       ?.state?.user?.id;
 
+    // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
+    const tanggal = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const jamSekarang = now.toTimeString().split(" ")[0]; // contoh: "21:47:22"
+    const tanggalLengkap = `${tanggal} ${jamSekarang}`;
+
     const payload = {
-      tanggal: new Date().toISOString().slice(0, 10),
+      tanggal: tanggalLengkap,
       customer: customer || "Umum",
       total: totalFinal,
       ongkir: isOngkir === "Ya" ? ongkirNum : 0,
@@ -69,16 +80,19 @@ export default function PanelPembayaran({ keranjang, onSuccess }: Props) {
         barang_id: Number(item.barang_id),
         satuan_id: Number(item.satuan_id),
         qty: item.qty,
-        harga_jual: item.harga_jual,
+        harga_jual: Number(item.harga_jual),
         subtotal: item.subtotal,
       })),
     };
-    console.log("payload:", payload);
+    console.log("payload PanelPembayaran:", payload);
     try {
-      await axiosInstance.post("/transaksi-jual", payload);
-      // setStrukData(payload);
-      printStrukCustom(payload);
+      const res = await axiosInstance.post("/transaksi-jual", payload);
+      console.log("respon:", res.data);
+      const noNota = res.data.data.no_nota;
+      console.log("noNota:", noNota);
+      // printStrukCustom(payload);
       onSuccess();
+      onCetak(noNota);
       setBayar("");
       setKembali(0);
       setOngkir("");
@@ -94,6 +108,13 @@ export default function PanelPembayaran({ keranjang, onSuccess }: Props) {
       setError(msg);
     }
   };
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(""), 3000); // tampil 3 detik
+      return () => clearTimeout(timer); // bersihkan timer saat unmount/change
+    }
+  }, [error]);
   return (
     <>
       <div className="border rounded p-4 space-y-4 shadow-sm">
@@ -109,7 +130,7 @@ export default function PanelPembayaran({ keranjang, onSuccess }: Props) {
 
         <div className="space-y-2 text-sm">
           <div>
-            <Label>Nama Customer</Label>
+            <Label className="mb-1">Nama Customer</Label>
             <Input
               placeholder="Umum"
               value={customer}
@@ -117,12 +138,7 @@ export default function PanelPembayaran({ keranjang, onSuccess }: Props) {
             />
           </div>
           <div>
-            <Label>Total</Label>
-            <Input value={totalFinal.toLocaleString()} disabled />
-          </div>
-
-          <div>
-            <Label>Status Transaksi</Label>
+            <Label className="mb-1">Status Transaksi</Label>
             <RadioGroup
               value={status}
               onValueChange={(val) => setStatus(val as "Lunas" | "Piutang")}
@@ -141,7 +157,7 @@ export default function PanelPembayaran({ keranjang, onSuccess }: Props) {
 
           {/* Ongkir */}
           <div>
-            <Label>Ongkos Kirim?</Label>
+            <Label className="mb-1">Ongkos Kirim?</Label>
             <RadioGroup
               value={isOngkir}
               onValueChange={setIsOngkir}
@@ -160,7 +176,7 @@ export default function PanelPembayaran({ keranjang, onSuccess }: Props) {
 
           {isOngkir === "Ya" && (
             <div>
-              <Label>Biaya Ongkir</Label>
+              <Label className="mb-1">Biaya Ongkir</Label>
               <Input
                 type="number"
                 value={ongkir}
@@ -168,22 +184,37 @@ export default function PanelPembayaran({ keranjang, onSuccess }: Props) {
               />
             </div>
           )}
+          {/* <div>
+            <Label className="mb-1">Total</Label>
+            <Input value={totalFinal.toLocaleString()} disabled />
+          </div> */}
+          {isOngkir === "Ya" && (
+            <div className="flex justify-between items-center">
+              <Label className="mb-1">Subtotal</Label>
+              <p className="font-semibold">{totalBarang.toLocaleString()}</p>
+            </div>
+          )}
+
+          <div className="flex justify-between items-center">
+            <Label className="mb-1">Total</Label>
+            <p className="text-lg font-bold text-foreground">
+              {rupiahFormat(totalFinal)}
+            </p>
+          </div>
 
           <div>
-            <Label>Bayar</Label>
+            <Label className="mb-1">Bayar</Label>
             <Input
               type="number"
               value={bayar}
               onChange={(e) => setBayar(e.target.value)}
             />
           </div>
-
-          <div>
-            <Label>Kembali</Label>
-            <Input
-              value={kembali > 0 ? kembali.toLocaleString() : "0"}
-              disabled
-            />
+          <div className="flex justify-between items-center">
+            <Label className="mb-1">Kembali</Label>
+            <p className="font-semibold">
+              {kembali > 0 ? rupiahFormat(kembali) : "0"}
+            </p>
           </div>
         </div>
 

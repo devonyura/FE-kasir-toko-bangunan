@@ -70,7 +70,7 @@ export default function KategoriDialogForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-lg" aria-describedby="">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{isEdit ? "Edit" : "Tambah"} Kategori</DialogTitle>

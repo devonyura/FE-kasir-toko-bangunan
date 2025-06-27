@@ -3,6 +3,18 @@ import { Input } from "@/components/ui/input";
 import { axiosInstance } from "@/utils/axios";
 import { cn } from "@/lib/utils";
 
+// interface Barang {
+//   id: string;
+//   nama_barang: string;
+//   kode_barang: string;
+//   nama_kategori: string;
+//   satuan_default: {
+//     id: string;
+//     nama_satuan: string;
+//     harga_jual: number;
+//   };
+// }
+
 interface Barang {
   id: string;
   nama_barang: string;
@@ -13,6 +25,12 @@ interface Barang {
     nama_satuan: string;
     harga_jual: number;
   };
+  semua_satuan: {
+    id: string;
+    nama_satuan: string;
+    harga_jual: number;
+    stok: number;
+  }[];
 }
 
 interface Props {
@@ -46,7 +64,8 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
         const res = await axiosInstance.get(`/barang?search=${cari}`);
         const data = res.data.data || [];
         setResults(data);
-        console.log(`data: ${data.kode_barang} == ${cari}`);
+        console.log("Searcah:", data);
+        // console.log(`data: ${data.kode_barang} == ${cari}`);
 
         // ✅ Auto-select jika ada barang yang kode_barang === query
         const match = data.find((b: Barang) => b.kode_barang === cari);
@@ -111,6 +130,27 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
               <div className="text-xs text-muted-foreground">
                 {barang.nama_kategori} • {barang.satuan_default?.nama_satuan} •
                 Rp{barang.satuan_default?.harga_jual?.toLocaleString()}
+              </div>
+
+              {/* ✅ Tampilkan semua satuan dan stok */}
+              <div className="text-xs mt-1">
+                {barang.semua_satuan?.length > 0 ? (
+                  <ul className="space-y-0.5">
+                    {barang.semua_satuan.map((satuan) => (
+                      <li
+                        key={satuan.id}
+                        className={cn(
+                          satuan.stok > 0 ? "text-green-600" : "text-red-600"
+                        )}
+                      >
+                        {satuan.nama_satuan}: {satuan.stok}{" "}
+                        {satuan.stok === 0 && "(habis)"}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-red-600">❌ Tidak ada satuan tersedia</p>
+                )}
               </div>
             </li>
           ))}

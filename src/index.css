@@ -1,10 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-body {
-  text-transform: capitalize;
-}
-
 @layer base {
   :root {
     --background: oklch(0.956 0.032 172.5);
@@ -62,18 +58,41 @@ body {
   }
 }
 
-@media print {
+/* @media print {
   body * {
     visibility: hidden;
   }
-  .print-area,
-  .print-area * {
+
+  #area-print,
+  #area-print * {
     visibility: visible;
   }
-  .print-area {
+
+  #area-print {
     position: absolute;
-    left: 0;
     top: 0;
+    left: 0;
+    width: 100%;
+  }
+} */
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  #area-print,
+  #area-print * {
+    visibility: visible !important;
+  }
+
+  #area-print {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    font-family: monospace;
+    font-size: 12px;
   }
 }
 
@@ -123,4 +142,8 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+}
+
+body {
+  text-transform: capitalize;
 }

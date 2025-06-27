@@ -16,6 +16,11 @@ const config: Config = {
     },
   },
   plugins: [],
+  variants: {
+    extend: {
+      display: ["print"], // penting!
+    },
+  },
 }
 
 export default config

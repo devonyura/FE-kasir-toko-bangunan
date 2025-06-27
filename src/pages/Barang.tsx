@@ -45,6 +45,7 @@ export default function BarangPage() {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/barang");
+      console.log(res.data.data);
       setBarangs(res.data.data);
     } catch {
       setError("Gagal memuat data barang.");

@@ -1,9 +1,7 @@
 // src/router.tsx
 import { createBrowserRouter } from "react-router-dom";
 import Layout from "./components/layout/Layout";
-import Home from "./pages/Home";
 // import Transaksi from "./pages/Transaksi";
-import Laporan from "./pages/Laporan";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Barang from "./pages/Barang";
@@ -13,6 +11,9 @@ import StokPage from "./pages/stok/StokPage";
 import KasirPage from "./pages/kasir/KasirPage";
 import TransaksiJualPage from "./pages/transaksi/TransaksiJualPage";
 import UserPage from "./pages/UserPage";
+import ReturPage from "./pages/retur/ReturPage";
+import DashboardPage from "./pages/DashboardPage";
+import LaporanPenjualanPage from "./pages/laporan/LaporanPenjualanPage";
 
 export const router = createBrowserRouter([
   {
@@ -28,13 +29,14 @@ export const router = createBrowserRouter([
     ),
     errorElement: <div>Terjadi kesalahan aplikasi</div>,
     children: [
-      { index: true, element: <Home /> },
+      { index: true, element: <DashboardPage /> },
       { path: "barang", element: <Barang /> },
+      { path: "retur", element: <ReturPage /> },
       { path: "transaksi-beli", element: <TransaksiBeliPage /> },
       { path: "transaksi-jual", element: <TransaksiJualPage /> },
       { path: "kasir", element: <KasirPage /> },
       { path: "stok", element: <StokPage /> },
-      { path: "laporan", element: <Laporan /> },
+      { path: "laporan-penjualan", element: <LaporanPenjualanPage /> },
       { path: "users", element: <UserPage /> },
     ],
   },

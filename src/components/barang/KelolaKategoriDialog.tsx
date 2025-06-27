@@ -53,7 +53,7 @@ export default function KelolaKategoriDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg" aria-describedby="">
           <DialogHeader>
             <DialogTitle>Kelola Kategori</DialogTitle>
           </DialogHeader>

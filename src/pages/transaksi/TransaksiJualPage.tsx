@@ -10,6 +10,9 @@ import { columns } from "@/components/transaksi-jual/Columns";
 import { DataTable } from "@/components/transaksi-jual/DataTable";
 import PelunasanTransaksiDialogForm from "@/components/transaksi-jual/PelunasanTransaksiDialogForm";
 import type { TransaksiJual } from "@/types/transaksi";
+import StrukPreviewDialog from "@/components/struk/StrukPreviewDialog";
+
+import { debounce } from "lodash";
 
 export default function TransaksiJualPage() {
   const [data, setData] = useState<TransaksiJual[]>([]);
@@ -27,11 +30,18 @@ export default function TransaksiJualPage() {
     useState<TransaksiJual | null>(null);
   const [pelunasanDialogOpen, setPelunasanDialogOpen] = useState(false);
 
+  // ✅ struk print dialog
+  const [openStruk, setOpenStruk] = useState(false);
+  const [dataStruk, setDataStruk] = useState<undefined | null>(null);
+
+  // ✅ state search
+  const [search, setSearch] = useState("");
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/transaksi-jual", {
-        params: { page, perPage },
+        params: { page, perPage, search },
       });
       setData(res.data?.data || []);
       setTotalPages(res.data?.pagination?.totalPages || 1);
@@ -40,7 +50,25 @@ export default function TransaksiJualPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, perPage]);
+  }, [page, perPage, search]);
+
+  const debouncedSearch = useCallback(
+    debounce((val: string) => {
+      setPage(1); // reset ke halaman 1 setiap search
+      setSearch(val);
+    }, 300),
+    [setPage, setSearch]
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel(); // cancel debounce saat unmount
+    };
+  }, [debouncedSearch]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSearch(e.target.value);
+  };
 
   const handleSuccess = (message: string) => {
     console.log(message);
@@ -59,8 +87,14 @@ export default function TransaksiJualPage() {
     setPelunasanDialogOpen(true);
   };
 
-  const handlePrint = (trx: TransaksiJual) => {
-    window.open(`/nota/transaksi-jual/${trx.id}`, "_blank");
+  const handlePrint = async (trx: TransaksiJual) => {
+    try {
+      const res = await axiosInstance.get(`/transaksi-jual/${trx.no_nota}`);
+      setDataStruk(res.data.data);
+      setOpenStruk(true);
+    } catch (err) {
+      console.error("Gagal mengambil data struk:", err);
+    }
   };
 
   return (
@@ -93,7 +127,7 @@ export default function TransaksiJualPage() {
       <Input
         placeholder="Cari nama customer..."
         className="max-w-sm"
-        disabled
+        onChange={handleSearchChange}
       />
 
       {loading ? (
@@ -136,6 +170,12 @@ export default function TransaksiJualPage() {
         onOpenChange={setPelunasanDialogOpen}
         transaksi={selectedTransaksi}
         onSuccess={handleSuccess}
+      />
+
+      <StrukPreviewDialog
+        open={openStruk}
+        onOpenChange={setOpenStruk}
+        data={dataStruk}
       />
     </div>
   );

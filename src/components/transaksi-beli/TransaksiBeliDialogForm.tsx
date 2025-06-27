@@ -140,8 +140,14 @@ export default function TransaksiBeliDialogForm({
 
     const totalFinal = finalDetail.reduce((sum, d) => sum + d.subtotal, 0);
 
+    // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
+    // const tanggal = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    const jamSekarang = now.toTimeString().split(" ")[0]; // contoh: "21:47:22"
+    const tanggalLengkap = `${tanggal} ${jamSekarang}`;
+
     const payload = {
-      tanggal,
+      tanggal: tanggalLengkap,
       supplier_id: Number(supplierId),
       total: totalFinal,
       ongkir: parseFloat(ongkir),

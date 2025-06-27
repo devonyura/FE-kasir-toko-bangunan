@@ -11,6 +11,9 @@ import { columns } from "@/components/transaksi-beli/Columns";
 import { DataTable } from "@/components/transaksi-beli/DataTable";
 import TransaksiBeliDialogForm from "@/components/transaksi-beli/TransaksiBeliDialogForm";
 import PelunasanTransaksiDialogForm from "@/components/transaksi-beli/PelunasanTransaksiDialogForm";
+import StrukPreviewDialog from "@/components/struk/StrukPreviewDialog";
+
+import { debounce } from "lodash";
 
 export default function TransaksiBeliPage() {
   const [data, setData] = useState<TransaksiBeli[]>([]);
@@ -29,31 +32,45 @@ export default function TransaksiBeliPage() {
     useState<TransaksiBeli | null>(null);
   const [pelunasanDialogOpen, setPelunasanDialogOpen] = useState(false);
 
-  // const fetchData = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const res = await axiosInstance.get("/transaksi-beli");
-  //     setData(res.data?.data || []);
-  //   } catch (err: unknown) {
-  //     setError(`Gagal memuat data transaksi: ${err}`);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  // ✅ struk print dialog
+  const [openStruk, setOpenStruk] = useState(false);
+  const [dataStruk, setDataStruk] = useState<undefined | null>(null);
+
+  // ✅ state search
+  const [search, setSearch] = useState("");
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/transaksi-beli", {
-        params: { page, perPage },
+        params: { page, perPage, search },
       });
       setData(res.data?.data || []);
       setTotalPages(res.data?.pagination?.totalPages || 1);
-    } catch (err: unknown) {
+    } catch (err: undefined) {
       setError(`Gagal memuat data transaksi: ${err}`);
     } finally {
       setLoading(false);
     }
-  }, [page, perPage]);
+  }, [page, perPage, search]);
+
+  const debouncedSearch = useCallback(
+    debounce((val: string) => {
+      setPage(1); // reset ke halaman 1 setiap search
+      setSearch(val);
+    }, 300),
+    [setPage, setSearch]
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel(); // cancel debounce saat unmount
+    };
+  }, [debouncedSearch]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    debouncedSearch(e.target.value);
+  };
 
   const handleSuccess = (message: string) => {
     setFormOpen(false);
@@ -70,9 +87,16 @@ export default function TransaksiBeliPage() {
     setPelunasanDialogOpen(true);
   };
 
-  const handlePrint = (transaksi: TransaksiBeli) => {
-    // misalnya buka tab baru dengan URL cetak
-    window.open(`/nota/transaksi-beli/${transaksi.id}`, "_blank");
+  const handlePrint = async (transaksi: TransaksiBeli) => {
+    try {
+      const res = await axiosInstance.get(
+        `/transaksi-beli/${transaksi.no_nota}`
+      );
+      setDataStruk(res.data.data);
+      setOpenStruk(true);
+    } catch (err) {
+      console.error("Gagal mengambil data struk:", err);
+    }
   };
 
   return (
@@ -105,8 +129,7 @@ export default function TransaksiBeliPage() {
       <div className="flex justify-between items-center">
         <Input
           placeholder="Cari nama supplier..."
-          value=""
-          onChange={() => {}}
+          onChange={handleSearchChange}
           className="max-w-sm"
         />
         <Button onClick={() => setFormOpen(true)}>Tambah Transaksi</Button>
@@ -161,6 +184,12 @@ export default function TransaksiBeliPage() {
           fetchData();
           setPelunasanDialogOpen(false);
         }}
+      />
+
+      <StrukPreviewDialog
+        open={openStruk}
+        onOpenChange={setOpenStruk}
+        data={dataStruk}
       />
     </div>
   );
