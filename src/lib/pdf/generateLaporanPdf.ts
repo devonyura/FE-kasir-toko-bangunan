@@ -70,5 +70,5 @@ export default function generateLaporanPdf<T>({
     });
   }
 
-  doc.save("laporan.pdf");
+  doc.save(subtitle);
 }

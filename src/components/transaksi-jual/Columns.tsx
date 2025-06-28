@@ -35,6 +35,12 @@ export const columns = (
       `Rp${parseFloat(row.getValue("total")).toLocaleString()}`,
   },
   {
+    accessorKey: "diskon",
+    header: "Diskon",
+    cell: ({ row }) =>
+      `Rp${parseFloat(row.getValue("diskon")).toLocaleString()}`,
+  },
+  {
     accessorKey: "dibayar",
     header: "Dibayar",
     cell: ({ row }) =>

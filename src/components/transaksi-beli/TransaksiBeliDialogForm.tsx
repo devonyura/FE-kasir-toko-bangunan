@@ -68,6 +68,9 @@ export default function TransaksiBeliDialogForm({
   const [editDetailIndex, setEditDetailIndex] = useState<number | null>(null);
   const itemsPerPage = 5;
 
+  const [isDiskon, setIsDiskon] = useState("Tidak");
+  const [diskon, setDiskon] = useState("");
+
   // Tambahan state untuk confirm
   const [confirmType, setConfirmType] = useState<
     "simpan" | "batal" | "hapus" | null
@@ -108,20 +111,22 @@ export default function TransaksiBeliDialogForm({
   useEffect(() => {
     const totalBarang = details.reduce((sum, d) => sum + d.subtotal, 0);
     const totalOngkir = isOngkir === "Ya" ? parseFloat(ongkir || "0") : 0;
-    const totalKeseluruhan = totalBarang + totalOngkir;
+    const diskonNum = isDiskon === "Ya" ? parseFloat(diskon || "0") : 0;
+
+    const totalSetelahDiskon = totalBarang + totalOngkir - diskonNum;
+
     const totalQty = details.reduce((sum, item) => sum + item.qty, 0);
     setTotalQty(totalQty);
-
-    setTotalKeseluruhan(totalKeseluruhan);
+    setTotalKeseluruhan(totalSetelahDiskon);
 
     if (status === "Lunas") {
-      setDibayar(String(totalKeseluruhan));
+      setDibayar(String(totalSetelahDiskon));
       setSisaHutang("0");
     } else {
       const dibayarNum = parseFloat(dibayar || "0");
-      setSisaHutang(String(totalKeseluruhan - dibayarNum));
+      setSisaHutang(String(totalSetelahDiskon - dibayarNum));
     }
-  }, [details, status, dibayar, ongkir, isOngkir]);
+  }, [details, status, dibayar, ongkir, isOngkir, isDiskon, diskon]);
 
   const handleSubmit = async () => {
     const totalOngkir = isOngkir === "Ya" ? parseFloat(ongkir || "0") : 0;
@@ -137,8 +142,9 @@ export default function TransaksiBeliDialogForm({
         subtotal: Math.round(hargaFinal * d.qty),
       };
     });
-
-    const totalFinal = finalDetail.reduce((sum, d) => sum + d.subtotal, 0);
+    const diskonNum = isDiskon === "Ya" ? parseFloat(diskon || "0") : 0;
+    const totalFinal =
+      finalDetail.reduce((sum, d) => sum + d.subtotal, 0) - diskonNum;
 
     // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
     // const tanggal = new Date().toISOString().slice(0, 10);
@@ -149,8 +155,9 @@ export default function TransaksiBeliDialogForm({
     const payload = {
       tanggal: tanggalLengkap,
       supplier_id: Number(supplierId),
-      total: totalFinal,
-      ongkir: parseFloat(ongkir),
+      total: parseFloat(totalFinal),
+      ongkir: isNaN(parseFloat(ongkir)) ? 0 : parseFloat(ongkir),
+      diskon: parseFloat(diskonNum),
       dibayar: parseFloat(dibayar),
       sisa_hutang: status === "Lunas" ? 0 : parseFloat(sisaHutang),
       status,
@@ -163,7 +170,7 @@ export default function TransaksiBeliDialogForm({
         subtotal: d.subtotal,
       })),
     };
-
+    console.log(payload);
     try {
       const res = await axiosInstance.post("/transaksi-beli", payload);
       if (res.data?.status === "success") {
@@ -174,7 +181,11 @@ export default function TransaksiBeliDialogForm({
         setError("Gagal menyimpan transaksi.");
       }
     } catch (err: unknown) {
-      setError(err?.response?.data?.message || "Terjadi kesalahan.");
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.messages?.error ||
+        "Gagal menyimpan transaksi.";
+      setError(msg);
     }
 
     setTimeout(() => setError(""), 3000);
@@ -276,6 +287,53 @@ export default function TransaksiBeliDialogForm({
                   onChange={(e) => setOngkir(e.target.value)}
                 />
               </div>
+              <div>
+                <Label>Diskon?</Label>
+                <RadioGroup
+                  value={isDiskon}
+                  onValueChange={setIsDiskon}
+                  className="flex gap-4 mt-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Ya" id="diskon-ya" />
+                    <Label htmlFor="diskon-ya">Ya</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="Tidak" id="diskon-tidak" />
+                    <Label htmlFor="diskon-tidak">Tidak</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {isDiskon === "Ya" && (
+                <>
+                  <div>
+                    <Label className="mb-1">Nominal Diskon</Label>
+                    <Input
+                      type="number"
+                      value={diskon}
+                      onChange={(e) => setDiskon(e.target.value)}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Diskon:{" "}
+                      {Math.round(
+                        ((parseFloat(diskon) || 0) /
+                          (details.reduce((sum, d) => sum + d.subtotal, 0) ||
+                            1)) *
+                          100
+                      )}
+                      %
+                    </p>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <Label className="mb-1">Total Sesudah Diskon</Label>
+                    <p className="font-semibold">
+                      {rupiahFormat(totalKeseluruhan)}
+                    </p>
+                  </div>
+                </>
+              )}
+
               <div>
                 <Label>Status</Label>
                 <RadioGroup
@@ -419,7 +477,13 @@ export default function TransaksiBeliDialogForm({
                   </div>
                   <div className="mb-1">
                     <p className="text-[1.3rem] text-gray-700 mt-2">
-                      <b>Total:</b> {rupiahFormat(totalKeseluruhan)}
+                      <b>
+                        Total:{" "}
+                        {rupiahFormat(
+                          totalKeseluruhan +
+                            (isDiskon === "Ya" ? parseFloat(diskon || "0") : 0)
+                        )}
+                      </b>
                     </p>
                   </div>
                 </>

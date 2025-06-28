@@ -76,7 +76,12 @@ export default function StrukPreviewDialog({
                 {transaksi.customer || transaksi.nama_supplier}
               </p>
               <p>Kasir: {transaksi.username}</p>
-              <p>Status: {transaksi.status}</p>
+              <p>
+                Status:{" "}
+                {transaksi.status === "Piutang"
+                  ? "Belum Lunas"
+                  : transaksi.status}
+              </p>
             </div>
 
             <hr />
@@ -100,12 +105,16 @@ export default function StrukPreviewDialog({
 
             <div>
               <div className="flex justify-between">
-                <span>Total</span>
-                <span>{rupiahFormat(transaksi.total)}</span>
+                <span>Ongkir</span>
+                <span>{rupiahFormat(Number(transaksi.ongkir))}</span>
               </div>
               <div className="flex justify-between">
-                <span>Ongkir</span>
-                <span>{rupiahFormat(transaksi.ongkir)}</span>
+                <span>Diskon</span>
+                <span>-{rupiahFormat(Number(transaksi.diskon))}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Total</span>
+                <span>{rupiahFormat(transaksi.total)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Dibayar</span>
@@ -137,7 +146,11 @@ export default function StrukPreviewDialog({
             </div>
 
             <hr />
-            <p className="text-center mt-2">Terima kasih telah berbelanja 🙏</p>
+            <p className="text-center mt-2">
+              {isPenjualan
+                ? "Terima kasih telah berbelanja 🙏"
+                : "Ini adalah catatan pembelian stok"}
+            </p>
           </div>
 
           <DialogFooter>
@@ -196,7 +209,7 @@ export default function StrukPreviewDialog({
             </div>
             <div className="flex justify-between">
               <span>Ongkir</span>
-              <span>{rupiahFormat(transaksi.ongkir)}</span>
+              <span>{rupiahFormat(Number(transaksi.ongkir))}</span>
             </div>
             <div className="flex justify-between">
               <span>Dibayar</span>
@@ -227,7 +240,11 @@ export default function StrukPreviewDialog({
           </div>
 
           <hr className="my-2" />
-          <p className="text-center mt-2">Terima kasih telah berbelanja 🙏</p>
+          <p className="text-center mt-2">
+            {isPenjualan
+              ? "Terima kasih telah berbelanja 🙏"
+              : "Ini adalah catatan pembelian stok"}
+          </p>
         </div>
       )}
     </>

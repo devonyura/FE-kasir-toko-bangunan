@@ -14,6 +14,7 @@ import UserPage from "./pages/UserPage";
 import ReturPage from "./pages/retur/ReturPage";
 import DashboardPage from "./pages/DashboardPage";
 import LaporanPenjualanPage from "./pages/laporan/LaporanPenjualanPage";
+import LaporanPembelianPage from "./pages/laporan/LaporanPembelianPage";
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +38,7 @@ export const router = createBrowserRouter([
       { path: "kasir", element: <KasirPage /> },
       { path: "stok", element: <StokPage /> },
       { path: "laporan-penjualan", element: <LaporanPenjualanPage /> },
+      { path: "laporan-pembelian", element: <LaporanPembelianPage /> },
       { path: "users", element: <UserPage /> },
     ],
   },

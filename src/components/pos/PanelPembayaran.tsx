@@ -9,7 +9,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { axiosInstance } from "@/utils/axios";
 import type { KeranjangItem } from "@/types/pos";
 import { rupiahFormat } from "@/utils/formatting";
-// import { printStrukCustom } from "@/components/pos/StrukManualThermalLanscape";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Props {
   keranjang: KeranjangItem[];
@@ -32,9 +32,16 @@ export default function PanelPembayaran({
 
   const [error, setError] = useState("");
 
+  const [isDiskon, setIsDiskon] = useState(false);
+  const [diskon, setDiskon] = useState("");
+
   const ongkirNum = parseFloat(ongkir) || 0;
   const bayarNum = parseFloat(bayar) || 0;
-  const totalFinal = totalBarang + (isOngkir === "Ya" ? ongkirNum : 0);
+  const diskonNum = parseFloat(diskon) || 0;
+  const totalFinal =
+    totalBarang -
+    (isDiskon ? diskonNum : 0) +
+    (isOngkir === "Ya" ? ongkirNum : 0);
   const sisaPiutang = status === "Piutang" ? totalFinal - bayarNum : 0;
 
   useEffect(() => {
@@ -71,6 +78,7 @@ export default function PanelPembayaran({
       customer: customer || "Umum",
       total: totalFinal,
       ongkir: isOngkir === "Ya" ? ongkirNum : 0,
+      diskon: isDiskon ? diskonNum : 0,
       dibayar: bayarNum,
       kembali: status === "Lunas" ? kembali : 0,
       sisa_piutang: sisaPiutang,
@@ -99,6 +107,8 @@ export default function PanelPembayaran({
       setIsOngkir("Tidak");
       setStatus("Lunas");
       setError("");
+      setCustomer("Umum");
+      isDiskon(false);
     } catch (err: unknown) {
       const msg =
         err?.response?.data?.message ||
@@ -184,16 +194,39 @@ export default function PanelPembayaran({
               />
             </div>
           )}
-          {/* <div>
-            <Label className="mb-1">Total</Label>
-            <Input value={totalFinal.toLocaleString()} disabled />
-          </div> */}
           {isOngkir === "Ya" && (
             <div className="flex justify-between items-center">
               <Label className="mb-1">Subtotal</Label>
-              <p className="font-semibold">{totalBarang.toLocaleString()}</p>
+              <p className="font-semibold">Rp {totalBarang.toLocaleString()}</p>
             </div>
           )}
+
+          {/* Diskon */}
+          <div className="space-y-1">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="checkbox-diskon"
+                checked={isDiskon}
+                onCheckedChange={(val) => setIsDiskon(!!val)}
+              />
+              <Label htmlFor="checkbox-diskon">Diskon</Label>
+            </div>
+
+            {isDiskon && (
+              <div className="mt-1">
+                <Input
+                  type="number"
+                  placeholder="Masukkan nominal diskon"
+                  value={diskon}
+                  onChange={(e) => setDiskon(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Diskon:{" "}
+                  {Math.round(((parseFloat(diskon) || 0) / totalBarang) * 100)}%
+                </p>
+              </div>
+            )}
+          </div>
 
           <div className="flex justify-between items-center">
             <Label className="mb-1">Total</Label>

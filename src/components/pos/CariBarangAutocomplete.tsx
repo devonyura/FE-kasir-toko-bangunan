@@ -3,18 +3,6 @@ import { Input } from "@/components/ui/input";
 import { axiosInstance } from "@/utils/axios";
 import { cn } from "@/lib/utils";
 
-// interface Barang {
-//   id: string;
-//   nama_barang: string;
-//   kode_barang: string;
-//   nama_kategori: string;
-//   satuan_default: {
-//     id: string;
-//     nama_satuan: string;
-//     harga_jual: number;
-//   };
-// }
-
 interface Barang {
   id: string;
   nama_barang: string;
@@ -126,11 +114,10 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
               )}
               onMouseDown={() => handleSelect(barang)}
             >
-              <div>{barang.nama_barang}</div>
-              <div className="text-xs text-muted-foreground">
-                {barang.nama_kategori} • {barang.satuan_default?.nama_satuan} •
-                Rp{barang.satuan_default?.harga_jual?.toLocaleString()}
+              <div>
+                {barang.nama_barang} ({barang.nama_kategori})
               </div>
+              <div className="text-xs text-muted-foreground"></div>
 
               {/* ✅ Tampilkan semua satuan dan stok */}
               <div className="text-xs mt-1">
