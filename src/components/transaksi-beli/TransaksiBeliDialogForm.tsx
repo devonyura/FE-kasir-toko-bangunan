@@ -128,6 +128,11 @@ export default function TransaksiBeliDialogForm({
     }
   }, [details, status, dibayar, ongkir, isOngkir, isDiskon, diskon]);
 
+  // Membulatkan ke atas ke kelipatan 500
+  const roundUpToNearest500 = (num: number) => {
+    return Math.ceil(num / 500) * 500;
+  };
+
   const handleSubmit = async () => {
     const totalOngkir = isOngkir === "Ya" ? parseFloat(ongkir || "0") : 0;
     const totalQty = details.reduce((sum, d) => sum + d.qty, 0);
@@ -136,20 +141,26 @@ export default function TransaksiBeliDialogForm({
 
     const finalDetail = details.map((d) => {
       const hargaFinal = d.harga_beli + ongkirPerQty;
+      const hargaRounded =
+        isOngkir === "Ya" ? roundUpToNearest500(hargaFinal) : d.harga_beli;
+      const subtotalRounded =
+        isOngkir === "Ya"
+          ? roundUpToNearest500(hargaRounded * d.qty)
+          : d.harga_beli * d.qty;
+
       return {
         ...d,
-        harga_beli: Math.round(hargaFinal),
-        subtotal: Math.round(hargaFinal * d.qty),
+        harga_beli: hargaRounded,
+        subtotal: subtotalRounded,
       };
     });
+
     const diskonNum = isDiskon === "Ya" ? parseFloat(diskon || "0") : 0;
     const totalFinal =
       finalDetail.reduce((sum, d) => sum + d.subtotal, 0) - diskonNum;
 
-    // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
-    // const tanggal = new Date().toISOString().slice(0, 10);
     const now = new Date();
-    const jamSekarang = now.toTimeString().split(" ")[0]; // contoh: "21:47:22"
+    const jamSekarang = now.toTimeString().split(" ")[0];
     const tanggalLengkap = `${tanggal} ${jamSekarang}`;
 
     const payload = {
@@ -427,16 +438,21 @@ export default function TransaksiBeliDialogForm({
                             <td className="border px-2 py-1">
                               {rupiahFormat(
                                 isOngkir === "Ya"
-                                  ? item.harga_beli + (ongkir / totalQty || 0)
+                                  ? roundUpToNearest500(
+                                      item.harga_beli + (ongkir / totalQty || 0)
+                                    )
                                   : item.harga_beli
                               )}
                             </td>
                             <td className="border px-2 py-1">
                               {rupiahFormat(
                                 isOngkir === "Ya"
-                                  ? (item.harga_beli +
-                                      (ongkir / totalQty || 0)) *
-                                      item.qty
+                                  ? roundUpToNearest500(
+                                      roundUpToNearest500(
+                                        item.harga_beli +
+                                          (ongkir / totalQty || 0)
+                                      ) * item.qty
+                                    )
                                   : item.harga_beli * item.qty
                               )}
                             </td>

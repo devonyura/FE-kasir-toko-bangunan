@@ -164,7 +164,10 @@ export default function StrukPreviewDialog({
 
       {/* AREA CETAK */}
       {showPrintArea && (
-        <div id="area-print" className="font-mono text-sm p-4 max-w-xs mx-auto">
+        <div
+          id="area-print-struk"
+          className="font-mono text-sm p-4 max-w-xs mx-auto"
+        >
           <div className="text-center">
             <h1 className="text-base font-bold uppercase">
               Buana Situju Dapurang

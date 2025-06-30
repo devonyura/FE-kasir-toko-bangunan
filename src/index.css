@@ -75,18 +75,43 @@
     width: 100%;
   }
 } */
-
 @media print {
+  /* SEMUA default disembunyikan */
   body * {
     visibility: hidden !important;
   }
 
-  #area-print,
-  #area-print * {
+  @page {
+    margin: 0;
+  }
+
+  body:has(#area-print-struk) {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* ==== AREA STRUK CETAK ==== */
+  /* Hanya struk yang ditampilkan dan dilayout */
+  #area-print-struk,
+  #area-print-struk * {
     visibility: visible !important;
   }
 
-  #area-print {
+  #area-print-struk {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  /* ==== AREA STRUK CETAK ==== */
+  #area-print-barcode,
+  #area-print-barcode * {
+    visibility: visible !important;
+  }
+
+  #area-print-barcode {
     position: absolute;
     top: 0;
     left: 0;

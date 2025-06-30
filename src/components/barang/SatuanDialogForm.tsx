@@ -13,7 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircleIcon } from "lucide-react";
+import { AlertCircleIcon, CalculatorIcon } from "lucide-react";
+import CalculatorDialog from "../common/CalculatorDialog";
+// import {  } from "ca";
 
 interface Props {
   open: boolean;
@@ -50,6 +52,8 @@ export default function SatuanDialogForm({
   const [namaError, setNamaError] = useState("");
 
   const [defaultSatuanNama, setDefaultSatuanNama] = useState("");
+
+  const [openCal, setOpenCal] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -152,6 +156,8 @@ export default function SatuanDialogForm({
           event.preventDefault();
         }}
       >
+        {/* Komponen kalkulator */}
+        <CalculatorDialog open={openCal} onOpenChange={setOpenCal} />
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{isEdit ? "Edit" : "Tambah"} Satuan</DialogTitle>
@@ -190,12 +196,23 @@ export default function SatuanDialogForm({
             </div>
             <div className="grid gap-2">
               <Label htmlFor="jual">Harga Jual</Label>
-              <Input
-                type="number"
-                value={jual}
-                onChange={(e) => setJual(e.target.value)}
-                required
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  value={jual}
+                  className="flex-1"
+                  onChange={(e) => setJual(e.target.value)}
+                  required
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setOpenCal(true)}
+                >
+                  <CalculatorIcon className="w-4 h-4 mr-1" />
+                  Kalkulator
+                </Button>
+              </div>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="beli">Harga Beli</Label>

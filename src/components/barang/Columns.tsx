@@ -16,7 +16,8 @@ type Barang = {
 export const columns = (
   handleEdit: (barang: Barang) => void,
   handleDelete: (id: string) => void,
-  handleKelolaSatuan: (id: string) => void
+  handleKelolaSatuan: (id: string) => void,
+  handlePrintBarcode: (barang: Barang) => void
 ): ColumnDef<Barang>[] => [
   {
     accessorKey: "nama_barang",
@@ -84,6 +85,15 @@ export const columns = (
             onClick={() => handleKelolaSatuan(barang.id)}
           >
             Lihat Satuan
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              handlePrintBarcode(barang);
+            }}
+          >
+            Print Label
           </Button>
         </div>
       );

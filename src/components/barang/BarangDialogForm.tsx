@@ -75,21 +75,28 @@ export default function BarangDialogForm({
 
   useEffect(() => {
     if (open) {
-      fetchKategori();
-      if (isEdit && initialData) {
-        setNama_barang(initialData.nama_barang);
-        setKategori_id(initialData.kategori_id);
-        setKode_barang(initialData.kode_barang);
-        setKeterangan(initialData.keterangan);
-      } else {
+      fetchKategori(); // muat kategori dulu
+      setError("");
+
+      if (!isEdit) {
+        // reset form kalau mode tambah
         setNama_barang("");
-        setKategori_id("");
+        // setKategori_id(initialData.kategori_id ?? "");
         setKode_barang("");
         setKeterangan("");
       }
-      setError("");
     }
-  }, [open, isEdit, initialData]);
+  }, [open, isEdit, initialData?.kategori_id]);
+
+  useEffect(() => {
+    // setelah kategoriList siap dan open & edit mode, set nilai dari initialData
+    if (open && isEdit && initialData && kategoriList.length > 0) {
+      setNama_barang(initialData.nama_barang);
+      setKategori_id(initialData.kategori_id);
+      setKode_barang(initialData.kode_barang);
+      setKeterangan(initialData.keterangan);
+    }
+  }, [open, isEdit, initialData, kategoriList]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,6 +132,11 @@ export default function BarangDialogForm({
     }
   };
 
+  const generateKodeBarang = () => {
+    const timestamp = Date.now().toString().slice(-6);
+    return `BRG-${timestamp}`;
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -153,7 +165,7 @@ export default function BarangDialogForm({
                 <Label htmlFor="nama">Nama Barang</Label>
                 <Input
                   id="nama"
-                  value={nama_barang}
+                  value={nama_barang ?? ""}
                   onChange={(e) => setNama_barang(e.target.value)}
                   required
                 />
@@ -165,7 +177,7 @@ export default function BarangDialogForm({
                 <div className="flex items-center justify-start gap-4">
                   <div className="flex-1 max-w-sm">
                     <Select
-                      value={kategori_id}
+                      value={kategori_id || ""}
                       onValueChange={setKategori_id}
                       required
                     >
@@ -177,6 +189,7 @@ export default function BarangDialogForm({
                           <SelectItem key={kategori.id} value={kategori.id}>
                             {kategori.nama_kategori}
                           </SelectItem>
+                          // {console.log(kategori.id)}
                         ))}
                       </SelectContent>
                     </Select>
@@ -194,20 +207,26 @@ export default function BarangDialogForm({
 
               <div className="grid gap-2">
                 <Label htmlFor="kode">Kode Barang</Label>
-                <Input
-                  id="kode"
-                  value={kode_barang}
-                  onChange={(e) => setKode_barang(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="keterangan">Keterangan</Label>
-                <Input
-                  id="keterangan"
-                  value={keterangan}
-                  onChange={(e) => setKeterangan(e.target.value)}
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="kode"
+                    value={kode_barang ?? ""}
+                    onChange={(e) => setKode_barang(e.target.value)}
+                    required
+                    className="flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const kode = generateKodeBarang();
+                      setKode_barang(kode);
+                    }}
+                  >
+                    Generate
+                  </Button>
+                </div>
               </div>
             </div>
 

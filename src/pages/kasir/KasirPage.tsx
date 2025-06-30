@@ -10,7 +10,25 @@ import StrukPreviewDialog from "@/components/struk/StrukPreviewDialog";
 export default function KasirPage() {
   const [keranjang, setKeranjang] = useState<KeranjangItem[]>([]);
   const [openStruk, setOpenStruk] = useState(false);
-  const [dataStruk, setDataStruk] = useState<null | undefined>(null); //
+  const [dataStruk, setDataStruk] = useState<null | undefined>(null);
+
+  const isBarangInKeranjang = (barangId: string): boolean => {
+    return keranjang.some((item) => item.barang_id === barangId);
+  };
+
+  const handleTambahQtyBarang = (barang: Barang) => {
+    setKeranjang((prev) =>
+      prev.map((item) =>
+        item.barang_id === barang.id
+          ? {
+              ...item,
+              qty: item.qty + 1,
+              subtotal: (item.qty + 1) * item.harga_jual,
+            }
+          : item
+      )
+    );
+  };
 
   const handleTambahBarang = async (barang: Barang) => {
     const sudahAda = keranjang.some((item) => item.barang_id === barang.id);
@@ -25,7 +43,6 @@ export default function KasirPage() {
         return;
       }
 
-      // Ambil satuan pertama sebagai default
       const satuanDefault = semuaSatuan[0];
 
       const itemBaru: KeranjangItem = {
@@ -77,7 +94,11 @@ export default function KasirPage() {
         <div>
           <h1 className="text-lg font-bold mb-3">Transaksi Penjualan (POS)</h1>
 
-          <CariBarangAutocomplete onSelectBarang={handleTambahBarang} />
+          <CariBarangAutocomplete
+            onSelectBarang={handleTambahBarang}
+            isBarangInKeranjang={isBarangInKeranjang}
+            onTambahQtyBarang={handleTambahQtyBarang}
+          />
 
           <Separator className="mt-3 mb-3" />
           <TabelKeranjang

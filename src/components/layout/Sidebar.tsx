@@ -18,12 +18,7 @@ type SidebarProps = {
 
 const menuItems: MenuItem[] = [
   { label: "Dashboard", path: "/" },
-  { label: "Data Barang", path: "/Barang" },
-  { label: "Retur Barang", path: "/retur" },
-  { label: "Transaksi Beli", path: "/transaksi-beli" },
-  { label: "Transaksi Jual (Hutang/Piutang Pembeli)", path: "/transaksi-jual" },
   { label: "Kasir", path: "/kasir" },
-  { label: "Stok Barang", path: "/stok" },
   {
     label: "Laporan",
     children: [
@@ -32,6 +27,11 @@ const menuItems: MenuItem[] = [
       { label: "Laporan Stok", path: "/laporan-stok" },
     ],
   },
+  { label: "Data Barang", path: "/Barang" },
+  { label: "Stok Barang", path: "/stok" },
+  { label: "Transaksi Beli", path: "/transaksi-beli" },
+  { label: "Transaksi Jual (Hutang/Piutang Pembeli)", path: "/transaksi-jual" },
+  { label: "Retur Barang", path: "/retur" },
   { label: "Akun Manager", path: "/users" },
 ];
 

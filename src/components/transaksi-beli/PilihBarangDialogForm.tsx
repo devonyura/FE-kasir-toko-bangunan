@@ -78,6 +78,18 @@ export default function PilihBarangDialogForm({
   }, [open, barang]);
 
   useEffect(() => {
+    if (open && !isEdit && satuanList.length > 0) {
+      const defaultSatuan = satuanList.find(
+        (s: undefined) => Number(s.is_satuan_default) === 1
+      );
+      if (defaultSatuan) {
+        setSatuanId(defaultSatuan.id);
+        setHargaBeli(defaultSatuan.harga_beli?.toString() || "");
+      }
+    }
+  }, [open, isEdit, satuanList]);
+
+  useEffect(() => {
     if (open && !initialData) {
       // Reset form saat mode tambah
       setSatuanId("");
@@ -133,7 +145,6 @@ export default function PilihBarangDialogForm({
       harga_beli: parseFloat(hargaBeli),
       subtotal,
     };
-
     onAdd(result);
     onOpenChange(false);
   };

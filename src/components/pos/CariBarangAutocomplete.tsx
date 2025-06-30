@@ -23,9 +23,15 @@ interface Barang {
 
 interface Props {
   onSelectBarang: (barang: Barang) => void;
+  isBarangInKeranjang: (barangId: string) => boolean;
+  onTambahQtyBarang: (barang: Barang) => void;
 }
 
-export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
+export default function CariBarangAutocomplete({
+  onSelectBarang,
+  isBarangInKeranjang,
+  onTambahQtyBarang,
+}: Props) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Barang[]>([]);
   const [loading, setLoading] = useState(false);
@@ -34,16 +40,25 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
 
   const handleSelect = useCallback(
     (barang: Barang) => {
-      if (typeof onSelectBarang === "function") {
+      if (
+        typeof isBarangInKeranjang === "function" &&
+        isBarangInKeranjang(barang.id)
+      ) {
+        console.info("Barang sudah ada di keranjang, tambah qty");
+        onTambahQtyBarang(barang);
+      } else if (typeof onSelectBarang === "function") {
         onSelectBarang(barang);
-        setQuery("");
-        setResults([]);
-        setSelectedIdx(-1);
       } else {
         console.error("onSelectBarang tidak tersedia atau bukan fungsi");
+        return;
       }
+
+      // Reset setelah berhasil
+      setQuery("");
+      setResults([]);
+      setSelectedIdx(-1);
     },
-    [onSelectBarang]
+    [onSelectBarang, onTambahQtyBarang, isBarangInKeranjang]
   );
 
   const fetchBarang = useCallback(
@@ -52,13 +67,18 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
         const res = await axiosInstance.get(`/barang?search=${cari}`);
         const data = res.data.data || [];
         setResults(data);
-        console.log("Searcah:", data);
-        // console.log(`data: ${data.kode_barang} == ${cari}`);
 
         // ✅ Auto-select jika ada barang yang kode_barang === query
         const match = data.find((b: Barang) => b.kode_barang === cari);
         if (match) {
           handleSelect(match);
+          return;
+        }
+
+        // ✅ Jika hanya 1 hasil, auto-pilih (asumsi barcode scanner return parsial kadang)
+        if (data.length === 1) {
+          console.info("Auto-select karena hanya 1 hasil");
+          handleSelect(data[0]);
         }
       } catch {
         setResults([]);
@@ -91,6 +111,7 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
       handleSelect(results[selectedIdx]);
     }
   };
+
   return (
     <div className="relative w-full max-w-md">
       <Input
@@ -117,9 +138,6 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
               <div>
                 {barang.nama_barang} ({barang.nama_kategori})
               </div>
-              <div className="text-xs text-muted-foreground"></div>
-
-              {/* ✅ Tampilkan semua satuan dan stok */}
               <div className="text-xs mt-1">
                 {barang.semua_satuan?.length > 0 ? (
                   <ul className="space-y-0.5">

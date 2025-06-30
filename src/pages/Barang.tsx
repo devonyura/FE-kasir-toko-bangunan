@@ -12,6 +12,7 @@ import KelolaSatuanDialog from "@/components/barang/KelolaSatuanDialog";
 import { DataTable } from "@/components/barang/DataTable";
 import { columns } from "@/components/barang/columns";
 import type { Barang } from "@/components/barang/types";
+import LabelBarcodePreviewDialog1 from "@/components/barang/LabelBarcodePreviewDialog1";
 
 export default function BarangPage() {
   // ----------------------------
@@ -38,6 +39,13 @@ export default function BarangPage() {
   );
   const [kelolaSatuanOpen, setKelolaSatuanOpen] = useState(false);
 
+  const [openPreview, setOpenPreview] = useState(false);
+  const [barcodeData, setBarcodeData] = useState<Barang | null>(null);
+  // const [selectedBarang, setSelectedBarang] = useState<{
+  //   nama_barang: string;
+  //   kode_barang: string;
+  // } | null>(null);
+
   // ==============================
   // Fetch barang dari backend
   // ==============================
@@ -49,6 +57,7 @@ export default function BarangPage() {
       setBarangs(res.data.data);
     } catch {
       setError("Gagal memuat data barang.");
+      setTimeout(() => setError(""), 3000);
     } finally {
       setLoading(false);
     }
@@ -73,7 +82,6 @@ export default function BarangPage() {
 
     setTimeout(() => setSuccessMessage(""), 3000);
   };
-
   // ==============================
   // Handler hapus barang
   // ==============================
@@ -89,6 +97,7 @@ export default function BarangPage() {
     } catch (err: unknown) {
       const msg = err?.response?.data?.message || "Gagal menghapus barang.";
       setError(msg);
+      setTimeout(() => setError(""), 3000);
     } finally {
       setDeleteDialogOpen(false);
       setSelectedDeleteId(null);
@@ -158,6 +167,10 @@ export default function BarangPage() {
             (id) => {
               setBarangIdUntukSatuan(id);
               setKelolaSatuanOpen(true);
+            },
+            (barang) => {
+              setBarcodeData(barang);
+              setOpenPreview(true);
             }
           )}
           filterKey="nama_barang"
@@ -191,6 +204,14 @@ export default function BarangPage() {
         onCancel={() => setDeleteDialogOpen(false)}
         onConfirm={handleDeleteConfirm}
       />
+
+      {barcodeData && (
+        <LabelBarcodePreviewDialog1
+          open={openPreview}
+          onOpenChange={setOpenPreview}
+          barang={barcodeData}
+        />
+      )}
     </div>
   );
 }
