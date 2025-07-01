@@ -29,8 +29,8 @@ interface DetailBarang {
   id?: string;
   barang_id: string;
   nama_barang: string;
-  satuan_id: string;
-  nama_satuan: string;
+  tipe_id: string;
+  nama_tipe: string;
   qty: number;
   harga_beli: number;
   subtotal: number;
@@ -51,7 +51,7 @@ export default function TransaksiBeliDialogForm({
   const [totalKeseluruhan, setTotalKeseluruhan] = useState(0);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [ongkir, setOngkir] = useState("");
-  const [totalQty, setTotalQty] = useState(0);
+  // const [totalQty, setTotalQty] = useState(0);
   const [dibayar, setDibayar] = useState("");
   const [sisaHutang, setSisaHutang] = useState("");
   const [status, setStatus] = useState("Lunas");
@@ -115,8 +115,8 @@ export default function TransaksiBeliDialogForm({
 
     const totalSetelahDiskon = totalBarang + totalOngkir - diskonNum;
 
-    const totalQty = details.reduce((sum, item) => sum + item.qty, 0);
-    setTotalQty(totalQty);
+    // const totalQty = details.reduce((sum, item) => sum + item.qty, 0);
+    // setTotalQty(totalQty);
     setTotalKeseluruhan(totalSetelahDiskon);
 
     if (status === "Lunas") {
@@ -128,36 +128,18 @@ export default function TransaksiBeliDialogForm({
     }
   }, [details, status, dibayar, ongkir, isOngkir, isDiskon, diskon]);
 
-  // Membulatkan ke atas ke kelipatan 500
-  const roundUpToNearest500 = (num: number) => {
-    return Math.ceil(num / 500) * 500;
-  };
-
   const handleSubmit = async () => {
-    const totalOngkir = isOngkir === "Ya" ? parseFloat(ongkir || "0") : 0;
-    const totalQty = details.reduce((sum, d) => sum + d.qty, 0);
-
-    const ongkirPerQty = totalQty > 0 ? totalOngkir / totalQty : 0;
-
-    const finalDetail = details.map((d) => {
-      const hargaFinal = d.harga_beli + ongkirPerQty;
-      const hargaRounded =
-        isOngkir === "Ya" ? roundUpToNearest500(hargaFinal) : d.harga_beli;
-      const subtotalRounded =
-        isOngkir === "Ya"
-          ? roundUpToNearest500(hargaRounded * d.qty)
-          : d.harga_beli * d.qty;
-
-      return {
-        ...d,
-        harga_beli: hargaRounded,
-        subtotal: subtotalRounded,
-      };
-    });
+    const finalDetail = details.map((d) => ({
+      ...d,
+      harga_beli: d.harga_beli,
+      subtotal: d.harga_beli * d.qty,
+    }));
 
     const diskonNum = isDiskon === "Ya" ? parseFloat(diskon || "0") : 0;
-    const totalFinal =
-      finalDetail.reduce((sum, d) => sum + d.subtotal, 0) - diskonNum;
+
+    const totalBarang = finalDetail.reduce((sum, d) => sum + d.subtotal, 0);
+    const totalOngkir = isOngkir === "Ya" ? parseFloat(ongkir || "0") : 0;
+    const totalFinal = totalBarang + totalOngkir - diskonNum;
 
     const now = new Date();
     const jamSekarang = now.toTimeString().split(" ")[0];
@@ -175,7 +157,7 @@ export default function TransaksiBeliDialogForm({
       user_id: Number(userId),
       detail: finalDetail.map((d) => ({
         barang_id: Number(d.barang_id),
-        satuan_id: Number(d.satuan_id),
+        tipe_id: Number(d.tipe_id),
         qty: d.qty,
         harga_beli: d.harga_beli,
         subtotal: d.subtotal,
@@ -418,7 +400,7 @@ export default function TransaksiBeliDialogForm({
                       <thead className="bg-gray-100">
                         <tr>
                           <th className="border px-2 py-1">Nama</th>
-                          <th className="border px-2 py-1">Satuan</th>
+                          <th className="border px-2 py-1">Tipe</th>
                           <th className="border px-2 py-1">Qty</th>
                           <th className="border px-2 py-1">Harga Beli</th>
                           <th className="border px-2 py-1">Subtotal</th>
@@ -432,29 +414,14 @@ export default function TransaksiBeliDialogForm({
                               {item.nama_barang}
                             </td>
                             <td className="border px-2 py-1">
-                              {item.nama_satuan}
+                              {item.nama_tipe}
                             </td>
                             <td className="border px-2 py-1">{item.qty}</td>
                             <td className="border px-2 py-1">
-                              {rupiahFormat(
-                                isOngkir === "Ya"
-                                  ? roundUpToNearest500(
-                                      item.harga_beli + (ongkir / totalQty || 0)
-                                    )
-                                  : item.harga_beli
-                              )}
+                              {rupiahFormat(item.harga_beli)}
                             </td>
                             <td className="border px-2 py-1">
-                              {rupiahFormat(
-                                isOngkir === "Ya"
-                                  ? roundUpToNearest500(
-                                      roundUpToNearest500(
-                                        item.harga_beli +
-                                          (ongkir / totalQty || 0)
-                                      ) * item.qty
-                                    )
-                                  : item.harga_beli * item.qty
-                              )}
+                              {rupiahFormat(item.harga_beli * item.qty)}
                             </td>
                             <td className="border px-2 py-1">
                               <div className="flex justify-center items-center gap-x-2 sm:gap-x-1">

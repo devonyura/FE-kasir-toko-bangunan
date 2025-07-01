@@ -23,8 +23,8 @@ export const columns = (
     header: "Kategori",
   },
   {
-    accessorKey: "nama_satuan",
-    header: "Satuan",
+    accessorKey: "nama_tipe",
+    header: "Tipe",
   },
   {
     accessorKey: "jumlah",

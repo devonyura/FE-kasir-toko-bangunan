@@ -93,6 +93,7 @@ export default function TransaksiBeliPage() {
         `/transaksi-beli/${transaksi.no_nota}`
       );
       setDataStruk(res.data.data);
+      console.log("Data:", res.data.data);
       setOpenStruk(true);
     } catch (err) {
       console.error("Gagal mengambil data struk:", err);

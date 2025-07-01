@@ -35,9 +35,9 @@ interface Barang {
   nama_kategori: string;
 }
 
-interface Satuan {
+interface Tipe {
   id: string;
-  nama_satuan: string;
+  nama_tipe: string;
 }
 
 export default function StokDialogForm({
@@ -46,12 +46,12 @@ export default function StokDialogForm({
   onSuccess,
 }: Props) {
   const [barangId, setBarangId] = useState("");
-  const [satuanId, setSatuanId] = useState("");
+  const [tipeId, setTipeId] = useState("");
   const [tanggal, setTanggal] = useState("");
   const [jumlah, setJumlah] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [barangList, setBarangList] = useState<Barang[]>([]);
-  const [satuanList, setSatuanList] = useState<Satuan[]>([]);
+  const [tipeList, setTipeList] = useState<Tipe[]>([]);
   const [error, setError] = useState("");
   const userId = JSON.parse(localStorage.getItem("auth-storage") || "{}")?.state
     ?.user?.id;
@@ -65,11 +65,11 @@ export default function StokDialogForm({
 
   const resetForm = () => {
     setBarangId("");
-    setSatuanId("");
+    setTipeId("");
     setTanggal("");
     setJumlah("");
     setKeterangan("");
-    setSatuanList([]);
+    setTipeList([]);
     setError("");
   };
 
@@ -82,36 +82,41 @@ export default function StokDialogForm({
     }
   };
 
-  const fetchSatuan = async (id: string) => {
+  const fetchTipe = async (id: string) => {
     try {
-      const res = await axiosInstance.get(`/satuan-barang/barang/${id}`);
-      setSatuanList(res.data.data || []);
+      const res = await axiosInstance.get(`/tipe-barang/barang/${id}`);
+      setTipeList(res.data.data || []);
     } catch {
-      setSatuanList([]);
+      setTipeList([]);
     }
   };
 
   const handleSubmit = async () => {
-    if (!barangId || !satuanId || !tanggal || !jumlah) {
+    if (!barangId || !tipeId || !tanggal || !jumlah) {
       setError("Semua field wajib diisi.");
       return;
     }
-
+    // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
+    const now = new Date();
+    const jamSekarang = now.toTimeString().split(" ")[0]; // contoh: "21:47:22"
+    const tanggalLengkap = `${tanggal} ${jamSekarang}`;
     try {
       const payload = {
         barang_id: Number(barangId),
-        satuan_id: Number(satuanId),
-        tanggal,
+        tipe_id: Number(tipeId),
+        tanggal: tanggalLengkap,
         jumlah: Number(jumlah),
         keterangan,
         jenis: "masuk", // untuk sekarang default masuk
         user_id: userId,
       };
+      console.log(payload);
 
-      await axiosInstance.post("/stok", payload);
+      await axiosInstance.post("/stok/masuk", payload);
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
+      console.log(err);
       const msg = err?.response?.data?.message || "Gagal menyimpan data stok.";
       setError(msg);
     }
@@ -119,7 +124,7 @@ export default function StokDialogForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg" aria-describedby="">
         <DialogHeader>
           <DialogTitle>Input Stok Masuk</DialogTitle>
         </DialogHeader>
@@ -140,8 +145,8 @@ export default function StokDialogForm({
               value={barangId}
               onValueChange={(val) => {
                 setBarangId(val);
-                fetchSatuan(val);
-                setSatuanId(""); // reset satuan saat barang berubah
+                fetchTipe(val);
+                setTipeId(""); // reset tipe saat barang berubah
               }}
             >
               <SelectTrigger>
@@ -157,17 +162,17 @@ export default function StokDialogForm({
             </Select>
           </div>
 
-          {/* Satuan */}
+          {/* Tipe */}
           <div className="grid gap-2">
-            <Label>Satuan</Label>
-            <Select value={satuanId} onValueChange={setSatuanId}>
+            <Label>Tipe</Label>
+            <Select value={tipeId} onValueChange={setTipeId}>
               <SelectTrigger>
-                <SelectValue placeholder="Pilih Satuan" />
+                <SelectValue placeholder="Pilih Tipe" />
               </SelectTrigger>
               <SelectContent>
-                {satuanList.map((s) => (
+                {tipeList.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
-                    {s.nama_satuan}
+                    {s.nama_tipe}
                   </SelectItem>
                 ))}
               </SelectContent>

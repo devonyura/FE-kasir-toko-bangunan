@@ -48,35 +48,6 @@ export default function StrukPreviewDialog1({
               Preview Label
             </DialogTitle>
           </DialogHeader>
-          {/* <div
-            id="area-print-barcode"
-            className="flex flex-row justify-center items-center gap-[20mm] w-full p-4 bg-white"
-          >
-            {[1, 2, 3].map((_, index) => (
-              <div
-                key={index}
-                className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center"
-              >
-                <div className="mb-[1mm] flex flex-col items-center justify-center text-center">
-                  <span className="text-[12px] font-medium">
-                    {barang?.nama_barang || "Nama Barang"}
-                  </span>
-                  <Barcode
-                    height={30}
-                    width={1.5}
-                    fontSize={12}
-                    displayValue={true}
-                    value={8997209100230}
-                    marginLeft={20}
-                    format="EAN13"
-                    marginTop={1}
-                    marginBottom={1}
-                  />
-                  <span className="text-[12px] font-semibold">Rp. 12.000</span>
-                </div>
-              </div>
-            ))}
-          </div> */}
           <div
             id="area-print-barcode"
             className="flex flex-row justify-around gap-[20mm] w-[99mm] h-[15mm] p-0 m-0 pr-7 pt-[3px] mr-38"
@@ -89,14 +60,13 @@ export default function StrukPreviewDialog1({
                   width={1.5}
                   fontSize={12}
                   displayValue={true}
-                  value={8997209100230}
+                  value={barang?.kode_barang}
                   marginRight={0}
                   marginLeft={55}
                   format="EAN13"
                   marginTop={1}
                   marginBottom={1}
                 />
-                <span className="text-[12px]">Rp.10.200.000</span>
               </div>
             </div>
             <div className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center mt-2">
@@ -107,13 +77,12 @@ export default function StrukPreviewDialog1({
                   width={1.5}
                   fontSize={12}
                   displayValue={true}
-                  value={8997209100230}
+                  value={barang?.kode_barang}
                   marginLeft={20}
                   format="EAN13"
                   marginTop={1}
                   marginBottom={1}
                 />
-                <span className="text-[12px]">Rp.12000</span>
               </div>
             </div>
             <div className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center mt-2">
@@ -124,13 +93,12 @@ export default function StrukPreviewDialog1({
                   width={1.5}
                   fontSize={12}
                   displayValue={true}
-                  value={8997209100230}
+                  value={barang?.kode_barang}
                   marginLeft={40}
                   format="EAN13"
                   marginTop={1}
                   marginBottom={1}
                 />
-                <span className="text-[12px]">Rp.12000</span>
               </div>
             </div>
           </div>
@@ -153,52 +121,49 @@ export default function StrukPreviewDialog1({
             <div className="mb-[1mm] flex flex-col items-center">
               <span className="text-[12px]">{barang?.nama_barang}</span>
               <Barcode
-                height={30}
+                height={35}
                 width={1.5}
                 fontSize={12}
                 displayValue={true}
-                value={8997209100230}
+                value={barang?.kode_barang}
                 marginRight={0}
                 marginLeft={70}
                 format="EAN13"
                 marginTop={1}
                 marginBottom={1}
               />
-              <span className="text-[12px]">Rp.10.200.000</span>
             </div>
           </div>
           <div className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center mt-2">
             <div className="mb-[1mm] flex flex-col items-center">
               <span className="text-[12px]">{barang?.nama_barang}</span>
               <Barcode
-                height={30}
+                height={35}
                 width={1.5}
                 fontSize={12}
                 displayValue={true}
-                value={8997209100230}
+                value={barang?.kode_barang}
                 marginLeft={20}
                 format="EAN13"
                 marginTop={1}
                 marginBottom={1}
               />
-              <span className="text-[12px]">Rp.12000</span>
             </div>
           </div>
           <div className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center mt-2">
             <div className="mb-[1mm] flex flex-col items-center">
               <span className="text-[12px]">{barang?.nama_barang}</span>
               <Barcode
-                height={30}
+                height={35}
                 width={1.5}
                 fontSize={12}
                 displayValue={true}
-                value={8997209100230}
+                value={barang?.kode_barang}
                 marginLeft={40}
                 format="EAN13"
                 marginTop={1}
                 marginBottom={1}
               />
-              <span className="text-[12px]">Rp.12000</span>
             </div>
           </div>
         </div>

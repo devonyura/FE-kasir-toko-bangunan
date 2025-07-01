@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { rupiahFormat } from "@/utils/formatting";
+import { rupiahFormat, singkatNamaBarang } from "@/utils/formatting";
 import { format, parse } from "date-fns";
 import { id } from "date-fns/locale";
 import { useState } from "react";
@@ -48,12 +48,11 @@ export default function StrukPreviewDialog({
   // helper untuk ambil harga (jual atau beli)
   const getHarga = (item: unknown) =>
     parseFloat(item?.harga_jual ?? item?.harga_beli ?? 0);
-
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="max-w-[380px] print:hidden"
+          className="max-w-[380px] print:hidden max-h-screen overflow-auto"
           aria-describedby=""
         >
           <DialogHeader>
@@ -89,11 +88,12 @@ export default function StrukPreviewDialog({
             <div>
               {detail.map((item, idx) => (
                 <div key={idx} className="mb-1">
-                  <div>{item.nama_barang}</div>
+                  <div>
+                    {singkatNamaBarang(item.nama_barang)} - {item.nama_tipe}
+                  </div>
                   <div className="flex justify-between">
                     <span>
-                      {item.qty} {item.nama_satuan} x{" "}
-                      {rupiahFormat(getHarga(item))}
+                      {item.qty} x {rupiahFormat(getHarga(item))}
                     </span>
                     <span>{rupiahFormat(item.subtotal)}</span>
                   </div>
@@ -166,7 +166,7 @@ export default function StrukPreviewDialog({
       {showPrintArea && (
         <div
           id="area-print-struk"
-          className="font-mono text-sm p-4 max-w-xs mx-auto"
+          className="font-mono text-sm p-4 max-w-xs mx-auto ml-14"
         >
           <div className="text-center">
             <h1 className="text-base font-bold uppercase">
@@ -191,11 +191,12 @@ export default function StrukPreviewDialog({
           <div>
             {detail.map((item, idx) => (
               <div key={idx} className="mb-1">
-                <div>{item.nama_barang}</div>
+                <div>
+                  {singkatNamaBarang(item.nama_barang)} - {item.nama_tipe}
+                </div>
                 <div className="flex justify-between">
                   <span>
-                    {item.qty} {item.nama_satuan} x{" "}
-                    {rupiahFormat(getHarga(item))}
+                    {item.qty} x {rupiahFormat(getHarga(item))}
                   </span>
                   <span>{rupiahFormat(item.subtotal)}</span>
                 </div>
@@ -207,12 +208,16 @@ export default function StrukPreviewDialog({
 
           <div>
             <div className="flex justify-between">
-              <span>Total</span>
-              <span>{rupiahFormat(transaksi.total)}</span>
-            </div>
-            <div className="flex justify-between">
               <span>Ongkir</span>
               <span>{rupiahFormat(Number(transaksi.ongkir))}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Diskon</span>
+              <span>-{rupiahFormat(Number(transaksi.diskon))}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Total</span>
+              <span>{rupiahFormat(transaksi.total)}</span>
             </div>
             <div className="flex justify-between">
               <span>Dibayar</span>

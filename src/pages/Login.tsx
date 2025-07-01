@@ -34,7 +34,10 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-sm">
-        <h1 className="text-lg font-bold mb-4">Login Kasir</h1>
+        <h1 className="text-lg font-bold mb-4">
+          Buana Situju Dapurang Online POS
+        </h1>
+        <h2 className="text-lg font-bold mb-4">Masuk</h2>
         <Input
           placeholder="Username"
           value={username}

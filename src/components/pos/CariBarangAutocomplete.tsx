@@ -8,14 +8,14 @@ interface Barang {
   nama_barang: string;
   kode_barang: string;
   nama_kategori: string;
-  satuan_default: {
+  tipe_default: {
     id: string;
-    nama_satuan: string;
+    nama_tipe: string;
     harga_jual: number;
   };
-  semua_satuan: {
+  semua_tipe: {
     id: string;
-    nama_satuan: string;
+    nama_tipe: string;
     harga_jual: number;
     stok: number;
   }[];
@@ -139,22 +139,22 @@ export default function CariBarangAutocomplete({
                 {barang.nama_barang} ({barang.nama_kategori})
               </div>
               <div className="text-xs mt-1">
-                {barang.semua_satuan?.length > 0 ? (
+                {barang.semua_tipe?.length > 0 ? (
                   <ul className="space-y-0.5">
-                    {barang.semua_satuan.map((satuan) => (
+                    {barang.semua_tipe.map((tipe) => (
                       <li
-                        key={satuan.id}
+                        key={tipe.id}
                         className={cn(
-                          satuan.stok > 0 ? "text-green-600" : "text-red-600"
+                          tipe.stok > 0 ? "text-green-600" : "text-red-600"
                         )}
                       >
-                        {satuan.nama_satuan}: {satuan.stok}{" "}
-                        {satuan.stok === 0 && "(habis)"}
+                        {tipe.nama_tipe}: {tipe.stok}{" "}
+                        {tipe.stok === 0 && "(habis)"}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-red-600">❌ Tidak ada satuan tersedia</p>
+                  <p className="text-red-600">❌ Tidak ada tipe tersedia</p>
                 )}
               </div>
             </li>

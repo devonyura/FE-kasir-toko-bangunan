@@ -28,8 +28,8 @@ import { rupiahFormat } from "@/utils/formatting";
 interface DetailBarang {
   barang_id: string;
   nama_barang: string;
-  satuan_id: string;
-  nama_satuan: string;
+  tipe_id: string;
+  nama_tipe: string;
   qty: number;
   harga_beli: number;
   subtotal: number;
@@ -58,41 +58,38 @@ export default function PilihBarangDialogForm({
   const isEdit = !!initialData;
   console.log("initialData:", initialData);
 
-  const [satuanList, setSatuanList] = useState<unknown[]>([]);
-  const [satuanId, setSatuanId] = useState("");
+  const [tipeList, setTipeList] = useState<unknown[]>([]);
+  const [tipeId, setTipeId] = useState("");
   const [qty, setQty] = useState("");
   const [hargaBeli, setHargaBeli] = useState("");
   const [subtotal, setSubtotal] = useState(0);
   const [error, setError] = useState("");
 
-  const selectedSatuan = satuanList.find((s) => s.id === satuanId);
-  console.log("satuanList:", satuanList);
+  const selectedTipe = tipeList.find((s) => s.id === tipeId);
+  console.log("tipeList:", tipeList);
 
-  // Load satuan saat open
+  // Load tipe saat open
   useEffect(() => {
     if (open && barang?.id) {
       axiosInstance
-        .get(`/satuan-barang/barang/${barang.id}`)
-        .then((res) => setSatuanList(res.data.data || []));
+        .get(`/tipe-barang/barang/${barang.id}`)
+        .then((res) => setTipeList(res.data.data || []));
     }
   }, [open, barang]);
-
+  // Set otomatis harga beli saat tipe berubah
   useEffect(() => {
-    if (open && !isEdit && satuanList.length > 0) {
-      const defaultSatuan = satuanList.find(
-        (s: undefined) => Number(s.is_satuan_default) === 1
-      );
-      if (defaultSatuan) {
-        setSatuanId(defaultSatuan.id);
-        setHargaBeli(defaultSatuan.harga_beli?.toString() || "");
+    if (tipeId) {
+      const tipeTerpilih = tipeList.find((s) => s.id === tipeId);
+      if (tipeTerpilih && !isNaN(tipeTerpilih.harga_beli)) {
+        setHargaBeli(Math.round(tipeTerpilih.harga_beli).toString());
       }
     }
-  }, [open, isEdit, satuanList]);
+  }, [tipeId, tipeList]);
 
   useEffect(() => {
     if (open && !initialData) {
       // Reset form saat mode tambah
-      setSatuanId("");
+      setTipeId("");
       setQty("");
       setHargaBeli("");
       setSubtotal(0);
@@ -103,11 +100,11 @@ export default function PilihBarangDialogForm({
   useEffect(() => {
     if (open) {
       if (isEdit && initialData) {
-        setSatuanId(initialData.satuan_id);
+        setTipeId(initialData.tipe_id);
         setQty(initialData.qty.toString());
         setHargaBeli(initialData.harga_beli.toString());
       } else {
-        setSatuanId("");
+        setTipeId("");
         setQty("");
         setHargaBeli("");
         setSubtotal(0);
@@ -131,7 +128,7 @@ export default function PilihBarangDialogForm({
     e.preventDefault();
     setError("");
 
-    if (!satuanId || !qty || !hargaBeli) {
+    if (!tipeId || !qty || !hargaBeli) {
       setError("Semua field harus diisi.");
       return;
     }
@@ -139,8 +136,8 @@ export default function PilihBarangDialogForm({
     const result: DetailBarang = {
       barang_id: barang.id,
       nama_barang: barang.nama_barang,
-      satuan_id: satuanId,
-      nama_satuan: selectedSatuan?.nama_satuan || "-",
+      tipe_id: tipeId,
+      nama_tipe: selectedTipe?.nama_tipe || "-",
       qty: parseFloat(qty),
       harga_beli: parseFloat(hargaBeli),
       subtotal,
@@ -160,7 +157,7 @@ export default function PilihBarangDialogForm({
                 : "Tambah Barang ke Transaksi"}
             </DialogTitle>
             <DialogDescription>
-              Pilih satuan, isi jumlah dan harga beli
+              Pilih tipe, isi jumlah dan harga beli
               {barang && (
                 <div className="mb-1 mt-2 text-sm text-gray-600">
                   <h2 className="font-bold text-gray-700 text-[1.1rem]">
@@ -175,53 +172,30 @@ export default function PilihBarangDialogForm({
                     {barang.kode_barang}
                   </p>
 
-                  {/* ✅ Tabel satuan */}
+                  {/* ✅ Tabel tipe */}
                   <div className="overflow-x-auto mt-2">
                     <table className="w-full border text-sm">
                       <thead className="bg-gray-100">
                         <tr>
-                          <th className="border px-2 py-1">Satuan</th>
-                          <th className="border px-2 py-1">Harga Jual</th>
+                          <th className="border px-2 py-1">Tipe</th>
+                          <th className="border px-2 py-1">
+                            Harga Jual (Modal)
+                          </th>
                           <th className="border px-2 py-1">Harga Beli</th>
-                          <th className="border px-2 py-1">Konversi</th>
-                          <th className="border px-2 py-1">Default</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {satuanList.map((satuan) => {
-                          const satuanDefault = satuanList.find(
-                            (s) => Number(s.is_satuan_default) === 1
-                          );
-                          const konversiText =
-                            Number(satuan.is_satuan_default) === 1
-                              ? `1 ${satuan.nama_satuan}`
-                              : `1 ${satuan.nama_satuan} = ${
-                                  satuan.konversi_ke_satuan_dasar
-                                } ${satuanDefault?.nama_satuan || "-"}`;
-
+                        {tipeList.map((tipe) => {
                           return (
-                            <tr key={satuan.id}>
+                            <tr key={tipe.id}>
                               <td className="border px-2 py-1">
-                                {satuan.nama_satuan}
+                                {tipe.nama_tipe}
                               </td>
                               <td className="border px-2 py-1">
-                                {rupiahFormat(satuan.harga_jual)}
+                                {rupiahFormat(tipe.harga_jual)}
                               </td>
                               <td className="border px-2 py-1">
-                                {rupiahFormat(satuan.harga_beli)}
-                              </td>
-
-                              {/* ✅ Konversi dinamis */}
-                              <td className="border px-2 py-1">
-                                {konversiText}
-                              </td>
-
-                              {/* ✅ Default ditentukan oleh angka 1/0 */}
-                              {/* {console.log(satuan)} */}
-                              <td className="border px-2 py-1 text-center">
-                                {Number(satuan.is_satuan_default) === 1
-                                  ? "✅"
-                                  : "-"}
+                                {rupiahFormat(tipe.harga_beli)}
                               </td>
                             </tr>
                           );
@@ -230,8 +204,7 @@ export default function PilihBarangDialogForm({
                     </table>
                   </div>
                   <p className="text-[0.65rem] mt-1 italic">
-                    *Untuk Ubah data barang/satuan, buka menu <b>Data barang</b>
-                    .
+                    *Untuk Ubah data barang/tipe, buka menu <b>Data barang</b>.
                   </p>
                 </div>
               )}
@@ -249,15 +222,15 @@ export default function PilihBarangDialogForm({
           <div className="grid gap-2 py-2">
             <SelectSeparator></SelectSeparator>
             <div className="grid gap-2">
-              <Label>Satuan</Label>
-              <Select value={satuanId} onValueChange={setSatuanId} required>
+              <Label>Tipe</Label>
+              <Select value={tipeId} onValueChange={setTipeId} required>
                 <SelectTrigger>
-                  <SelectValue placeholder="Pilih satuan" />
+                  <SelectValue placeholder="Pilih tipe" />
                 </SelectTrigger>
                 <SelectContent>
-                  {satuanList.map((s) => (
+                  {tipeList.map((s) => (
                     <SelectItem key={s.id} value={s.id}>
-                      {s.nama_satuan}
+                      {s.nama_tipe}
                     </SelectItem>
                   ))}
                 </SelectContent>

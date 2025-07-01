@@ -34,9 +34,9 @@ interface Barang {
   nama_kategori: string;
 }
 
-interface Satuan {
+interface Tipe {
   id: string;
-  nama_satuan: string;
+  nama_tipe: string;
 }
 
 export default function StokKeluarDialogForm({
@@ -45,12 +45,12 @@ export default function StokKeluarDialogForm({
   onSuccess,
 }: Props) {
   const [barangId, setBarangId] = useState("");
-  const [satuanId, setSatuanId] = useState("");
+  const [tipeId, setTipeId] = useState("");
   const [tanggal, setTanggal] = useState("");
   const [jumlah, setJumlah] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [barangList, setBarangList] = useState<Barang[]>([]);
-  const [satuanList, setSatuanList] = useState<Satuan[]>([]);
+  const [tipeList, setTipeList] = useState<Tipe[]>([]);
   const [error, setError] = useState("");
   const userId = JSON.parse(localStorage.getItem("auth-storage") || "{}")?.state
     ?.user?.id;
@@ -64,11 +64,11 @@ export default function StokKeluarDialogForm({
 
   const resetForm = () => {
     setBarangId("");
-    setSatuanId("");
+    setTipeId("");
     setTanggal("");
     setJumlah("");
     setKeterangan("");
-    setSatuanList([]);
+    setTipeList([]);
     setError("");
   };
 
@@ -81,32 +81,34 @@ export default function StokKeluarDialogForm({
     }
   };
 
-  const fetchSatuan = async (id: string) => {
+  const fetchTipe = async (id: string) => {
     try {
-      const res = await axiosInstance.get(`/satuan-barang/barang/${id}`);
-      setSatuanList(res.data.data || []);
+      const res = await axiosInstance.get(`/tipe-barang/barang/${id}`);
+      setTipeList(res.data.data || []);
     } catch {
-      setSatuanList([]);
+      setTipeList([]);
     }
   };
 
   const handleSubmit = async () => {
-    if (!barangId || !satuanId || !tanggal || !jumlah) {
+    if (!barangId || !tipeId || !tanggal || !jumlah) {
       setError("Semua field wajib diisi.");
       return;
     }
-
+    const now = new Date();
+    const jamSekarang = now.toTimeString().split(" ")[0]; // contoh: "21:47:22"
+    const tanggalLengkap = `${tanggal} ${jamSekarang}`;
     try {
       const payload = {
         barang_id: Number(barangId),
-        satuan_id: Number(satuanId),
-        tanggal,
+        tipe_id: Number(tipeId),
+        tanggal: tanggalLengkap,
         jumlah: Number(jumlah),
         keterangan,
         jenis: "keluar", // hanya ini bedanya
         user_id: userId,
       };
-
+      console.log(payload);
       await axiosInstance.post("/stok", payload);
       onSuccess();
       onOpenChange(false);
@@ -119,7 +121,7 @@ export default function StokKeluarDialogForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-lg" aria-describedby="">
         <DialogHeader>
           <DialogTitle>Input Stok Keluar</DialogTitle>
         </DialogHeader>
@@ -139,8 +141,8 @@ export default function StokKeluarDialogForm({
               value={barangId}
               onValueChange={(val) => {
                 setBarangId(val);
-                fetchSatuan(val);
-                setSatuanId("");
+                fetchTipe(val);
+                setTipeId("");
               }}
             >
               <SelectTrigger>
@@ -157,15 +159,15 @@ export default function StokKeluarDialogForm({
           </div>
 
           <div className="grid gap-2">
-            <Label>Satuan</Label>
-            <Select value={satuanId} onValueChange={setSatuanId}>
+            <Label>Tipe</Label>
+            <Select value={tipeId} onValueChange={setTipeId}>
               <SelectTrigger>
-                <SelectValue placeholder="Pilih Satuan" />
+                <SelectValue placeholder="Pilih Tipe" />
               </SelectTrigger>
               <SelectContent>
-                {satuanList.map((s) => (
+                {tipeList.map((s) => (
                   <SelectItem key={s.id} value={s.id}>
-                    {s.nama_satuan}
+                    {s.nama_tipe}
                   </SelectItem>
                 ))}
               </SelectContent>

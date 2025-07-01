@@ -29,9 +29,9 @@ interface Props {
 
 type DetailBarang = {
   barang_id: number;
-  satuan_id: number;
+  tipe_id: number;
   nama_barang: string;
-  nama_satuan: string;
+  nama_tipe: string;
 };
 
 export default function ReturDialogForm({
@@ -43,10 +43,10 @@ export default function ReturDialogForm({
   const [jenis, setJenis] = useState("penjualan");
   const [noNota, setNoNota] = useState("");
   const [transaksiId, setTransaksiId] = useState(""); // hidden data
-  const [barangSatuanOptions, setBarangSatuanOptions] = useState<
-    DetailBarang[]
-  >([]);
-  const [selectedBarangSatuan, setSelectedBarangSatuan] = useState<string>("");
+  const [barangTipeOptions, setBarangTipeOptions] = useState<DetailBarang[]>(
+    []
+  );
+  const [selectedBarangTipe, setSelectedBarangTipe] = useState<string>("");
 
   const [qty, setQty] = useState("");
   const [alasan, setAlasan] = useState("");
@@ -58,21 +58,20 @@ export default function ReturDialogForm({
 
   // Mengambil qty maksimum dari detail barang yang dipilih
   const getMaxQtyBarang = () => {
-    if (!selectedBarangSatuan || !barangSatuanOptions.length) return 0;
+    if (!selectedBarangTipe || !barangTipeOptions.length) return 0;
 
-    const [barang_id, satuan_id] = selectedBarangSatuan
+    const [barang_id, tipe_id] = selectedBarangTipe
       .split("-")
       .map((v) => parseInt(v));
 
-    const found = barangSatuanOptions.find(
-      (item) => item.barang_id == barang_id && item.satuan_id == satuan_id
+    const found = barangTipeOptions.find(
+      (item) => item.barang_id == barang_id && item.tipe_id == tipe_id
     );
 
     return found
       ? parseFloat(
           (previewTransaksi?.detail || []).find(
-            (d: undefined) =>
-              d.barang_id == barang_id && d.satuan_id == satuan_id
+            (d: undefined) => d.barang_id == barang_id && d.tipe_id == tipe_id
           )?.qty || "0"
         )
       : 0;
@@ -85,8 +84,8 @@ export default function ReturDialogForm({
       setJenis("penjualan");
       setNoNota("");
       setTransaksiId("");
-      setBarangSatuanOptions([]);
-      setSelectedBarangSatuan("");
+      setBarangTipeOptions([]);
+      setSelectedBarangTipe("");
       setQty("");
       setAlasan("");
       setError("");
@@ -98,8 +97,8 @@ export default function ReturDialogForm({
   useEffect(() => {
     setNoNota("");
     setTransaksiId("");
-    setBarangSatuanOptions([]);
-    setSelectedBarangSatuan("");
+    setBarangTipeOptions([]);
+    setSelectedBarangTipe("");
     setQty("");
     setAlasan("");
     setPreviewTransaksi(null);
@@ -117,19 +116,19 @@ export default function ReturDialogForm({
       const data = res.data.data;
 
       setTransaksiId(data.transaksi.id);
-      setBarangSatuanOptions(data.detail || []);
+      setBarangTipeOptions(data.detail || []);
       setPreviewTransaksi(data);
       setError("");
     } catch (err: undefined) {
       setError(`Transaksi tidak ditemukan. Periksa nomor nota: ${err}`);
-      setBarangSatuanOptions([]);
+      setBarangTipeOptions([]);
       setPreviewTransaksi(null);
     }
   };
 
   const handleSubmit = async () => {
     try {
-      const [barang_id, satuan_id] = selectedBarangSatuan
+      const [barang_id, tipe_id] = selectedBarangTipe
         .split("-")
         .map((val) => parseInt(val));
 
@@ -157,7 +156,7 @@ export default function ReturDialogForm({
         transaksi_id: transaksiId,
         no_nota: noNota,
         barang_id,
-        satuan_id,
+        tipe_id,
         qty: Number(qty),
         alasan,
         tanggal: tanggalLengkap,
@@ -176,7 +175,7 @@ export default function ReturDialogForm({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto"
+        className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto"
         aria-describedby=""
       >
         <DialogHeader>
@@ -283,7 +282,7 @@ export default function ReturDialogForm({
                     <tr>
                       <th className="border px-2 py-1">#</th>
                       <th className="border px-2 py-1">Nama Barang</th>
-                      <th className="border px-2 py-1">Satuan</th>
+                      <th className="border px-2 py-1">Tipe</th>
                       <th className="border px-2 py-1">Qty</th>
                       <th className="border px-2 py-1">Harga</th>
                       <th className="border px-2 py-1">Subtotal</th>
@@ -297,9 +296,7 @@ export default function ReturDialogForm({
                           <td className="border px-2 py-1">
                             {item.nama_barang}
                           </td>
-                          <td className="border px-2 py-1">
-                            {item.nama_satuan}
-                          </td>
+                          <td className="border px-2 py-1">{item.nama_tipe}</td>
                           <td className="border px-2 py-1">{item.qty}</td>
                           <td className="border px-2 py-1">
                             Rp
@@ -324,20 +321,20 @@ export default function ReturDialogForm({
           <div>
             <Label className="mb-1">Pilih Barang</Label>
             <Select
-              value={selectedBarangSatuan}
-              onValueChange={setSelectedBarangSatuan}
+              value={selectedBarangTipe}
+              onValueChange={setSelectedBarangTipe}
               disabled={!previewTransaksi}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Pilih barang" />
               </SelectTrigger>
               <SelectContent>
-                {barangSatuanOptions.map((item) => (
+                {barangTipeOptions.map((item) => (
                   <SelectItem
-                    key={`${item.barang_id}-${item.satuan_id}`}
-                    value={`${item.barang_id}-${item.satuan_id}`}
+                    key={`${item.barang_id}-${item.tipe_id}`}
+                    value={`${item.barang_id}-${item.tipe_id}`}
                   >
-                    {item.nama_barang} ({item.nama_satuan})
+                    {item.nama_barang} ({item.nama_tipe})
                   </SelectItem>
                 ))}
               </SelectContent>

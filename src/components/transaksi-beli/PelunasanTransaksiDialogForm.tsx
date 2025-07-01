@@ -46,7 +46,7 @@ export default function PelunasanTransaksiDialogForm({
 
   useEffect(() => {
     if (open) {
-      setJumlahBayar(transaksi?.sisa_hutang || "");
+      setJumlahBayar(Math.round(transaksi?.sisa_hutang) || "");
       setError("");
     }
   }, [open, transaksi]);
@@ -94,33 +94,33 @@ export default function PelunasanTransaksiDialogForm({
 
         <div className="grid gap-4">
           <div>
-            <Label>Supplier</Label>
+            <Label className="mb-2">Supplier</Label>
             <Input value={transaksi.nama_supplier} disabled />
           </div>
           <div>
-            <Label>Tanggal Transaksi</Label>
+            <Label className="mb-2">Tanggal Transaksi</Label>
             <Input
               value={format(new Date(transaksi.tanggal), "dd-MM-yyyy")}
               disabled
             />
           </div>
           <div>
-            <Label>Total</Label>
+            <Label className="mb-2">Total</Label>
             <Input value={rupiahFormat(Number(transaksi.total))} disabled />
           </div>
           <div>
-            <Label>Sudah Dibayar</Label>
+            <Label className="mb-2">Sudah Dibayar</Label>
             <Input value={rupiahFormat(Number(transaksi.dibayar))} disabled />
           </div>
           <div>
-            <Label>Sisa Hutang</Label>
+            <Label className="mb-2">Sisa Hutang</Label>
             <Input
               value={rupiahFormat(Number(transaksi.sisa_hutang))}
               disabled
             />
           </div>
           <div>
-            <Label>Jumlah Pembayaran</Label>
+            <Label className="mb-2">Jumlah Pembayaran</Label>
             <Input
               type="number"
               value={jumlahBayar}

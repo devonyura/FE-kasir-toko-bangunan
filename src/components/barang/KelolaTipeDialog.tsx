@@ -17,9 +17,10 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import { axiosInstance } from "@/utils/axios";
-import SatuanDialogForm from "./SatuanDialogForm";
+import TipeDialogForm from "./tipeDialogForm";
 import { rupiahFormat } from "@/utils/formatting";
 import DeleteConfirmDialog from "./DeleteConfirmDialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Props {
   open: boolean;
@@ -27,13 +28,11 @@ interface Props {
   barangId: string;
 }
 
-interface Satuan {
+interface tipe {
   id: string;
-  nama_satuan: string;
-  harga_jual: string;
+  nama_tipe: string;
   harga_beli: string;
-  konversi_ke_satuan_dasar: number;
-  is_satuan_default: number;
+  harga_jual: string;
 }
 
 interface BarangInfo {
@@ -41,33 +40,33 @@ interface BarangInfo {
   kode_barang: string;
 }
 
-export default function KelolaSatuanDialog({
+export default function KelolatipeDialog({
   open,
   onOpenChange,
   barangId,
 }: Props) {
-  const [satuanList, setSatuanList] = useState<Satuan[]>([]);
+  const [tipeList, setTipeList] = useState<tipe[]>([]);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [satuanFormOpen, setSatuanFormOpen] = useState(false);
-  const [selectedSatuan, setSelectedSatuan] = useState<Satuan | null>(null);
+  const [tipeFormOpen, settipeFormOpen] = useState(false);
+  const [selectedtipe, setSelectedtipe] = useState<tipe | null>(null);
   const [barangInfo, setBarangInfo] = useState<BarangInfo | null>(null);
 
-  // setup default satuan/convert to default satuan
-  // const satuanDefault = satuanList.find((s) => s.is_satuan_default);
+  // setup default tipe/convert to default tipe
+  // const tipeDefault = tipeList.find((s) => s.is_tipe_default);
 
   // State untuk delete
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null);
 
-  const fetchSatuan = useCallback(async () => {
+  const fetchtipe = useCallback(async () => {
     try {
       console.log("barangId:", barangId);
-      const res = await axiosInstance.get(`/satuan-barang/barang/${barangId}`);
-      setSatuanList(res.data.data || []);
-      console.log("satuan:", res.data.data);
+      const res = await axiosInstance.get(`/tipe-barang/barang/${barangId}`);
+      setTipeList(res.data.data || []);
+      console.log("tipe:", res.data.data);
     } catch {
-      setError("Gagal memuat data satuan.".err);
+      setError("Gagal memuat data tipe.".err);
     }
   }, [barangId]);
 
@@ -82,32 +81,30 @@ export default function KelolaSatuanDialog({
 
   useEffect(() => {
     if (open) {
-      fetchSatuan();
+      fetchtipe();
       fetchBarangInfo();
     }
-  }, [open, barangId, fetchSatuan, fetchBarangInfo]);
+  }, [open, barangId, fetchtipe, fetchBarangInfo]);
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Kelola Satuan Barang</DialogTitle>
-            <DialogDescription>
-              Daftar satuan untuk barang ini.
-            </DialogDescription>
+            <DialogTitle>Kelola tipe Barang</DialogTitle>
+            <DialogDescription>Daftar tipe untuk barang ini.</DialogDescription>
           </DialogHeader>
 
           {/* ✅ Tampilkan info barang */}
           {barangInfo && (
-            <div className="mb-4 text-sm text-gray-600">
+            <div className="mb-4 text-xl text-gray-600">
               <p>
-                <span className="font-semibold">Nama Barang:</span>{" "}
-                {barangInfo.nama_barang}
+                <span>Nama Barang:</span>{" "}
+                <span className="font-semibold">{barangInfo.nama_barang}</span>
               </p>
               <p>
-                <span className="font-semibold">Kode Barang:</span>{" "}
-                {barangInfo.kode_barang}
+                <span>Kode Barang:</span>{" "}
+                <span className="font-semibold">{barangInfo.kode_barang}</span>
               </p>
             </div>
           )}
@@ -129,7 +126,7 @@ export default function KelolaSatuanDialog({
               <AlertCircleIcon className="h-5 w-5 text-green-600" />
               <AlertTitle className="text-green-700">Berhasil</AlertTitle>
               <AlertDescription className="text-green-600">
-                Data Satuan Berhasil Dihapus.
+                Data tipe Berhasil Dihapus.
               </AlertDescription>
             </Alert>
           )}
@@ -138,7 +135,7 @@ export default function KelolaSatuanDialog({
           <div className="flex justify-end mb-3 gap-2">
             <Button
               onClick={() => {
-                fetchSatuan();
+                fetchtipe();
               }}
               size="sm"
             >
@@ -146,57 +143,36 @@ export default function KelolaSatuanDialog({
             </Button>
             <Button
               onClick={() => {
-                setSelectedSatuan(null);
-                setSatuanFormOpen(true);
+                setSelectedtipe(null);
+                settipeFormOpen(true);
               }}
               size="sm"
             >
-              <PlusIcon className="w-4 h-4 mr-1" /> Tambah Satuan
+              <PlusIcon className="w-4 h-4 mr-1" /> Tambah tipe
             </Button>
           </div>
 
-          {/* ✅ Tabel satuan */}
-          <div className="overflow-x-auto">
+          {/* ✅ Tabel tipe */}
+          <ScrollArea className="max-h-[300px] border rounded">
             <table className="w-full border text-sm">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="border px-2 py-1">Satuan</th>
+                  <th className="border px-2 py-1">tipe</th>
+                  <th className="border px-2 py-1">Harga Beli (modal)</th>
                   <th className="border px-2 py-1">Harga Jual</th>
-                  <th className="border px-2 py-1">Harga Beli</th>
-                  <th className="border px-2 py-1">Konversi</th>
-                  <th className="border px-2 py-1">Default</th>
                   <th className="border px-2 py-1 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                {satuanList.map((satuan) => {
-                  const satuanDefault = satuanList.find(
-                    (s) => Number(s.is_satuan_default) === 1
-                  );
-                  const konversiText =
-                    Number(satuan.is_satuan_default) === 1
-                      ? `1 ${satuan.nama_satuan}`
-                      : `1 ${satuan.nama_satuan} = ${
-                          satuan.konversi_ke_satuan_dasar
-                        } ${satuanDefault?.nama_satuan || "-"}`;
-
+                {tipeList.map((tipe) => {
                   return (
-                    <tr key={satuan.id}>
-                      <td className="border px-2 py-1">{satuan.nama_satuan}</td>
+                    <tr key={tipe.id}>
+                      <td className="border px-2 py-1">{tipe.nama_tipe}</td>
                       <td className="border px-2 py-1">
-                        {rupiahFormat(satuan.harga_jual)}
+                        {rupiahFormat(tipe.harga_beli)}
                       </td>
                       <td className="border px-2 py-1">
-                        {rupiahFormat(satuan.harga_beli)}
-                      </td>
-
-                      {/* ✅ Konversi dinamis */}
-                      <td className="border px-2 py-1">{konversiText}</td>
-
-                      {/* ✅ Default ditentukan oleh angka 1/0 */}
-                      {/* {console.log(satuan)} */}
-                      <td className="border px-2 py-1 text-center">
-                        {Number(satuan.is_satuan_default) === 1 ? "✅" : "-"}
+                        {rupiahFormat(tipe.harga_jual)}
                       </td>
 
                       <td className="border px-2 py-1 text-center">
@@ -205,8 +181,8 @@ export default function KelolaSatuanDialog({
                             variant="outline"
                             size="icon"
                             onClick={() => {
-                              setSelectedSatuan(satuan);
-                              setSatuanFormOpen(true);
+                              setSelectedtipe(tipe);
+                              settipeFormOpen(true);
                             }}
                           >
                             <PencilIcon className="w-4 h-4" />
@@ -215,7 +191,7 @@ export default function KelolaSatuanDialog({
                             variant="destructive"
                             size="icon"
                             onClick={() => {
-                              setSelectedDeleteId(satuan.id);
+                              setSelectedDeleteId(tipe.id);
                               setDeleteDialogOpen(true);
                             }}
                           >
@@ -228,7 +204,7 @@ export default function KelolaSatuanDialog({
                 })}
               </tbody>
             </table>
-          </div>
+          </ScrollArea>
 
           <DialogFooter>
             <Button onClick={() => onOpenChange(false)} variant="outline">
@@ -237,15 +213,15 @@ export default function KelolaSatuanDialog({
           </DialogFooter>
 
           {/* ✅ Form Tambah/Edit */}
-          <SatuanDialogForm
-            open={satuanFormOpen}
+          <TipeDialogForm
+            open={tipeFormOpen}
             onOpenChange={(open) => {
-              setSatuanFormOpen(open);
-              if (!open) setSelectedSatuan(null);
+              settipeFormOpen(open);
+              if (!open) setSelectedtipe(null);
             }}
             barangId={barangId}
-            initialData={selectedSatuan}
-            onSuccess={() => fetchSatuan()}
+            initialData={selectedtipe}
+            onSuccess={() => fetchtipe()}
           />
         </DialogContent>
       </Dialog>
@@ -257,11 +233,11 @@ export default function KelolaSatuanDialog({
           if (!selectedDeleteId) return;
           try {
             const res = await axiosInstance.delete(
-              `/satuan-barang/${selectedDeleteId}`
+              `/tipe-barang/${selectedDeleteId}`
             );
             if (res.data?.status === "success") {
               setSuccessMessage(res.data.message || "Barang dihapus");
-              fetchSatuan();
+              fetchtipe();
             }
           } catch (err: unknown) {
             const msg =

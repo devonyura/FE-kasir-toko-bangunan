@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { axiosInstance } from "@/utils/axios";
 import BarangDialogForm from "@/components/barang/BarangDialogForm";
 import DeleteConfirmDialog from "@/components/barang/DeleteConfirmDialog";
-import KelolaSatuanDialog from "@/components/barang/KelolaSatuanDialog";
+import KelolatipeDialog from "@/components/barang/KelolaTipeDialog";
 
 import { DataTable } from "@/components/barang/DataTable";
 import { columns } from "@/components/barang/columns";
@@ -188,7 +188,7 @@ export default function BarangPage() {
 
       {/* Dialog Kelola Satuan */}
       {barangIdUntukSatuan && (
-        <KelolaSatuanDialog
+        <KelolatipeDialog
           open={kelolaSatuanOpen}
           onOpenChange={(open) => {
             setKelolaSatuanOpen(open);

@@ -13,7 +13,7 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
         <button onClick={toggleSidebar}>
           <Menu className="w-5 h-5" />
         </button>
-        <span className="font-semibold">Kasir Online</span>
+        <span className="font-semibold">Buana Situju Dapurang Online POS</span>
       </div>
       <div className="text-sm">Selamat datang, Devon</div>
     </header>

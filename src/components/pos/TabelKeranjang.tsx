@@ -24,7 +24,7 @@ export default function TabelKeranjang({ items, onUpdate, onDelete }: Props) {
           <thead className="bg-gray-100 sticky top-0 z-10">
             <tr>
               <th className="border px-2 py-1">Barang</th>
-              <th className="border px-2 py-1">Satuan</th>
+              <th className="border px-2 py-1">Tipe</th>
               <th className="border px-2 py-1 w-[110px]">Qty</th>
               <th className="border px-2 py-1">Harga</th>
               <th className="border px-2 py-1">Subtotal</th>
@@ -46,20 +46,20 @@ export default function TabelKeranjang({ items, onUpdate, onDelete }: Props) {
                 <tr key={index}>
                   <td className="border px-2 py-1">{item.nama_barang}</td>
                   <td className="border px-2 py-1">
-                    {/* Dropdown satuan */}
+                    {/* Dropdown tipe */}
                     <Select
-                      value={item.satuan_id}
+                      value={item.tipe_id}
                       onValueChange={(val) => {
-                        const satuanBaru = item.semua_satuan.find(
+                        const tipeBaru = item.semua_tipe.find(
                           (s) => s.id === val
                         );
-                        if (satuanBaru) {
-                          const harga = satuanBaru.harga_jual;
+                        if (tipeBaru) {
+                          const harga = tipeBaru.harga_jual;
                           const subtotal = item.qty * harga;
                           onUpdate(index, {
                             ...item,
-                            satuan_id: satuanBaru.id,
-                            nama_satuan: satuanBaru.nama_satuan,
+                            tipe_id: tipeBaru.id,
+                            nama_tipe: tipeBaru.nama_tipe,
                             harga_jual: harga,
                             subtotal,
                           });
@@ -67,12 +67,12 @@ export default function TabelKeranjang({ items, onUpdate, onDelete }: Props) {
                       }}
                     >
                       <SelectTrigger className="h-8">
-                        <SelectValue placeholder="Satuan" />
+                        <SelectValue placeholder="Tipe" />
                       </SelectTrigger>
                       <SelectContent>
-                        {item.semua_satuan.map((s) => (
+                        {item.semua_tipe.map((s) => (
                           <SelectItem key={s.id} value={s.id}>
-                            {s.nama_satuan}
+                            {s.nama_tipe}
                           </SelectItem>
                         ))}
                       </SelectContent>

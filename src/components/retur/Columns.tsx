@@ -53,7 +53,7 @@ export const columns: ColumnDef<unknown>[] = [
     ),
   },
   {
-    accessorKey: "nama_satuan",
+    accessorKey: "nama_tipe",
     header: ({ column }) => (
       <Button
         variant="ghost"

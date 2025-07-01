@@ -24,7 +24,7 @@ interface LogStok {
   tanggal: string;
   jenis: "masuk" | "keluar";
   jumlah: number;
-  satuan: string;
+  tipe: string;
   keterangan: string;
 }
 
@@ -85,7 +85,7 @@ export default function DetailStokDialog({
                   <th className="px-2 py-1 border text-left">Tanggal</th>
                   <th className="px-2 py-1 border text-left">Jenis</th>
                   <th className="px-2 py-1 border text-right">Jumlah</th>
-                  <th className="px-2 py-1 border text-left">Satuan</th>
+                  <th className="px-2 py-1 border text-left">Tipe</th>
                   <th className="px-2 py-1 border text-left">Keterangan</th>
                 </tr>
               </thead>
@@ -97,7 +97,7 @@ export default function DetailStokDialog({
                     <td className="px-2 py-1 border text-right">
                       {log.jumlah}
                     </td>
-                    <td className="px-2 py-1 border">{log.satuan}</td>
+                    <td className="px-2 py-1 border">{log.tipe}</td>
                     <td className="px-2 py-1 border">
                       {log.keterangan || "-"}
                     </td>

@@ -18,3 +18,29 @@ export const getFormattedFilename = (startDate, endDate) => {
   const tanggalAkhir = format(parseISO(endDate), "d MMMM yyyy", { locale: id });
   return `${tanggalAwal} - ${tanggalAkhir} Laporan Penjualan Toko Buana Situju Dapurang`;
 };
+
+export function singkatNamaBarang(nama: string): string {
+  const kataUmum = [
+    "dan",
+    "atau",
+    "dari",
+    "untuk",
+    "yang",
+    "ke",
+    "dengan",
+    "oleh",
+    "pada",
+    "di",
+  ];
+
+  return nama
+    .split(" ")
+    .filter((word) => word.length > 0 && !kataUmum.includes(word.toLowerCase()))
+    .map((word) => {
+      // Jika kata pendek (<=3 huruf), tetap gunakan
+      if (word.length <= 4) return word;
+      // Ambil 3 huruf pertama
+      return word.slice(0, 3);
+    })
+    .join(" ");
+}

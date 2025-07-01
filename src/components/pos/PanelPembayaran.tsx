@@ -86,7 +86,7 @@ export default function PanelPembayaran({
       user_id: Number(userId),
       detail: keranjang.map((item) => ({
         barang_id: Number(item.barang_id),
-        satuan_id: Number(item.satuan_id),
+        tipe_id: Number(item.tipe_id),
         qty: item.qty,
         harga_jual: Number(item.harga_jual),
         subtotal: item.subtotal,
@@ -104,18 +104,21 @@ export default function PanelPembayaran({
       setBayar("");
       setKembali(0);
       setOngkir("");
+      setIsDiskon(false);
       setIsOngkir("Tidak");
       setStatus("Lunas");
       setError("");
       setCustomer("Umum");
       isDiskon(false);
-    } catch (err: unknown) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.messages?.error ||
-        "Gagal menyimpan transaksi.";
-      console.log(err);
-      setError(msg);
+      console.log("RESPON:", err);
+    } catch (err: undefined) {
+      if (err) {
+        // const msg =
+        //   err?.response?.data?.message ||
+        //   err?.response?.data?.messages?.error ||
+        //   "Gagal menyimpan transaksi.";
+        // setError(msg);
+      }
     }
   };
 

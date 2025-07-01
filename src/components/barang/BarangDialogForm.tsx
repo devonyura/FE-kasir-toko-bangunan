@@ -116,7 +116,7 @@ export default function BarangDialogForm({
         ) as HTMLButtonElement;
         if (closeBtn) closeBtn.click();
       } else {
-        setError("Gagal menyimpan data.");
+        setError(res.data?.message || "Gagal menyimpan data.");
       }
     } catch (err: unknown) {
       const errors = err?.response?.data?.errors;
@@ -132,9 +132,23 @@ export default function BarangDialogForm({
     }
   };
 
-  const generateKodeBarang = () => {
-    const timestamp = Date.now().toString().slice(-6);
-    return `BRG-${timestamp}`;
+  const generateKodeBarangEAN13 = () => {
+    // Buat 12 digit awal (bisa pakai prefix tertentu jika mau, contoh: "899" untuk produk Indonesia)
+    const prefix = "899"; // optional prefix
+    const randomDigits = Math.floor(Math.random() * 1_000_000_000)
+      .toString()
+      .padStart(9, "0"); // 9 digit acak
+    const baseCode = prefix + randomDigits; // total 12 digit
+
+    // Hitung checksum EAN13
+    const sum = baseCode
+      .split("")
+      .map((digit, idx) => parseInt(digit) * (idx % 2 === 0 ? 1 : 3))
+      .reduce((a, b) => a + b, 0);
+
+    const checkDigit = (10 - (sum % 10)) % 10;
+
+    return baseCode + checkDigit; // hasil akhir 13 digit EAN13
   };
 
   return (
@@ -220,7 +234,7 @@ export default function BarangDialogForm({
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      const kode = generateKodeBarang();
+                      const kode = generateKodeBarangEAN13();
                       setKode_barang(kode);
                     }}
                   >

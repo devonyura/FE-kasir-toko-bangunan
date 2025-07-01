@@ -4,7 +4,7 @@ import CariBarangAutocomplete from "@/components/pos/CariBarangAutocomplete";
 import TabelKeranjang from "@/components/pos/TabelKeranjang";
 import PanelPembayaran from "@/components/pos/PanelPembayaran";
 import { axiosInstance } from "@/utils/axios";
-import type { KeranjangItem, Barang, Satuan } from "@/types/pos";
+import type { KeranjangItem, Barang, Tipe } from "@/types/pos";
 import StrukPreviewDialog from "@/components/struk/StrukPreviewDialog";
 
 export default function KasirPage() {
@@ -35,30 +35,30 @@ export default function KasirPage() {
     if (sudahAda) return;
 
     try {
-      const res = await axiosInstance.get(`/satuan-barang/barang/${barang.id}`);
-      const semuaSatuan: Satuan[] = res.data.data || [];
+      const res = await axiosInstance.get(`/tipe-barang/barang/${barang.id}`);
+      const semuaTipe: Tipe[] = res.data.data || [];
 
-      if (semuaSatuan.length === 0) {
-        console.error("Barang tidak memiliki satuan.");
+      if (semuaTipe.length === 0) {
+        console.error("Barang tidak memiliki tipe.");
         return;
       }
 
-      const satuanDefault = semuaSatuan[0];
+      const tipeDefault = semuaTipe[0];
 
       const itemBaru: KeranjangItem = {
         barang_id: barang.id,
         nama_barang: barang.nama_barang,
-        satuan_id: satuanDefault.id,
-        nama_satuan: satuanDefault.nama_satuan,
+        tipe_id: tipeDefault.id,
+        nama_tipe: tipeDefault.nama_tipe,
         qty: 1,
-        harga_jual: satuanDefault.harga_jual,
-        subtotal: satuanDefault.harga_jual * 1,
-        semua_satuan: semuaSatuan,
+        harga_jual: tipeDefault.harga_jual,
+        subtotal: tipeDefault.harga_jual * 1,
+        semua_tipe: semuaTipe,
       };
 
       setKeranjang((prev) => [...prev, itemBaru]);
     } catch (err) {
-      console.error("Gagal mengambil satuan barang:", err);
+      console.error("Gagal mengambil tipe barang:", err);
     }
   };
 
