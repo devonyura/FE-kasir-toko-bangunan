@@ -22,9 +22,9 @@ const menuItems: MenuItem[] = [
   {
     label: "Laporan",
     children: [
+      { label: "Laporan Bulanan", path: "/laporan-bulanan" },
       { label: "Laporan Penjualan", path: "/laporan-penjualan" },
       { label: "Laporan Pembelian", path: "/laporan-pembelian" },
-      { label: "Laporan Stok", path: "/laporan-stok" },
     ],
   },
   { label: "Data Barang", path: "/Barang" },

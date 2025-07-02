@@ -1,45 +1,42 @@
 import { rupiahFormat } from "@/utils/formatting";
-import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import type { ColumnDef } from "@tanstack/react-table";
 
-type TransaksiJual = {
+type TransaksiBeli = {
   no_nota: string;
   tanggal: string;
-  customer: string;
   total: string;
   dibayar: string;
+  sisa_hutang: string;
   status: string;
 };
 
-export const columns: ColumnDef<TransaksiJual>[] = [
+export const columnsPembelian: ColumnDef<TransaksiBeli>[] = [
   {
     accessorKey: "no_nota",
-    header: "No. Nota",
+    header: "No Nota",
   },
   {
     accessorKey: "tanggal",
     header: "Tanggal",
-    cell: ({ row }) => {
-      const raw = row.getValue("tanggal") as string;
-      const date = new Date(raw);
-      if (isNaN(date.getTime())) return "-";
-      return format(date, "EEEE, dd MMMM yyyy [HH:ii]", { locale: id });
-    },
-  },
-  {
-    accessorKey: "customer",
-    header: "Customer",
+    cell: ({ row }) =>
+      format(new Date(row.getValue("tanggal")), "dd MMM yyyy", { locale: id }),
   },
   {
     accessorKey: "total",
     header: "Total",
-    cell: ({ row }) => `${rupiahFormat(row.getValue("total"))}`,
+    cell: ({ row }) => rupiahFormat(row.getValue("total")),
   },
   {
     accessorKey: "dibayar",
     header: "Dibayar",
-    cell: ({ row }) => `${rupiahFormat(row.getValue("dibayar"))}`,
+    cell: ({ row }) => rupiahFormat(row.getValue("dibayar")),
+  },
+  {
+    accessorKey: "sisa_hutang",
+    header: "Sisa Hutang",
+    cell: ({ row }) => rupiahFormat(row.getValue("sisa_hutang")),
   },
   {
     accessorKey: "status",

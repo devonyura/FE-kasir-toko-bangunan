@@ -2,6 +2,8 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import type { TransaksiBeli } from "./types";
 import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 
 export const columns = (
   handlePelunasan: (transaksi: TransaksiBeli) => void,
@@ -10,6 +12,12 @@ export const columns = (
   {
     accessorKey: "tanggal",
     header: "Tanggal",
+    cell: ({ row }) => {
+      const raw = row.getValue("tanggal") as string;
+      const date = new Date(raw);
+      if (isNaN(date.getTime())) return "-";
+      return format(date, "EEEE, dd MMMM yyyy [HH:ii]", { locale: id });
+    },
   },
   {
     accessorKey: "nama_supplier",

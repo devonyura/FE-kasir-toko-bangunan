@@ -17,7 +17,7 @@ export const columns = (
       const raw = row.getValue("tanggal") as string;
       const date = new Date(raw);
       if (isNaN(date.getTime())) return "-";
-      return format(date, "EEEE, dd MMMM yyyy", { locale: id });
+      return format(date, "EEEE, dd MMMM yyyy [HH:ii]", { locale: id });
     },
   },
   {
