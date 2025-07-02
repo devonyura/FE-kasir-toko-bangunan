@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
+import axios from "axios";
 
 interface Props {
   open: boolean;
@@ -61,8 +62,10 @@ export default function KategoriDialogForm({
         setError("Gagal menyimpan kategori.");
       }
     } catch (err: unknown) {
-      const msg = err?.response?.data?.message || "Gagal menyimpan kategori.";
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        const msg = err?.response?.data?.message || "Gagal menyimpan kategori.";
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }

@@ -42,7 +42,7 @@ export const columnsPembelian: ColumnDef<TransaksiBeli>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status");
+      const status = row.getValue("status") as string;
       return (
         <span
           className={`font-semibold ${

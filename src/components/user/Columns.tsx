@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { User } from "./types";
 
-export const columns = (
+export const Columns = (
   handleResetPassword: (userId: string) => void,
   handleDelete?: (id: string) => void
 ): ColumnDef<User>[] => [

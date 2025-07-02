@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
+import axios from "axios";
 import {
   Select,
   SelectContent,
@@ -119,13 +120,17 @@ export default function BarangDialogForm({
         setError(res.data?.message || "Gagal menyimpan data.");
       }
     } catch (err: unknown) {
-      const errors = err?.response?.data?.errors;
-      if (errors && typeof errors === "object") {
-        const allMessages = Object.values(errors).join(" ");
-        setError(allMessages);
-      } else {
-        const msg = err?.response?.data?.message || "Gagal menyimpan data.";
-        setError(msg);
+      if (axios.isAxiosError(err)) {
+        const errors = err.response?.data?.message || "Gagal menyimpan data.";
+        if (errors && typeof errors === "object") {
+          const allMessages = Object.values(errors).join(" ");
+          setError(allMessages);
+        } else {
+          if (axios.isAxiosError(err)) {
+            const msg = err.response?.data?.message || "Gagal menyimpan data.";
+            setError(msg);
+          }
+        }
       }
     } finally {
       setLoading(false);

@@ -1,6 +1,7 @@
 // src/pages/transaksi/types.ts
 export type TransaksiBeli = {
   id: string;
+  no_nota: string;
   tanggal: string;
   supplier_id: string;
   total: string;

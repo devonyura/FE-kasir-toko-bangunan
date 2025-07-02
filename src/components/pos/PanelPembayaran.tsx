@@ -109,9 +109,7 @@ export default function PanelPembayaran({
       setStatus("Lunas");
       setError("");
       setCustomer("Umum");
-      isDiskon(false);
-      console.log("RESPON:", err);
-    } catch (err: undefined) {
+    } catch (err) {
       if (err) {
         // `const msg =
         //   err?.response?.data?.message ||

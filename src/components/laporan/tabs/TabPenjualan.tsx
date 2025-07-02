@@ -3,14 +3,33 @@ import { DataTable } from "@/components/transaksi-beli/DataTable";
 import { columnsPenjualan } from "@/components/laporan/columns/columnsPenjualan";
 import { rupiahFormat } from "@/utils/formatting";
 import { PaginationNavigator } from "../PaginationNavigator";
+import type { TransaksiJual } from "@/components/transaksi-jual/types";
 
-type Props = {
-  data: undefined[];
-  summary: undefined;
+interface Props {
+  data: TransaksiJual[]; // ✅ Ganti dari undefined[]
+  summary: {
+    total_omset: number;
+    total_piutang: number;
+    jumlah_transaksi: number;
+    rata_rata_transaksi: number;
+  };
   page: number;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
+  setPage: (page: number) => void;
   totalPages: number;
-};
+}
+
+interface Props {
+  data: TransaksiJual[]; // bisa diganti dengan tipe khusus jika ada
+  summary: {
+    total_omset: number;
+    total_piutang: number;
+    jumlah_transaksi: number;
+    rata_rata_transaksi: number;
+  };
+  page: number;
+  setPage: (page: number) => void;
+  totalPages: number;
+}
 
 export default function TabPenjualan({
   data,
@@ -47,7 +66,10 @@ export default function TabPenjualan({
           </div>
         </CardContent>
       </Card>
-      <DataTable columns={columnsPenjualan} data={data} />
+      <DataTable<TransaksiJual, unknown>
+        columns={columnsPenjualan}
+        data={data}
+      />
       <PaginationNavigator
         page={page}
         setPage={setPage}

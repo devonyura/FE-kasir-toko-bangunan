@@ -5,7 +5,10 @@ import { id } from "date-fns/locale";
 import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils"; // jika kamu pakai util classnames
-
+type ReturItem = {
+  qty: number;
+  jenis: string;
+};
 export const columns: ColumnDef<unknown>[] = [
   {
     accessorKey: "tanggal",
@@ -79,7 +82,7 @@ export const columns: ColumnDef<unknown>[] = [
     ),
     cell: ({ row }) => {
       const qty = row.getValue("qty") as number;
-      const jenis = row.original.jenis as string;
+      const jenis = (row.original as ReturItem).jenis;
 
       const isPenjualan = jenis === "penjualan";
 

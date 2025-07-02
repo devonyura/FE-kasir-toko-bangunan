@@ -9,6 +9,7 @@ export type Stok = {
   satuan_id: string;
   nama_satuan: string;
   jumlah: number;
+  id: string;
 };
 
 export const columns = (

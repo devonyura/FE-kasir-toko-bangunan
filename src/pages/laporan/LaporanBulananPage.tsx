@@ -4,14 +4,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { axiosInstance } from "@/utils/axios";
 import { parse, endOfMonth, format } from "date-fns";
-// import { id } from "date-fns/locale";
-// import { DataTable } from "@/components/transaksi-beli/DataTable"; // asumsi ini sudah ada
-// import { rupiahFormat } from "@/utils/formatting";
-// import { DownloadIcon, FileTextIcon, FileSpreadsheetIcon } from "lucide-react";
-// import { columnsPenjualan } from "@/components/laporan/columns/columnsPenjualan";
-// import { columnsPembelian } from "@/components/laporan/columns/columnsPembelian";
-// import { columnsPerformaBarang } from "@/components/laporan/columns/columnsPerformaBarang";
-// import { columnsOmzetHarian } from "@/components/laporan/columns/columnsOmzetHarian";
 
 import TabPenjualan from "@/components/laporan/tabs/TabPenjualan";
 import TabPembelian from "@/components/laporan/tabs/TabPembelian";
@@ -192,7 +184,7 @@ export default function LaporanBulananPage() {
         <TabsContent value="pembelian">
           <TabPembelian
             data={dataPembelian}
-            summary={summaryPembelian}
+            summary={summaryPembelian || null}
             page={pembelianPage}
             setPage={setPembelianPage}
             totalPages={pembelianTotalPages}
@@ -200,15 +192,15 @@ export default function LaporanBulananPage() {
         </TabsContent>
 
         <TabsContent value="barang-terlaris">
-          <TabBarangTerlaris data={dataPerformaBarang} />
+          <TabBarangTerlaris data={dataPerformaBarang || null} />
         </TabsContent>
 
         <TabsContent value="laba-rugi">
-          <TabLabaRugi summary={summaryLabaRugi} />
+          <TabLabaRugi summary={summaryLabaRugi || null} />
         </TabsContent>
 
         <TabsContent value="omzet-harian">
-          <TabOmzetHarian data={dataOmzetHarian} />
+          <TabOmzetHarian data={dataOmzetHarian || []} />
         </TabsContent>
       </Tabs>
     </div>

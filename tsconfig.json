@@ -5,6 +5,9 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
+    "jsx": "react-jsx",   
+    "target": "ES2021",
+    "lib": ["DOM", "DOM.Iterable", "ES2021", "ESNext"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]

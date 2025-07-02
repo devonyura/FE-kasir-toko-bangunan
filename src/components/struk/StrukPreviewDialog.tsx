@@ -15,9 +15,34 @@ interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   data?: {
-    transaksi: undefined;
-    detail: undefined[];
-  };
+    transaksi: Transaksi;
+    detail: DetailTransaksi[];
+  } | null;
+}
+
+interface Transaksi {
+  no_nota: string;
+  tanggal: string;
+  customer?: string;
+  nama_supplier?: string;
+  username: string;
+  status: string;
+  ongkir: number;
+  diskon: number;
+  total: number;
+  dibayar: number;
+  kembali?: number;
+  sisa_piutang?: number;
+  sisa_hutang?: number;
+}
+
+interface DetailTransaksi {
+  nama_barang: string;
+  nama_tipe: string;
+  qty: number;
+  harga_jual?: number;
+  harga_beli?: number;
+  subtotal: number;
 }
 
 export default function StrukPreviewDialog({
@@ -46,8 +71,17 @@ export default function StrukPreviewDialog({
   );
 
   // helper untuk ambil harga (jual atau beli)
-  const getHarga = (item: unknown) =>
-    parseFloat(item?.harga_jual ?? item?.harga_beli ?? 0);
+  const getHarga = (item: unknown) => {
+    if (
+      typeof item === "object" &&
+      item !== null &&
+      ("harga_jual" in item || "harga_beli" in item)
+    ) {
+      const cast = item as DetailTransaksi;
+      return parseFloat((cast.harga_jual ?? cast.harga_beli ?? 0).toString());
+    }
+    return 0;
+  };
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -126,20 +160,20 @@ export default function StrukPreviewDialog({
                 <>
                   <div className="flex justify-between">
                     <span>Kembali</span>
-                    <span>{rupiahFormat(transaksi.kembali)}</span>
+                    <span>{rupiahFormat(transaksi.kembali ?? 0)}</span>
                   </div>
-                  {parseFloat(transaksi.sisa_piutang || 0) > 0 && (
+                  {parseFloat((transaksi.sisa_piutang ?? 0).toString()) > 0 && (
                     <div className="flex justify-between">
                       <span>Sisa Piutang</span>
-                      <span>{rupiahFormat(transaksi.sisa_piutang)}</span>
+                      <span>{rupiahFormat(transaksi.sisa_piutang ?? 0)}</span>
                     </div>
                   )}
                 </>
               ) : (
-                parseFloat(transaksi.sisa_hutang || 0) > 0 && (
+                parseFloat((transaksi.sisa_hutang ?? 0).toString()) > 0 && (
                   <div className="flex justify-between">
                     <span>Sisa Hutang</span>
-                    <span>{rupiahFormat(transaksi.sisa_hutang)}</span>
+                    <span>{rupiahFormat(transaksi.sisa_hutang ?? 0)}</span>
                   </div>
                 )
               )}
@@ -228,20 +262,20 @@ export default function StrukPreviewDialog({
               <>
                 <div className="flex justify-between">
                   <span>Kembali</span>
-                  <span>{rupiahFormat(transaksi.kembali)}</span>
+                  <span>{rupiahFormat(transaksi.kembali ?? 0)}</span>
                 </div>
-                {parseFloat(transaksi.sisa_piutang || 0) > 0 && (
+                {parseFloat((transaksi.sisa_piutang ?? 0).toString()) > 0 && (
                   <div className="flex justify-between">
                     <span>Sisa Piutang</span>
-                    <span>{rupiahFormat(transaksi.sisa_piutang)}</span>
+                    <span>{rupiahFormat(transaksi.sisa_piutang ?? 0)}</span>
                   </div>
                 )}
               </>
             ) : (
-              parseFloat(transaksi.sisa_hutang || 0) > 0 && (
+              parseFloat((transaksi.sisa_hutang ?? 0).toString()) > 0 && (
                 <div className="flex justify-between">
                   <span>Sisa Hutang</span>
-                  <span>{rupiahFormat(transaksi.sisa_hutang)}</span>
+                  <span>{rupiahFormat(transaksi.sisa_hutang ?? 0)}</span>
                 </div>
               )
             )}

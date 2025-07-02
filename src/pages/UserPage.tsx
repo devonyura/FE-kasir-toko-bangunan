@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 
 import { axiosInstance } from "@/utils/axios";
 import { DataTable } from "@/components/barang/DataTable";
-import { columns } from "@/components/user/columns";
+import { Columns } from "@/components/user/Columns";
 import type { User } from "@/components/user/types";
 import UserDialogForm from "@/components/user/UserDialogForm";
 import DeleteConfirmDialog from "@/components/barang/DeleteConfirmDialog";
 import ResetPasswordDialogForm from "@/components/user/ResetPasswordDialogForm";
+import axios from "axios";
 
 export default function UserPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -63,8 +64,10 @@ export default function UserPage() {
         setTimeout(() => setSuccessMessage(""), 3000);
       }
     } catch (err: unknown) {
-      const msg = err?.response?.data?.message || "Gagal menghapus pengguna.";
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        const msg = err?.response?.data?.message || "Gagal menghapus pengguna.";
+        setError(msg);
+      }
     } finally {
       setDeleteDialogOpen(false);
       setSelectedDeleteId(null);
@@ -107,7 +110,7 @@ export default function UserPage() {
       ) : (
         <DataTable
           data={users}
-          columns={columns(handleOpenResetPassword, (id) => {
+          columns={Columns(handleOpenResetPassword, (id) => {
             setSelectedDeleteId(id);
             setDeleteDialogOpen(true);
           })}

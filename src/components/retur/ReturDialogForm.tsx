@@ -20,6 +20,34 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import { axiosInstance } from "@/utils/axios";
+import axios from "axios";
+
+// Tambahkan tipe ini di atas component
+type TransaksiDetail = {
+  id: number;
+  barang_id: number;
+  tipe_id: number;
+  nama_barang: string;
+  nama_tipe: string;
+  qty: number;
+  harga_jual?: number;
+  harga_beli?: number;
+  subtotal: number;
+};
+
+type PreviewTransaksi = {
+  transaksi: {
+    id: number;
+    no_nota: string;
+    tanggal: string;
+    customer?: string;
+    nama_supplier?: string;
+    status: string;
+    total: number;
+    dibayar: number;
+  };
+  detail: TransaksiDetail[];
+};
 
 interface Props {
   open: boolean;
@@ -54,27 +82,23 @@ export default function ReturDialogForm({
   const [error, setError] = useState("");
 
   // preview nota state
-  const [previewTransaksi, setPreviewTransaksi] = useState<undefined>(null);
+  const [previewTransaksi, setPreviewTransaksi] =
+    useState<PreviewTransaksi | null>(null);
 
   // Mengambil qty maksimum dari detail barang yang dipilih
   const getMaxQtyBarang = () => {
-    if (!selectedBarangTipe || !barangTipeOptions.length) return 0;
+    if (!selectedBarangTipe || !barangTipeOptions.length || !previewTransaksi)
+      return 0;
 
     const [barang_id, tipe_id] = selectedBarangTipe
       .split("-")
       .map((v) => parseInt(v));
 
-    const found = barangTipeOptions.find(
-      (item) => item.barang_id == barang_id && item.tipe_id == tipe_id
+    const found = previewTransaksi.detail.find(
+      (d) => d.barang_id === barang_id && d.tipe_id === tipe_id
     );
 
-    return found
-      ? parseFloat(
-          (previewTransaksi?.detail || []).find(
-            (d: undefined) => d.barang_id == barang_id && d.tipe_id == tipe_id
-          )?.qty || "0"
-        )
-      : 0;
+    return found ? Number(found.qty) : 0;
   };
 
   useEffect(() => {
@@ -119,7 +143,7 @@ export default function ReturDialogForm({
       setBarangTipeOptions(data.detail || []);
       setPreviewTransaksi(data);
       setError("");
-    } catch (err: undefined) {
+    } catch (err) {
       setError(`Transaksi tidak ditemukan. Periksa nomor nota: ${err}`);
       setBarangTipeOptions([]);
       setPreviewTransaksi(null);
@@ -166,9 +190,11 @@ export default function ReturDialogForm({
       onSuccess("Retur berhasil disimpan.");
       onOpenChange(false);
     } catch (err) {
-      console.log(err);
-      const msg = err?.response?.data?.message || "Gagal menyimpan retur.";
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        console.log(err);
+        const msg = err?.response?.data?.message || "Gagal menyimpan retur.";
+        setError(msg);
+      }
     }
   };
 
@@ -289,29 +315,25 @@ export default function ReturDialogForm({
                     </tr>
                   </thead>
                   <tbody>
-                    {previewTransaksi.detail.map(
-                      (item: undefined, idx: number) => (
-                        <tr key={item.id}>
-                          <td className="border px-2 py-1">{idx + 1}</td>
-                          <td className="border px-2 py-1">
-                            {item.nama_barang}
-                          </td>
-                          <td className="border px-2 py-1">{item.nama_tipe}</td>
-                          <td className="border px-2 py-1">{item.qty}</td>
-                          <td className="border px-2 py-1">
-                            Rp
-                            {Number(
-                              jenis === "penjualan"
-                                ? item.harga_jual
-                                : item.harga_beli
-                            ).toLocaleString("id-ID")}
-                          </td>
-                          <td className="border px-2 py-1">
-                            Rp{Number(item.subtotal).toLocaleString("id-ID")}
-                          </td>
-                        </tr>
-                      )
-                    )}
+                    {previewTransaksi.detail.map((item, idx) => (
+                      <tr key={item.id}>
+                        <td className="border px-2 py-1">{idx + 1}</td>
+                        <td className="border px-2 py-1">{item.nama_barang}</td>
+                        <td className="border px-2 py-1">{item.nama_tipe}</td>
+                        <td className="border px-2 py-1">{item.qty}</td>
+                        <td className="border px-2 py-1">
+                          Rp
+                          {Number(
+                            jenis === "penjualan"
+                              ? item.harga_jual
+                              : item.harga_beli
+                          ).toLocaleString("id-ID")}
+                        </td>
+                        <td className="border px-2 py-1">
+                          Rp{Number(item.subtotal).toLocaleString("id-ID")}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

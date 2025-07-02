@@ -1,6 +1,6 @@
 // src/pages/transaksi/TransaksiJualPage.tsx
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { axiosInstance } from "@/utils/axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { AlertCircleIcon, Loader2Icon } from "lucide-react";
 import { columns } from "@/components/transaksi-jual/Columns";
 import { DataTable } from "@/components/transaksi-jual/DataTable";
 import PelunasanTransaksiDialogForm from "@/components/transaksi-jual/PelunasanTransaksiDialogForm";
-import type { TransaksiJual } from "@/types/transaksi";
+import type { TransaksiJual } from "@/components/transaksi-jual/types";
 import StrukPreviewDialog from "@/components/struk/StrukPreviewDialog";
 
 import { debounce } from "lodash";
@@ -32,7 +32,7 @@ export default function TransaksiJualPage() {
 
   // ✅ struk print dialog
   const [openStruk, setOpenStruk] = useState(false);
-  const [dataStruk, setDataStruk] = useState<undefined | null>(null);
+  const [dataStruk, setDataStruk] = useState<undefined>(undefined);
 
   // ✅ state search
   const [search, setSearch] = useState("");
@@ -52,13 +52,21 @@ export default function TransaksiJualPage() {
     }
   }, [page, perPage, search]);
 
-  const debouncedSearch = useCallback(
-    debounce((val: string) => {
-      setPage(1); // reset ke halaman 1 setiap search
-      setSearch(val);
-    }, 300),
-    [setPage, setSearch]
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((val: string) => {
+        setPage(1);
+        setSearch(val);
+      }, 300),
+    [] // kosong = hanya buat sekali
   );
+
+  // Cleanup agar tidak memory leak
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   useEffect(() => {
     return () => {
@@ -168,7 +176,19 @@ export default function TransaksiJualPage() {
       <PelunasanTransaksiDialogForm
         open={pelunasanDialogOpen}
         onOpenChange={setPelunasanDialogOpen}
-        transaksi={selectedTransaksi}
+        transaksi={
+          selectedTransaksi
+            ? {
+                id: selectedTransaksi.id ?? null,
+                tanggal: selectedTransaksi.tanggal ?? null,
+                customer: selectedTransaksi.customer ?? null,
+                total: selectedTransaksi.total ?? null,
+                dibayar: selectedTransaksi.dibayar ?? null,
+                sisa_piutang: selectedTransaksi.sisa_piutang ?? null,
+                status: selectedTransaksi.status ?? null,
+              }
+            : null
+        }
         onSuccess={handleSuccess}
       />
 

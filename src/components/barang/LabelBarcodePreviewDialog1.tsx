@@ -60,7 +60,7 @@ export default function StrukPreviewDialog1({
                   width={1.5}
                   fontSize={12}
                   displayValue={true}
-                  value={barang?.kode_barang}
+                  value={barang?.kode_barang || ""}
                   marginRight={0}
                   marginLeft={55}
                   format="EAN13"
@@ -77,7 +77,7 @@ export default function StrukPreviewDialog1({
                   width={1.5}
                   fontSize={12}
                   displayValue={true}
-                  value={barang?.kode_barang}
+                  value={barang?.kode_barang || ""}
                   marginLeft={20}
                   format="EAN13"
                   marginTop={1}
@@ -93,7 +93,7 @@ export default function StrukPreviewDialog1({
                   width={1.5}
                   fontSize={12}
                   displayValue={true}
-                  value={barang?.kode_barang}
+                  value={barang?.kode_barang || ""}
                   marginLeft={40}
                   format="EAN13"
                   marginTop={1}
@@ -125,7 +125,7 @@ export default function StrukPreviewDialog1({
                 width={1.5}
                 fontSize={12}
                 displayValue={true}
-                value={barang?.kode_barang}
+                value={barang?.kode_barang || ""}
                 marginRight={0}
                 marginLeft={70}
                 format="EAN13"
@@ -142,7 +142,7 @@ export default function StrukPreviewDialog1({
                 width={1.5}
                 fontSize={12}
                 displayValue={true}
-                value={barang?.kode_barang}
+                value={barang?.kode_barang || ""}
                 marginLeft={20}
                 format="EAN13"
                 marginTop={1}
@@ -158,7 +158,7 @@ export default function StrukPreviewDialog1({
                 width={1.5}
                 fontSize={12}
                 displayValue={true}
-                value={barang?.kode_barang}
+                value={barang?.kode_barang || ""}
                 marginLeft={40}
                 format="EAN13"
                 marginTop={1}

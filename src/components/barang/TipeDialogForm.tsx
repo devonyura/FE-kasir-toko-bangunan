@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import CalculatorDialog from "../common/CalculatorDialog";
+import axios from "axios";
 // import {  } from "ca";
 
 interface Props {
@@ -90,8 +91,10 @@ export default function TipeDialogForm({
         setError("Gagal menyimpan tipe.");
       }
     } catch (err: unknown) {
-      const msg = err?.response?.data?.message || "Gagal menyimpan tipe.";
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        const msg = err?.response?.data?.message || "Gagal menyimpan tipe.";
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -117,7 +120,7 @@ export default function TipeDialogForm({
 
           {error && (
             <Alert variant="destructive" className="mb-4">
-              <AlertCircleIcon className="h-5 w-5" />
+              {/* <AlertCircleIcon className="h-5 w-5" /> */}
               <AlertTitle>Gagal</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>

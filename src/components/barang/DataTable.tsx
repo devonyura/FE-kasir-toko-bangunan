@@ -74,7 +74,7 @@ DataTableProps<TData, TValue>) {
     <div className="space-y-4">
       <div className="flex justify-between items-start">
         <Input
-          placeholder={`Cari ${filterKey?.replaceAll("_", " ")}...`}
+          placeholder={`Cari ${filterKey?.split("_").join(" ")}...`}
           value={(table.getColumn(filterKey)?.getFilterValue() as string) ?? ""}
           onChange={(e) =>
             table.getColumn(filterKey)?.setFilterValue(e.target.value)

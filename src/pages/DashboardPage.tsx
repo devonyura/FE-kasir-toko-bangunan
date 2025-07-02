@@ -1,5 +1,3 @@
-// src/pages/DashboardPage.tsx
-
 import { useEffect, useState } from "react";
 import { axiosInstance } from "@/utils/axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,10 +11,32 @@ import {
   Legend,
 } from "chart.js";
 
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
+// ==== Tambahkan tipe data ====
+
+type GrafikPenjualanItem = {
+  tanggal: string;
+  total: number;
+};
+
+type BarangTerlarisItem = {
+  nama_barang: string;
+  total_terjual: number;
+};
+
+type DashboardData = {
+  penjualan_bulan_ini: string;
+  total_piutang: string;
+  grafik_penjualan: GrafikPenjualanItem[];
+  barang_terlaris: BarangTerlarisItem[];
+};
+
 export default function DashboardPage() {
-  const [data, setData] = useState<undefined>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +44,7 @@ export default function DashboardPage() {
       .get("/laporan/dashboard")
       .then((res) => {
         console.log(res.data?.data);
-        setData(res.data?.data || {});
+        setData(res.data?.data || null);
       })
       .catch((err) => {
         console.error("Gagal ambil data dashboard:", err);
@@ -35,7 +55,7 @@ export default function DashboardPage() {
   if (loading) return <div className="p-4">Memuat dashboard...</div>;
   if (!data) return <div className="p-4">Gagal memuat data dashboard.</div>;
 
-  const formatRupiah = (num: number) =>
+  const formatRupiah = (num: string) =>
     `Rp${parseFloat(num).toLocaleString("id-ID")}`;
 
   return (
@@ -43,7 +63,7 @@ export default function DashboardPage() {
       <h1 className="text-2xl font-bold">Dashboard</h1>
 
       {/* Ringkasan */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
             <CardTitle>Penjualan Bulan Ini</CardTitle>
@@ -56,27 +76,7 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Pembelian Bulan Ini</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg font-semibold">
-              {formatRupiah(data.pembelian_bulan_ini)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Hutang</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg font-semibold">
-              {formatRupiah(data.total_hutang)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Total Piutang</CardTitle>
+            <CardTitle>Total Piutang Bulan Ini</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-lg font-semibold">
@@ -86,24 +86,24 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Grafik Penjualan dan Pembelian */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Grafik Penjualan */}
+      <div className="grid grid-cols-1 lg:grid-cols-1 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Grafik Penjualan</CardTitle>
+            <CardTitle>Grafik Penjualan Harian Bulan Ini</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="h-[40vh]">
             <Bar
               data={{
-                labels: data.grafik_penjualan?.map(
-                  (item: undefined) => item.tanggal
+                labels: data.grafik_penjualan?.map((item) =>
+                  format(new Date(item.tanggal), "EEE, dd MMMM", {
+                    locale: id,
+                  })
                 ),
                 datasets: [
                   {
                     label: "Total Penjualan",
-                    data: data.grafik_penjualan?.map(
-                      (item: undefined) => item.total
-                    ),
+                    data: data.grafik_penjualan?.map((item) => item.total),
                     backgroundColor: "#3b82f6",
                   },
                 ],
@@ -116,50 +116,9 @@ export default function DashboardPage() {
                 scales: {
                   y: {
                     ticks: {
-                      callback: (value) =>
-                        `Rp${parseInt(value as string).toLocaleString(
-                          "id-ID"
-                        )}`,
-                    },
-                  },
-                },
-              }}
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Grafik Pembelian</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Bar
-              data={{
-                labels: data.grafik_pembelian?.map(
-                  (item: undefined) => item.tanggal
-                ),
-                datasets: [
-                  {
-                    label: "Total Pembelian",
-                    data: data.grafik_pembelian?.map(
-                      (item: undefined) => item.total
-                    ),
-                    backgroundColor: "#10b981",
-                  },
-                ],
-              }}
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: { display: false },
-                },
-                scales: {
-                  y: {
-                    ticks: {
-                      callback: (value) =>
-                        `Rp${parseInt(value as string).toLocaleString(
-                          "id-ID"
-                        )}`,
+                      callback: function (value: string | number) {
+                        return `Rp${Number(value).toLocaleString("id-ID")}`;
+                      },
                     },
                   },
                 },
@@ -176,7 +135,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <ul className="space-y-1 text-sm">
-            {data.barang_terlaris?.map((item: undefined, index: number) => (
+            {data.barang_terlaris?.map((item, index) => (
               <li
                 key={index}
                 className="flex justify-between border-b py-1 last:border-none"

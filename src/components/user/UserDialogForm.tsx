@@ -32,6 +32,7 @@ interface Props {
     role: string;
   } | null;
 }
+import axios from "axios";
 
 const ROLES = ["kasir", "owner", "manager"] as const;
 
@@ -69,7 +70,7 @@ export default function UserDialogForm({
     setError("");
     setLoading(true);
     try {
-      const payload: undefined = { username, role };
+      const payload: Record<string, unknown> = { username, role };
       if (!isEdit) payload.password = password;
 
       const res = isEdit
@@ -86,9 +87,11 @@ export default function UserDialogForm({
         setError("Gagal menyimpan data.");
       }
     } catch (err: unknown) {
-      const msg =
-        err?.response?.data?.message || "Gagal menyimpan data pengguna.";
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        const msg =
+          err?.response?.data?.message || "Gagal menyimpan data pengguna.";
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }

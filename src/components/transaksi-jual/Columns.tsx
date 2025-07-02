@@ -5,6 +5,7 @@ import { id } from "date-fns/locale";
 // import { ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 // import { cn } from "@/lib/utils"; // jika kamu pakai util classnames
+import type { TransaksiJual } from "@/components/transaksi-jual/types";
 
 export const columns = (
   handlePelunasan: (transaksi: TransaksiJual) => void,
@@ -56,7 +57,7 @@ export const columns = (
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status");
+      const status = row.getValue("status") as string;
       return (
         <span
           className={

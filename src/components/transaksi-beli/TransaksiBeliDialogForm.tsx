@@ -18,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { rupiahFormat } from "@/utils/formatting";
 import ConfirmDialog from "../common/ConfirmDialog";
+import axios from "axios";
 
 // Tipe data
 interface Supplier {
@@ -36,10 +37,17 @@ interface DetailBarang {
   subtotal: number;
 }
 
+interface Barang {
+  id: string;
+  nama_barang: string;
+  nama_kategori: string;
+  kode_barang: string;
+}
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  onSuccess: (message: string) => void;
 }
 export default function TransaksiBeliDialogForm({
   open,
@@ -61,9 +69,9 @@ export default function TransaksiBeliDialogForm({
   const [details, setDetails] = useState<DetailBarang[]>([]);
   const [error, setError] = useState("");
 
-  const [daftarBarang, setDaftarBarang] = useState<unknown[]>([]);
+  const [daftarBarang, setDaftarBarang] = useState<Barang[]>([]);
   const [cariBarang, setCariBarang] = useState("");
-  const [selectedBarang, setSelectedBarang] = useState<unknown | null>(null);
+  const [selectedBarang, setSelectedBarang] = useState<Barang | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [editDetailIndex, setEditDetailIndex] = useState<number | null>(null);
   const itemsPerPage = 5;
@@ -77,9 +85,12 @@ export default function TransaksiBeliDialogForm({
   >(null);
   const [indexHapus, setIndexHapus] = useState<number | null>(null);
 
-  const filteredBarang = daftarBarang.filter((b) =>
-    b.nama_barang.toLowerCase().includes(cariBarang.toLowerCase())
+  const filteredBarang = daftarBarang.filter(
+    (b) =>
+      typeof b.nama_barang === "string" &&
+      b.nama_barang.toLowerCase().includes(cariBarang.toLowerCase())
   );
+
   const totalPages = Math.ceil(filteredBarang.length / itemsPerPage);
   const paginatedBarang = filteredBarang.slice(
     (currentPage - 1) * itemsPerPage,
@@ -148,9 +159,9 @@ export default function TransaksiBeliDialogForm({
     const payload = {
       tanggal: tanggalLengkap,
       supplier_id: Number(supplierId),
-      total: parseFloat(totalFinal),
+      total: totalFinal,
       ongkir: isNaN(parseFloat(ongkir)) ? 0 : parseFloat(ongkir),
-      diskon: parseFloat(diskonNum),
+      diskon: diskonNum,
       dibayar: parseFloat(dibayar),
       sisa_hutang: status === "Lunas" ? 0 : parseFloat(sisaHutang),
       status,
@@ -167,18 +178,22 @@ export default function TransaksiBeliDialogForm({
     try {
       const res = await axiosInstance.post("/transaksi-beli", payload);
       if (res.data?.status === "success") {
-        onSuccess();
+        onSuccess?.(res.data.message); // benar karena sekarang diizinkan bawa argumen
+        onOpenChange(false);
+
         resetForm();
         onOpenChange(false);
       } else {
         setError("Gagal menyimpan transaksi.");
       }
     } catch (err: unknown) {
-      const msg =
-        err?.response?.data?.message ||
-        err?.response?.data?.messages?.error ||
-        "Gagal menyimpan transaksi.";
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        const msg =
+          err?.response?.data?.message ||
+          err?.response?.data?.messages?.error ||
+          "Gagal menyimpan transaksi.";
+        setError(msg);
+      }
     }
 
     setTimeout(() => setError(""), 3000);

@@ -1,7 +1,7 @@
 import { rupiahFormat } from "@/utils/formatting";
 import type { ColumnDef } from "@tanstack/react-table";
 
-type PerformaBarang = {
+export type PerformaBarang = {
   nama_barang: string;
   total_qty: string;
   total_penjualan: string;

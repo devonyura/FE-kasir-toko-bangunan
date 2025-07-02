@@ -45,7 +45,7 @@ export const columns = (
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status");
+      const status = row.getValue("status") as string;
       return (
         <span
           className={

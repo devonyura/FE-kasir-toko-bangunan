@@ -2,7 +2,7 @@
 import { ArrowUpDown } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
-import type { Barang } from "./types";
+import type { Barang as BarangType } from "./types";
 
 type Barang = {
   id: string;
@@ -13,11 +13,11 @@ type Barang = {
   nama_kategori?: string;
 };
 
-export const columns = (
-  handleEdit: (barang: Barang) => void,
+export const Columns = (
+  handleEdit: (barang: BarangType) => void,
   handleDelete: (id: string) => void,
   handleKelolaSatuan: (id: string) => void,
-  handlePrintBarcode: (barang: Barang) => void
+  handlePrintBarcode: (barang: BarangType) => void
 ): ColumnDef<Barang>[] => [
   {
     accessorKey: "nama_barang",

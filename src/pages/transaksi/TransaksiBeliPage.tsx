@@ -1,5 +1,5 @@
 // src/pages/transaksi/TransaksiBeliPage.tsx
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { axiosInstance } from "@/utils/axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,20 +47,28 @@ export default function TransaksiBeliPage() {
       });
       setData(res.data?.data || []);
       setTotalPages(res.data?.pagination?.totalPages || 1);
-    } catch (err: undefined) {
+    } catch (err: unknown) {
       setError(`Gagal memuat data transaksi: ${err}`);
     } finally {
       setLoading(false);
     }
   }, [page, perPage, search]);
 
-  const debouncedSearch = useCallback(
-    debounce((val: string) => {
-      setPage(1); // reset ke halaman 1 setiap search
-      setSearch(val);
-    }, 300),
-    [setPage, setSearch]
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((val: string) => {
+        setPage(1);
+        setSearch(val);
+      }, 300),
+    [] // kosong = hanya buat sekali
   );
+
+  // Cleanup agar tidak memory leak
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   useEffect(() => {
     return () => {

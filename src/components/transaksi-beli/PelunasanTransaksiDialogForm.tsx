@@ -18,6 +18,7 @@ import { format } from "date-fns";
 // import { id } from "date-fns/locale";
 import { rupiahFormat } from "../../utils/formatting";
 import ConfirmDialog from "../common/ConfirmDialog";
+import axios from "axios";
 
 interface Props {
   open: boolean;
@@ -31,7 +32,7 @@ interface Props {
     sisa_hutang: string;
     status: string;
   } | null;
-  onSuccess: () => void;
+  onSuccess: (msg: string) => void;
 }
 
 export default function PelunasanTransaksiDialogForm({
@@ -46,7 +47,8 @@ export default function PelunasanTransaksiDialogForm({
 
   useEffect(() => {
     if (open) {
-      setJumlahBayar(Math.round(transaksi?.sisa_hutang) || "");
+      const sisa = parseFloat(transaksi?.sisa_hutang || "0");
+      setJumlahBayar(sisa > 0 ? Math.round(sisa).toString() : "");
       setError("");
     }
   }, [open, transaksi]);
@@ -62,15 +64,17 @@ export default function PelunasanTransaksiDialogForm({
       );
 
       if (res.data?.status === "success") {
-        onSuccess();
+        onSuccess("sukses");
         onOpenChange(false);
       } else {
         setError("Gagal memproses pelunasan.");
       }
     } catch (err: unknown) {
-      const msg =
-        err?.response?.data?.message || "Terjadi kesalahan saat melunasi.";
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        const msg =
+          err?.response?.data?.message || "Terjadi kesalahan saat melunasi.";
+        setError(msg);
+      }
     }
     setOpenConfirm(false);
   };

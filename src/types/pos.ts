@@ -8,47 +8,47 @@ export interface Barang {
   nama_kategori: string;
 }
 
-// Satuan barang
-export interface SatuanBarang {
+// Tipe barang
+export interface TipeBarang {
   id: string;
-  nama_satuan: string;
+  nama_tipe: string;
   harga_jual: number;
-  konversi_ke_satuan_dasar: number;
-  is_satuan_default: boolean;
+  konversi_ke_tipe_dasar: number;
+  is_tipe_default: boolean;
 }
 
 // Item keranjang (cart)
 // export interface KeranjangItem {
 //   barang_id: string;
 //   nama_barang: string;
-//   satuan_id: string;
-//   nama_satuan: string;
+//   tipe_id: string;
+//   nama_tipe: string;
 //   qty: number;
 //   harga_jual: number;
 //   subtotal: number;
 // }
 
-export interface Satuan {
+export interface Tipe {
   id: string;
-  nama_satuan: string;
+  nama_tipe: string;
   harga_jual: number;
 }
 
 export interface KeranjangItem {
   barang_id: string;
   nama_barang: string;
-  satuan_id: string;
-  nama_satuan: string;
+  tipe_id: string;
+  nama_tipe: string;
   qty: number;
   harga_jual: number;
   subtotal: number;
-  semua_satuan: Satuan[]; // 🆕 untuk dropdown satuan
+  semua_tipe: Tipe[]; // 🆕 untuk dropdown tipe
 }
 
 // Detail transaksi jual (untuk kirim ke backend)
 export interface DetailTransaksiJual {
   barang_id: number;
-  satuan_id: number;
+  tipe_id: number;
   qty: number;
   harga: number;
   subtotal: number;

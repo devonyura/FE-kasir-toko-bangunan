@@ -14,8 +14,8 @@ type AlertState = {
 export const useAlertStore = create<AlertState>((set) => ({
   open: false,
   message: "",
-  type: "info",
-  showAlert: (message, type = "info") =>
+  type: "default",
+  showAlert: (message, type = "default") =>
     set({ open: true, message, type }),
   closeAlert: () => set({ open: false, message: "" }),
 }));

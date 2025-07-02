@@ -23,7 +23,7 @@ export default function StokWarningSection() {
       const res = await axiosInstance.get("/stok?warning=true");
       setData(res.data?.data || []);
     } catch (err: unknown) {
-      setError("Gagal memuat stok peringatan.", err + error);
+      setError(`Gagal memuat stok peringatan. ${err} + error`);
     } finally {
       setLoading(false);
     }
@@ -36,7 +36,7 @@ export default function StokWarningSection() {
   if (loading || data.length === 0) return null;
 
   return (
-    <Alert variant="warning" className="mb-4">
+    <Alert variant="destructive" className="mb-4">
       <AlertTriangleIcon className="w-5 h-5" />
       <AlertTitle>Stok Rendah / Habis</AlertTitle>
       <AlertDescription>

@@ -30,10 +30,9 @@ export function DataTable<TData, TValue>({
 }: Props<TData, TValue>) {
   const [filter, setFilter] = useState("");
 
-  const filteredData = data.filter((item: undefined) => {
-    return item[filterKey]
-      ?.toLowerCase()
-      ?.includes(filter.toLowerCase().trim());
+  const filteredData = data.filter((item) => {
+    const value = (item as Record<string, string>)[filterKey];
+    return value?.toLowerCase()?.includes(filter.toLowerCase().trim());
   });
 
   const table = useReactTable({

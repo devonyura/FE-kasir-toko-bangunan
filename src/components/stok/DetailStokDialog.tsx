@@ -43,7 +43,7 @@ export default function DetailStokDialog({
       setLogs(res.data.data || []);
     } catch (err: unknown) {
       setLogs([]);
-      setError("Gagal memuat data histori stok :", err);
+      setError(`Gagal memuat data histori stok : ${err}`);
     }
   }, [barangId]);
 

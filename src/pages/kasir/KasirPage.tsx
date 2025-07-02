@@ -116,7 +116,7 @@ export default function KasirPage() {
       <StrukPreviewDialog
         open={openStruk}
         onOpenChange={setOpenStruk}
-        data={dataStruk}
+        data={dataStruk || undefined}
       />
     </div>
   );

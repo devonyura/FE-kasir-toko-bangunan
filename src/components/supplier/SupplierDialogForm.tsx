@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import { axiosInstance } from "@/utils/axios";
+import axios from "axios";
 
 interface Props {
   open: boolean;
@@ -80,13 +81,16 @@ export default function SupplierDialogForm({
         setError("Gagal menyimpan supplier.");
       }
     } catch (err: unknown) {
-      const errors = err?.response?.data?.errors;
-      if (errors && typeof errors === "object") {
-        const allMessages = Object.values(errors).join(" ");
-        setError(allMessages);
-      } else {
-        const msg = err?.response?.data?.message || "Gagal menyimpan supplier.";
-        setError(msg);
+      if (axios.isAxiosError(err)) {
+        const errors = err?.response?.data?.errors;
+        if (errors && typeof errors === "object") {
+          const allMessages = Object.values(errors).join(" ");
+          setError(allMessages);
+        } else {
+          const msg =
+            err?.response?.data?.message || "Gagal menyimpan supplier.";
+          setError(msg);
+        }
       }
     } finally {
       setLoading(false);

@@ -1,7 +1,15 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { rupiahFormat } from "@/utils/formatting";
 
-export default function TabLabaRugi({ summary }: undefined) {
+interface Props {
+  summary: {
+    penjualan_bersih: number;
+    pembelian_bersih: number;
+    laba_kotor: number;
+  };
+}
+
+export default function TabLabaRugi({ summary }: Props) {
   return (
     <>
       <h2 className="text-xl font-semibold mb-4">Laba Rugi Bulanan</h2>

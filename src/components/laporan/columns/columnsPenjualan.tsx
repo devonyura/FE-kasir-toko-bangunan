@@ -3,17 +3,9 @@ import { rupiahFormat } from "@/utils/formatting";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import type { ColumnDef } from "@tanstack/react-table";
+import type { TransaksiJual } from "@/components/transaksi-jual/types";
 
-type TransaksiJual = {
-  no_nota: string;
-  tanggal: string;
-  customer: string;
-  total: string;
-  dibayar: string;
-  status: string;
-};
-
-export const columnsPenjualan: ColumnDef<TransaksiJual>[] = [
+export const columnsPenjualan: ColumnDef<TransaksiJual, unknown>[] = [
   {
     accessorKey: "no_nota",
     header: "No Nota",
@@ -44,7 +36,7 @@ export const columnsPenjualan: ColumnDef<TransaksiJual>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status");
+      const status = row.getValue("status") as string;
       return (
         <span
           className={`font-semibold ${

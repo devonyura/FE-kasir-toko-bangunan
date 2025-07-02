@@ -15,6 +15,7 @@ import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import type { KeranjangItem } from "./FormTambahKeranjangDialog";
+import axios from "axios";
 
 interface Props {
   open: boolean;
@@ -79,10 +80,10 @@ export default function CheckoutDialogForm({
       onOpenChange(false);
       onSuccess(); // reset keranjang di luar
     } catch (err: unknown) {
-      console.log(err);
-      const msg =
-        err?.response?.data?.message || err.response.data.messages.error;
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        const msg = err?.response?.data?.message;
+        setError(msg);
+      }
     }
   };
 

@@ -17,6 +17,7 @@ import {
 interface Props<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  filterKey?: keyof TData; // ✅ Tambahkan ini
 }
 
 export function DataTable<TData, TValue>({

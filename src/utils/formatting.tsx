@@ -13,7 +13,7 @@ export function rupiahFormat(value: string | number, withRp: boolean = true) {
     : "" + number.toLocaleString("id-ID");
 }
 
-export const getFormattedFilename = (startDate, endDate) => {
+export const getFormattedFilename = (startDate: string, endDate: string) => {
   const tanggalAwal = format(parseISO(startDate), "d MMMM", { locale: id });
   const tanggalAkhir = format(parseISO(endDate), "d MMMM yyyy", { locale: id });
   return `${tanggalAwal} - ${tanggalAkhir} Laporan Penjualan Toko Buana Situju Dapurang`;

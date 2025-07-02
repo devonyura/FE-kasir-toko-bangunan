@@ -35,9 +35,9 @@ export default function generateLaporanPdf<T>({
 
   // Table
   const tableColumns = columns.map((col) => ({ header: col.header, dataKey: col.key }));
-  const tableData = data.map((item) =>
-    Object.fromEntries(columns.map((col) => [col.key, (item as unknown)[col.key]]))
-  );
+const tableData = data.map((item) =>
+  Object.fromEntries(columns.map((col) => [col.key, (item as any)[col.key]]))
+);
 
   autoTable(doc, {
     head: [tableColumns.map((col) => col.header)],
@@ -51,24 +51,24 @@ export default function generateLaporanPdf<T>({
 
   // Summary Table
   if (summary) {
-    const startY = doc.lastAutoTable.finalY + 10;
-    const summaryRows = Object.entries(summary).map(([key, value]) => [
-      key.replaceAll("_", " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-      typeof value === "number" ? `${ rupiahFormat(value.toLocaleString())}` : value,
-    ]);
+  const finalY = (doc as any).lastAutoTable?.finalY || 30;
+  const summaryRows = Object.entries(summary).map(([key, value]) => [
+    key.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
+    typeof value === "number" ? `${rupiahFormat(value.toLocaleString())}` : value,
+  ]);
 
-    autoTable(doc, {
-      head: [["Ringkasan", "Nilai"]],
-      body: summaryRows,
-      startY,
-      theme: "grid",
-      styles: { halign: "left" },
-      headStyles: {
-        fillColor: [0, 100, 0],
-        textColor: 255,
-      },
-    });
-  }
+  autoTable(doc, {
+    head: [["Ringkasan", "Nilai"]],
+    body: summaryRows,
+    startY: finalY + 10,
+    theme: "grid",
+    styles: { halign: "left" },
+    headStyles: {
+      fillColor: [0, 100, 0],
+      textColor: 255,
+    },
+  });
+}
 
   doc.save(subtitle);
 }

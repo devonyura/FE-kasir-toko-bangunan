@@ -16,20 +16,21 @@ import { axiosInstance } from "@/utils/axios";
 import { format } from "date-fns";
 import { rupiahFormat } from "@/utils/formatting";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
+import axios from "axios";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  transaksi: {
-    id: string;
-    tanggal: string;
-    customer: string;
-    total: string;
-    dibayar: string;
-    sisa_piutang: string;
-    status: string;
+  transaksi?: {
+    id: string | null;
+    tanggal: string | null;
+    customer: string | null;
+    total: string | null;
+    dibayar: string | null;
+    sisa_piutang: string | null;
+    status: string | null;
   } | null;
-  onSuccess: () => void;
+  onSuccess?: (message: string) => void; // Tetap tanpa argumen
 }
 
 export default function PelunasanTransaksiDialogForm({
@@ -44,7 +45,10 @@ export default function PelunasanTransaksiDialogForm({
 
   useEffect(() => {
     if (open && transaksi) {
-      setJumlahBayar(Math.round(transaksi.sisa_piutang) || "");
+      const sisa = transaksi.sisa_piutang
+        ? Math.round(parseFloat(transaksi.sisa_piutang)).toString()
+        : "";
+      setJumlahBayar(sisa);
       setError("");
     }
   }, [open, transaksi]);
@@ -62,15 +66,21 @@ export default function PelunasanTransaksiDialogForm({
 
       if (res.data?.status === "success") {
         // console.log(res.data.message);
-        onSuccess(res.data.message);
+
+        if (res.data?.status === "success") {
+          onSuccess?.(res.data.message); // benar karena sekarang diizinkan bawa argumen
+          onOpenChange(false);
+        }
         onOpenChange(false);
       } else {
         setError("Gagal memproses pelunasan.");
       }
     } catch (err: unknown) {
-      const msg =
-        err?.response?.data?.message || "Terjadi kesalahan saat melunasi.";
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        const msg =
+          err?.response?.data?.message || "Terjadi kesalahan saat melunasi.";
+        setError(msg);
+      }
     }
     setOpenConfirm(false);
   };
@@ -95,12 +105,16 @@ export default function PelunasanTransaksiDialogForm({
         <div className="grid gap-4">
           <div>
             <Label className="mb-2">Customer</Label>
-            <Input value={transaksi.customer} disabled />
+            <Input value={transaksi.customer || undefined} disabled />
           </div>
           <div>
             <Label className="mb-2">Tanggal Transaksi</Label>
             <Input
-              value={format(new Date(transaksi.tanggal), "dd-MM-yyyy")}
+              value={
+                transaksi.tanggal
+                  ? format(new Date(transaksi.tanggal), "dd-MM-yyyy")
+                  : ""
+              }
               disabled
             />
           </div>
@@ -125,7 +139,7 @@ export default function PelunasanTransaksiDialogForm({
               type="number"
               value={jumlahBayar}
               onChange={(e) => setJumlahBayar(e.target.value)}
-              max={parseFloat(transaksi.sisa_piutang)}
+              max={parseFloat(transaksi.sisa_piutang || "")}
               required
             />
           </div>

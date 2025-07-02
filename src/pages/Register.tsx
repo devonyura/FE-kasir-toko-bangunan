@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { axiosInstance } from "../utils/axios";
+import axios from "axios";
 
 export default function Register() {
   const [username, setUsername] = useState("");
@@ -29,8 +30,10 @@ export default function Register() {
       setSuccess(data.message);
     },
     onError: (err: Error) => {
-      const msg = err?.response?.data?.messages?.username;
-      setError(msg || "Registrasi gagal");
+      if (axios.isAxiosError(err)) {
+        const msg = err?.response?.data?.messages?.username;
+        setError(msg || "Registrasi gagal");
+      }
     },
   });
 

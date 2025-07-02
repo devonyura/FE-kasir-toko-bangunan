@@ -24,6 +24,13 @@ import { AlertCircleIcon } from "lucide-react";
 import { axiosInstance } from "@/utils/axios";
 import { rupiahFormat } from "@/utils/formatting";
 
+interface TipeBarang {
+  id: string;
+  nama_tipe: string;
+  harga_jual: number;
+  harga_beli: number;
+}
+
 // Tipe data
 interface DetailBarang {
   barang_id: string;
@@ -43,7 +50,7 @@ interface Props {
     nama_barang: string;
     nama_kategori: string;
     kode_barang: string;
-  };
+  } | null;
   initialData?: DetailBarang | null;
   onAdd: (detail: DetailBarang) => void;
 }
@@ -58,7 +65,7 @@ export default function PilihBarangDialogForm({
   const isEdit = !!initialData;
   console.log("initialData:", initialData);
 
-  const [tipeList, setTipeList] = useState<unknown[]>([]);
+  const [tipeList, setTipeList] = useState<TipeBarang[]>([]);
   const [tipeId, setTipeId] = useState("");
   const [qty, setQty] = useState("");
   const [hargaBeli, setHargaBeli] = useState("");
@@ -125,6 +132,10 @@ export default function PilihBarangDialogForm({
   }, [qty, hargaBeli]);
 
   const handleSubmit = (e: React.FormEvent) => {
+    if (!barang) {
+      setError("Barang belum dipilih.");
+      return;
+    }
     e.preventDefault();
     setError("");
 
@@ -134,8 +145,8 @@ export default function PilihBarangDialogForm({
     }
 
     const result: DetailBarang = {
-      barang_id: barang.id,
-      nama_barang: barang.nama_barang,
+      barang_id: barang?.id,
+      nama_barang: barang?.nama_barang,
       tipe_id: tipeId,
       nama_tipe: selectedTipe?.nama_tipe || "-",
       qty: parseFloat(qty),

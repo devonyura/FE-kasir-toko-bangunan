@@ -17,10 +17,11 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import { axiosInstance } from "@/utils/axios";
-import TipeDialogForm from "./tipeDialogForm";
+import TipeDialogForm from "./TipeDialogForm";
 import { rupiahFormat } from "@/utils/formatting";
 import DeleteConfirmDialog from "./DeleteConfirmDialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import axios from "axios";
 
 interface Props {
   open: boolean;
@@ -66,7 +67,7 @@ export default function KelolatipeDialog({
       setTipeList(res.data.data || []);
       console.log("tipe:", res.data.data);
     } catch {
-      setError("Gagal memuat data tipe.".err);
+      setError(`Gagal memuat data tipe:`);
     }
   }, [barangId]);
 
@@ -240,9 +241,11 @@ export default function KelolatipeDialog({
               fetchtipe();
             }
           } catch (err: unknown) {
-            const msg =
-              err?.response?.data?.message || "Gagal menghapus barang.";
-            setError(msg);
+            if (axios.isAxiosError(err)) {
+              const msg =
+                err?.response?.data?.message || "Gagal menghapus barang.";
+              setError(msg);
+            }
           } finally {
             setDeleteDialogOpen(false);
             setSelectedDeleteId(null);

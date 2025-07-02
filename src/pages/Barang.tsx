@@ -10,9 +10,10 @@ import DeleteConfirmDialog from "@/components/barang/DeleteConfirmDialog";
 import KelolatipeDialog from "@/components/barang/KelolaTipeDialog";
 
 import { DataTable } from "@/components/barang/DataTable";
-import { columns } from "@/components/barang/columns";
+import { Columns } from "@/components/barang/Columns";
 import type { Barang } from "@/components/barang/types";
 import LabelBarcodePreviewDialog1 from "@/components/barang/LabelBarcodePreviewDialog1";
+import axios from "axios";
 
 export default function BarangPage() {
   // ----------------------------
@@ -95,9 +96,11 @@ export default function BarangPage() {
         setTimeout(() => setSuccessMessage(""), 3000);
       }
     } catch (err: unknown) {
-      const msg = err?.response?.data?.message || "Gagal menghapus barang.";
-      setError(msg);
-      setTimeout(() => setError(""), 3000);
+      if (axios.isAxiosError(err)) {
+        const msg = err?.response?.data?.message || "Gagal menghapus barang.";
+        setError(msg);
+        setTimeout(() => setError(""), 3000);
+      }
     } finally {
       setDeleteDialogOpen(false);
       setSelectedDeleteId(null);
@@ -155,7 +158,7 @@ export default function BarangPage() {
       ) : (
         <DataTable
           data={barangs}
-          columns={columns(
+          columns={Columns(
             (barang) => {
               setEditData(barang);
               setDialogOpen(true);

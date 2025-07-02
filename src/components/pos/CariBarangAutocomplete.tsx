@@ -36,7 +36,7 @@ export default function CariBarangAutocomplete({
   const [results, setResults] = useState<Barang[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedIdx, setSelectedIdx] = useState<number>(-1);
-  const timeoutRef = useRef<number>();
+  const timeoutRef = useRef<number>(0);
 
   const handleSelect = useCallback(
     (barang: Barang) => {

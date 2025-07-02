@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon, EyeOffIcon, EyeIcon } from "lucide-react";
+import axios from "axios";
 
 interface Props {
   open: boolean;
@@ -70,14 +71,15 @@ export default function ResetPasswordDialogForm({
       } else {
         setError("Reset password gagal.");
       }
-    } catch (err: undefined) {
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        const msg = err.response?.data?.message || "Gagal menyimpan data.";
+        setError(msg);
+        setTimeout(() => {
+          setError("");
+        }, 2300);
+      }
       // console.lo;
-      const msg =
-        err?.response?.message || "Terjadi kesalahan saat reset passwords.";
-      setError(msg);
-      setTimeout(() => {
-        setError("");
-      }, 2300);
     } finally {
       setLoading(false);
     }

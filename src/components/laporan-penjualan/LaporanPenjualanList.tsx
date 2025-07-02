@@ -1,6 +1,6 @@
 // src/components/laporan/LaporanPenjualanList.tsx
 
-import type { TransaksiJual } from "@/types/transaksi";
+import type { TransaksiJual } from "@/components/transaksi-jual/types";
 import { rupiahFormat } from "@/utils/formatting";
 
 interface Props {
@@ -32,9 +32,11 @@ export default function LaporanPenjualanList({ data }: Props) {
           <div className="text-right space-y-1 text-sm">
             <p>
               Total:{" "}
-              <span className="font-semibold">{rupiahFormat(trx.total)}</span>
+              <span className="font-semibold">
+                {rupiahFormat(trx.total ?? 0)}
+              </span>
             </p>
-            <p>Dibayar: {rupiahFormat(trx.dibayar)}</p>
+            <p>Dibayar: {rupiahFormat(trx.dibayar ?? 0)}</p>
             <p
               className={
                 trx.status === "Lunas"

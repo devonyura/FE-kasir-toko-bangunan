@@ -21,6 +21,7 @@ import {
 import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
+import axios from "axios";
 
 interface Props {
   open: boolean;
@@ -113,9 +114,11 @@ export default function StokKeluarDialogForm({
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
-      const msg =
-        err?.response?.data?.message || "Gagal menyimpan stok keluar.";
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        const msg =
+          err?.response?.data?.message || "Gagal menyimpan stok keluar.";
+        setError(msg);
+      }
     }
   };
 

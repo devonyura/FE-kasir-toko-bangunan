@@ -44,8 +44,12 @@ export default function LabelBarcodePreviewDialog({
           </DialogHeader>
 
           <div className="text-center my-0 mx-auto">
-            <p className="font-semibold">{barang.nama_barang}</p>
-            <Barcode value={barang.kode_barang} height={50} fontSize={12} />
+            <p className="font-semibold">{barang?.nama_barang}</p>
+            <Barcode
+              value={barang?.kode_barang || "0"}
+              height={50}
+              fontSize={12}
+            />
           </div>
 
           <DialogFooter>
@@ -59,9 +63,13 @@ export default function LabelBarcodePreviewDialog({
 
       {showPrintArea && (
         <div className="print:block p-2 text-center w-[72mm]">
-          <div className="text-sm font-bold">{barang.nama_barang}</div>
+          <div className="text-sm font-bold">{barang?.nama_barang}</div>
           <div className="mt-1">
-            <Barcode value={barang.kode_barang} height={50} fontSize={12} />
+            <Barcode
+              value={barang?.kode_barang || "0"}
+              height={50}
+              fontSize={12}
+            />
           </div>
         </div>
       )}

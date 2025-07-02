@@ -17,7 +17,7 @@ import { axiosInstance } from "@/utils/axios";
 
 import SupplierDialogForm from "./SupplierDialogForm";
 import DeleteConfirmDialog from "../barang/DeleteConfirmDialog";
-
+import axios from "axios";
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -68,8 +68,10 @@ export default function KelolaSupplierDialog({ open, onOpenChange }: Props) {
       await axiosInstance.delete(`/supplier/${selectedDeleteId}`);
       fetchSuppliers();
     } catch (err: unknown) {
-      const msg = err?.response?.data?.message || "Gagal menghapus supplier.";
-      setError(msg);
+      if (axios.isAxiosError(err)) {
+        const msg = err?.response?.data?.message || "Gagal menghapus supplier.";
+        setError(msg);
+      }
     } finally {
       setDeleteDialogOpen(false);
       setSelectedDeleteId(null);

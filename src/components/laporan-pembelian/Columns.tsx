@@ -20,7 +20,7 @@ export const columns: ColumnDef<TransaksiBeli>[] = [
     accessorKey: "tanggal",
     header: "Tanggal",
     cell: ({ row }) => {
-      const raw = row.getValue("tanggal");
+      const raw = row.getValue("tanggal") as string;
       const date = new Date(raw);
       return date.toLocaleDateString("id-ID", {
         year: "numeric",
@@ -48,7 +48,7 @@ export const columns: ColumnDef<TransaksiBeli>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const status = row.getValue("status");
+      const status = row.getValue("status") as string;
       return (
         <span
           className={`font-semibold ${
