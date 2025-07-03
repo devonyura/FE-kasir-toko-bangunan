@@ -54,8 +54,13 @@ const tableData = data.map((item) =>
   const finalY = (doc as any).lastAutoTable?.finalY || 30;
   const summaryRows = Object.entries(summary).map(([key, value]) => [
     key.replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase()),
-    typeof value === "number" ? `${rupiahFormat(value.toLocaleString())}` : value,
+    key === "jumlah_transaksi"
+      ? value
+      : typeof value === "number"
+        ? rupiahFormat(value.toLocaleString())
+        : value,
   ]);
+
 
   autoTable(doc, {
     head: [["Ringkasan", "Nilai"]],

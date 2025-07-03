@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon, Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FileSpreadsheetIcon } from "lucide-react";
 
 import { axiosInstance } from "@/utils/axios";
 import BarangDialogForm from "@/components/barang/BarangDialogForm";
@@ -14,6 +15,7 @@ import { Columns } from "@/components/barang/Columns";
 import type { Barang } from "@/components/barang/types";
 import LabelBarcodePreviewDialog1 from "@/components/barang/LabelBarcodePreviewDialog1";
 import axios from "axios";
+import { generateExcelReport } from "@/utils/generateExcelReport";
 
 export default function BarangPage() {
   // ----------------------------
@@ -107,19 +109,47 @@ export default function BarangPage() {
     }
   };
 
+  const handleDownloadExcel = async () => {
+    try {
+      const res = await axiosInstance.get("/laporan/barang");
+      const data = res.data?.data || [];
+
+      await generateExcelReport({
+        data,
+        title: "Data Barang",
+        columns: [
+          { header: "Nama Barang", key: "nama_lengkap", width: 40 },
+          { header: "Kode", key: "kode_barang" },
+          { header: "Kategori", key: "nama_kategori" },
+          { header: "Harga Beli", key: "harga_beli" },
+          { header: "Harga Jual", key: "harga_jual" },
+          { header: "Stok", key: "stok" },
+        ],
+        multipleSheetColumn: "nama_kategori",
+      });
+    } catch (error) {
+      console.error("Gagal generate Excel:", error);
+    }
+  };
+
   // ==============================
   // Render
   // ==============================
   return (
     <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold tracking-tight">Kelola Barang</h1>
-      <p className="text-sm text-muted-foreground">
+      <h1 className="text-xl md:text-2xl font-bold tracking-tight">
+        Kelola Barang
+      </h1>
+      <p className="text-sm md:text-base text-muted-foreground">
         Mengelola data barang, kategori barang hingga menentukan satuan per
         barang
       </p>
-      <div className="flex justify-between items-start mb-4 w-full">
-        <div className="flex flex-col gap-1 max-w-sm">
+
+      {/* Tombol Tambah */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 w-full">
+        <div className="flex flex-col gap-1 w-full sm:max-w-sm">
           <Button
+            className="w-full sm:w-fit"
             onClick={() => {
               setEditData(null);
               setDialogOpen(true);
@@ -127,8 +157,17 @@ export default function BarangPage() {
           >
             Tambah Barang
           </Button>
+          <Button
+            variant="outline"
+            className="w-full sm:w-fit"
+            onClick={handleDownloadExcel}
+          >
+            <FileSpreadsheetIcon className="w-4 h-4 mr-2" />
+            Export Excel
+          </Button>
         </div>
       </div>
+
       {/* Notifikasi sukses */}
       {successMessage && (
         <Alert variant="default" className="border-green-500 bg-green-50">
@@ -156,29 +195,31 @@ export default function BarangPage() {
           Mohon tunggu...
         </Button>
       ) : (
-        <DataTable
-          data={barangs}
-          columns={Columns(
-            (barang) => {
-              setEditData(barang);
-              setDialogOpen(true);
-            },
-            (id) => {
-              setSelectedDeleteId(id);
-              setDeleteDialogOpen(true);
-            },
-            (id) => {
-              setBarangIdUntukSatuan(id);
-              setKelolaSatuanOpen(true);
-            },
-            (barang) => {
-              setBarcodeData(barang);
-              setOpenPreview(true);
-            }
-          )}
-          filterKey="nama_barang"
-          totalCountText={`Total barang: ${barangs.length}`}
-        />
+        <div className="overflow-x-auto">
+          <DataTable
+            data={barangs}
+            columns={Columns(
+              (barang) => {
+                setEditData(barang);
+                setDialogOpen(true);
+              },
+              (id) => {
+                setSelectedDeleteId(id);
+                setDeleteDialogOpen(true);
+              },
+              (id) => {
+                setBarangIdUntukSatuan(id);
+                setKelolaSatuanOpen(true);
+              },
+              (barang) => {
+                setBarcodeData(barang);
+                setOpenPreview(true);
+              }
+            )}
+            filterKey="nama_barang"
+            totalCountText={`Total barang: ${barangs.length}`}
+          />
+        </div>
       )}
 
       {/* Dialog Tambah/Edit */}
@@ -208,6 +249,7 @@ export default function BarangPage() {
         onConfirm={handleDeleteConfirm}
       />
 
+      {/* Dialog Preview Barcode */}
       {barcodeData && (
         <LabelBarcodePreviewDialog1
           open={openPreview}

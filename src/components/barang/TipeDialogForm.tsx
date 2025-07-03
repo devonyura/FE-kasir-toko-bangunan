@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import CalculatorDialog from "../common/CalculatorDialog";
 import axios from "axios";
 // import {  } from "ca";
 
@@ -46,8 +45,6 @@ export default function TipeDialogForm({
   const [loading, setLoading] = useState(false);
 
   const [namaError, setNamaError] = useState("");
-
-  const [openCal, setOpenCal] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -109,7 +106,6 @@ export default function TipeDialogForm({
         }}
       >
         {/* Komponen kalkulator */}
-        <CalculatorDialog open={openCal} onOpenChange={setOpenCal} />
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{isEdit ? "Edit" : "Tambah"} Tipe</DialogTitle>

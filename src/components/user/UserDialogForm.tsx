@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircleIcon } from "lucide-react";
+import { AlertCircleIcon, EyeOffIcon, EyeIcon } from "lucide-react";
 import {
   Select,
   SelectTrigger,
@@ -50,6 +50,8 @@ export default function UserDialogForm({
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [showOldPassword, setShowOldPassword] = useState(false);
+
   useEffect(() => {
     if (open) {
       if (isEdit && initialData) {
@@ -62,6 +64,7 @@ export default function UserDialogForm({
         setPassword("");
       }
       setError("");
+      setShowOldPassword(false);
     }
   }, [open, isEdit, initialData]);
 
@@ -135,13 +138,27 @@ export default function UserDialogForm({
             {!isEdit && (
               <div className="grid gap-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <div className="mb-4 flex items-center space-x-2">
+                  <Input
+                    id="password"
+                    type={showOldPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowOldPassword((prev) => !prev)}
+                  >
+                    {showOldPassword ? (
+                      <EyeOffIcon className="w-4 h-4" />
+                    ) : (
+                      <EyeIcon className="w-4 h-4" />
+                    )}
+                  </Button>
+                </div>
               </div>
             )}
 

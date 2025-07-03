@@ -33,14 +33,23 @@ export function singkatNamaBarang(nama: string): string {
     "di",
   ];
 
-  return nama
+  // Pisah dan filter kata
+  const kata = nama
     .split(" ")
-    .filter((word) => word.length > 0 && !kataUmum.includes(word.toLowerCase()))
+    .filter(
+      (word) => word.length > 0 && !kataUmum.includes(word.toLowerCase())
+    );
+
+  // Jika jumlah kata setelah filter <= 2, kembalikan tanpa potong
+  if (kata.length <= 2) {
+    return kata.join(" ");
+  }
+
+  // Jika lebih dari 2 kata, potong kata panjang
+  return kata
     .map((word) => {
-      // Jika kata pendek (<=3 huruf), tetap gunakan
-      if (word.length <= 4) return word;
-      // Ambil 3 huruf pertama
-      return word.slice(0, 3);
+      if (word.length <= 4) return word; // tetap gunakan jika pendek
+      return word.slice(0, 3); // potong jika panjang
     })
     .join(" ");
 }

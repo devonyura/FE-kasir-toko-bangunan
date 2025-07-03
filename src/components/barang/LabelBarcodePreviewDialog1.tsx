@@ -6,9 +6,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import Barcode from "react-barcode"; // install dulu: npm install react-barcode
-// import "@/components/barang/barcode.css";
+import { useRef } from "react";
+import { toPng } from "html-to-image";
+import download from "downloadjs";
 
 interface Props {
   open: boolean;
@@ -27,22 +28,29 @@ export default function StrukPreviewDialog1({
   onOpenChange,
   barang,
 }: Props) {
-  const [showPrintArea, setShowPrintArea] = useState(false);
+  const labelRef = useRef<HTMLDivElement>(null);
+  const handleDownload = async () => {
+    if (!labelRef.current) return;
 
-  const handlePrint = () => {
-    // document.body.classList.add("label-print-mode");
-    setShowPrintArea(true);
-    setTimeout(() => {
-      window.print();
-      // document.body.classList.remove("label-print-mode");
-      setTimeout(() => setShowPrintArea(false), 500);
-    }, 500);
+    try {
+      const dataUrl = await toPng(labelRef.current, {
+        cacheBust: true,
+        backgroundColor: "white", // pastikan ada background putih
+        pixelRatio: 3, // kualitas tinggi
+      });
+      download(dataUrl, `barcode-${barang?.kode_barang || "label"}.png`);
+    } catch (err) {
+      console.error("Gagal generate gambar:", err);
+    }
   };
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl print:hidden flex flex-col items-center justify-center gap-4">
+        <DialogContent
+          className="max-w-[500px] print:hidden flex flex-col items-center justify-center gap-4"
+          aria-describedby=""
+        >
           <DialogHeader className="text-center">
             <DialogTitle className="text-xl font-bold">
               Preview Label
@@ -50,56 +58,24 @@ export default function StrukPreviewDialog1({
           </DialogHeader>
           <div
             id="area-print-barcode"
-            className="flex flex-row justify-around gap-[20mm] w-[99mm] h-[15mm] p-0 m-0 pr-7 pt-[3px] mr-38"
+            className="w-[99mm] h-[15mm] flex justify-center items-center"
           >
-            <div className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center mt-2">
-              <div className="mb-[1mm] flex flex-col items-center">
-                <span className="text-[12px]">{barang?.nama_barang}</span>
-                <Barcode
-                  height={30}
-                  width={1.5}
-                  fontSize={12}
-                  displayValue={true}
-                  value={barang?.kode_barang || ""}
-                  marginRight={0}
-                  marginLeft={55}
-                  format="EAN13"
-                  marginTop={1}
-                  marginBottom={1}
-                />
-              </div>
-            </div>
-            <div className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center mt-2">
-              <div className="mb-[1mm] flex flex-col items-center">
-                <span className="text-[12px]">{barang?.nama_barang}</span>
-                <Barcode
-                  height={30}
-                  width={1.5}
-                  fontSize={12}
-                  displayValue={true}
-                  value={barang?.kode_barang || ""}
-                  marginLeft={20}
-                  format="EAN13"
-                  marginTop={1}
-                  marginBottom={1}
-                />
-              </div>
-            </div>
-            <div className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center mt-2">
-              <div className="mb-[1mm] flex flex-col items-center">
-                <span className="text-[12px]">{barang?.nama_barang}</span>
-                <Barcode
-                  height={30}
-                  width={1.5}
-                  fontSize={12}
-                  displayValue={true}
-                  value={barang?.kode_barang || ""}
-                  marginLeft={40}
-                  format="EAN13"
-                  marginTop={1}
-                  marginBottom={1}
-                />
-              </div>
+            <div
+              className="flex flex-col items-center bg-white mb-[1mm]"
+              ref={labelRef}
+            >
+              <span className="text-[10px]">{barang?.nama_barang}</span>
+              <Barcode
+                height={30}
+                width={1.5}
+                fontSize={12}
+                displayValue={true}
+                value={barang?.kode_barang || ""}
+                marginLeft={10}
+                format="EAN13"
+                marginTop={1}
+                marginBottom={1}
+              />
             </div>
           </div>
 
@@ -107,67 +83,10 @@ export default function StrukPreviewDialog1({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Tutup
             </Button>
-            <Button onClick={handlePrint}>Print</Button>
+            <Button onClick={handleDownload}>Download Label barcode</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {showPrintArea && (
-        <div
-          id="area-print-barcode"
-          className="flex flex-row justify-around gap-[20mm] w-[99mm] h-[15mm] p-0 m-0 pr-7 pt-[3px] mr-38"
-        >
-          <div className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center mt-2">
-            <div className="mb-[1mm] flex flex-col items-center">
-              <span className="text-[12px]">{barang?.nama_barang}</span>
-              <Barcode
-                height={35}
-                width={1.5}
-                fontSize={12}
-                displayValue={true}
-                value={barang?.kode_barang || ""}
-                marginRight={0}
-                marginLeft={70}
-                format="EAN13"
-                marginTop={1}
-                marginBottom={1}
-              />
-            </div>
-          </div>
-          <div className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center mt-2">
-            <div className="mb-[1mm] flex flex-col items-center">
-              <span className="text-[12px]">{barang?.nama_barang}</span>
-              <Barcode
-                height={35}
-                width={1.5}
-                fontSize={12}
-                displayValue={true}
-                value={barang?.kode_barang || ""}
-                marginLeft={20}
-                format="EAN13"
-                marginTop={1}
-                marginBottom={1}
-              />
-            </div>
-          </div>
-          <div className="w-[33mm] h-[15mm] p-0 m-0 text-[8px] font-mono flex flex-col justify-center items-center mt-2">
-            <div className="mb-[1mm] flex flex-col items-center">
-              <span className="text-[12px]">{barang?.nama_barang}</span>
-              <Barcode
-                height={35}
-                width={1.5}
-                fontSize={12}
-                displayValue={true}
-                value={barang?.kode_barang || ""}
-                marginLeft={40}
-                format="EAN13"
-                marginTop={1}
-                marginBottom={1}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

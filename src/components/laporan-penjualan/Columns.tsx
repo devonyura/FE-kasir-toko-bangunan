@@ -42,6 +42,11 @@ export const columns: ColumnDef<TransaksiJual>[] = [
     cell: ({ row }) => `${rupiahFormat(row.getValue("dibayar"))}`,
   },
   {
+    accessorKey: "sisa_piutang",
+    header: "Sisa Piutang",
+    cell: ({ row }) => `${rupiahFormat(row.getValue("sisa_piutang"))}`,
+  },
+  {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {

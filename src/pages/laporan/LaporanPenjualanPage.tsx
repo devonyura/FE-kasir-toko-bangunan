@@ -19,10 +19,11 @@ import { DataTable } from "@/components/transaksi-beli/DataTable";
 import generateLaporanPdf, {
   type ColumnDef,
 } from "@/lib/pdf/generateLaporanPdf";
-import { rupiahFormat, getFormattedFilename } from "@/utils/formatting";
+import { rupiahFormat } from "@/utils/formatting";
 
-import ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
+// import ExcelJS from "exceljs";
+// import { saveAs } from "file-saver";
+import { generateExcelReport } from "@/utils/generateExcelReport";
 
 type TransaksiJual = {
   no_nota: string;
@@ -31,6 +32,7 @@ type TransaksiJual = {
   total: string;
   dibayar: string;
   status: string;
+  sisa_piutang: string;
 };
 
 export default function LaporanPenjualanPage() {
@@ -111,6 +113,7 @@ export default function LaporanPenjualanPage() {
       const formattedList = list.map((item) => ({
         ...item,
         total: rupiahFormat(item.total),
+        sisa_piutang: rupiahFormat(item.sisa_piutang),
         dibayar: rupiahFormat(item.dibayar),
       }));
 
@@ -120,6 +123,7 @@ export default function LaporanPenjualanPage() {
         { header: "Customer", key: "customer" },
         { header: "Total", key: "total" },
         { header: "Dibayar", key: "dibayar" },
+        { header: "Sisa Piutang", key: "sisa_piutang" },
         { header: "Status", key: "status" },
       ];
 
@@ -149,43 +153,36 @@ export default function LaporanPenjualanPage() {
         pagination: false,
       };
       const res = await axiosInstance.get("/laporan/penjualan", { params });
-      const list: TransaksiJual[] = res.data?.data?.list || [];
 
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet(
-        getFormattedFilename(startDate, endDate)
-      );
+      console.log("data", res);
 
-      // Header
-      sheet.columns = [
-        { header: "No Nota", key: "no_nota", width: 20 },
-        { header: "Tanggal", key: "tanggal", width: 20 },
-        { header: "Customer", key: "customer", width: 20 },
-        { header: "Total", key: "total", width: 15 },
-        { header: "Dibayar", key: "dibayar", width: 15 },
-        { header: "Status", key: "status", width: 15 },
-      ];
+      const data: TransaksiJual[] = res.data?.data?.list || [];
 
-      // Data
-      list.forEach((trx) => {
-        sheet.addRow({
-          no_nota: trx.no_nota,
-          tanggal: trx.tanggal,
-          customer: trx.customer,
-          total: Number(trx.total),
-          dibayar: Number(trx.dibayar),
-          status: trx.status,
-        });
+      // Format total dan dibayar
+      const formattedList = data.map((item) => ({
+        ...item,
+        total: rupiahFormat(item.total),
+        sisa_piutang: rupiahFormat(item.sisa_piutang),
+        dibayar: rupiahFormat(item.dibayar),
+      }));
+
+      await generateExcelReport({
+        data: formattedList,
+        title: "Penjualan",
+        startDate,
+        endDate,
+        columns: [
+          { header: "No Nota", key: "no_nota" },
+          { header: "Tanggal", key: "tanggal" },
+          { header: "Customer", key: "customer" },
+          { header: "Total", key: "total" },
+          { header: "Dibayar", key: "dibayar" },
+          { header: "Status", key: "status" },
+          { header: "Sisa Piutang", key: "sisa_piutang" },
+        ],
       });
-
-      // Simpan
-      const buffer = await workbook.xlsx.writeBuffer();
-      saveAs(
-        new Blob([buffer]),
-        `${getFormattedFilename(startDate, endDate)}.xlsx`
-      );
     } catch (error) {
-      console.error("Gagal download Excel:", error);
+      console.error("Gagal download excel:", error);
     }
   };
 

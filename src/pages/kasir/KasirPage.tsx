@@ -12,34 +12,23 @@ export default function KasirPage() {
   const [openStruk, setOpenStruk] = useState(false);
   const [dataStruk, setDataStruk] = useState<null | undefined>(null);
 
-  const isBarangInKeranjang = (barangId: string): boolean => {
-    return keranjang.some((item) => item.barang_id === barangId);
-  };
-
-  const handleTambahQtyBarang = (barang: Barang) => {
-    setKeranjang((prev) =>
-      prev.map((item) =>
-        item.barang_id === barang.id
-          ? {
-              ...item,
-              qty: item.qty + 1,
-              subtotal: (item.qty + 1) * item.harga_jual,
-            }
-          : item
-      )
-    );
-  };
-
   const handleTambahBarang = async (barang: Barang) => {
-    const sudahAda = keranjang.some((item) => item.barang_id === barang.id);
-    if (sudahAda) return;
-
     try {
       const res = await axiosInstance.get(`/tipe-barang/barang/${barang.id}`);
       const semuaTipe: Tipe[] = res.data.data || [];
 
       if (semuaTipe.length === 0) {
         console.error("Barang tidak memiliki tipe.");
+        return;
+      }
+
+      // ✅ Cek jika semua tipe stoknya 0
+      const semuaStokKosong = semuaTipe.every((tipe) => tipe.stok <= 0);
+      if (semuaStokKosong) {
+        console.warn("Semua tipe barang stoknya habis.");
+        alert(
+          `❌ Stok barang "${barang.nama_barang}" sedang habis di semua tipe.`
+        );
         return;
       }
 
@@ -94,25 +83,24 @@ export default function KasirPage() {
         <div>
           <h1 className="text-lg font-bold mb-3">Transaksi Penjualan (POS)</h1>
 
-          <CariBarangAutocomplete
-            onSelectBarang={handleTambahBarang}
-            isBarangInKeranjang={isBarangInKeranjang}
-            onTambahQtyBarang={handleTambahQtyBarang}
-          />
+          <CariBarangAutocomplete onSelectBarang={handleTambahBarang} />
 
           <Separator className="mt-3 mb-3" />
+
           <TabelKeranjang
             items={keranjang}
             onUpdate={handleUpdateItem}
             onDelete={handleDeleteItem}
           />
         </div>
+
         <PanelPembayaran
           keranjang={keranjang}
           onSuccess={resetKeranjang}
           onCetak={handleCetak}
         />
       </div>
+
       <StrukPreviewDialog
         open={openStruk}
         onOpenChange={setOpenStruk}

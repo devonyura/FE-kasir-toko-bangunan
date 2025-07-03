@@ -20,6 +20,10 @@ export const columns = (
     },
   },
   {
+    accessorKey: "no_nota",
+    header: "No Nota",
+  },
+  {
     accessorKey: "nama_supplier",
     header: "Supplier",
   },

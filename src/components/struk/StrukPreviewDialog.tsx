@@ -32,6 +32,7 @@ interface Transaksi {
   total: number;
   dibayar: number;
   kembali?: number;
+  jatuh_tempo?: string;
   sisa_piutang?: number;
   sisa_hutang?: number;
 }
@@ -154,14 +155,14 @@ export default function StrukPreviewDialog({
                 <span>Dibayar</span>
                 <span>{rupiahFormat(transaksi.dibayar)}</span>
               </div>
+              <div className="flex justify-between">
+                <span>Kembali</span>
+                <span>{rupiahFormat(transaksi.kembali ?? 0)}</span>
+              </div>
 
               {/* Kondisional: Kembali atau Sisa Hutang */}
               {isPenjualan ? (
                 <>
-                  <div className="flex justify-between">
-                    <span>Kembali</span>
-                    <span>{rupiahFormat(transaksi.kembali ?? 0)}</span>
-                  </div>
                   {parseFloat((transaksi.sisa_piutang ?? 0).toString()) > 0 && (
                     <div className="flex justify-between">
                       <span>Sisa Piutang</span>
@@ -176,6 +177,17 @@ export default function StrukPreviewDialog({
                     <span>{rupiahFormat(transaksi.sisa_hutang ?? 0)}</span>
                   </div>
                 )
+              )}
+              {/* Tampilkan jatuh tempo jika status != Lunas */}
+              {transaksi.status !== "Lunas" && transaksi.jatuh_tempo && (
+                <div className="flex justify-between">
+                  <span>Jatuh Tempo</span>
+                  <span>
+                    {format(new Date(transaksi.jatuh_tempo), "dd MMMM yyyy", {
+                      locale: id,
+                    })}
+                  </span>
+                </div>
               )}
             </div>
 
@@ -200,7 +212,7 @@ export default function StrukPreviewDialog({
       {showPrintArea && (
         <div
           id="area-print-struk"
-          className="font-mono text-sm p-4 max-w-xs mx-auto ml-14"
+          className="font-mono text-sm p-4 max-w-xs mx-auto ml-12"
         >
           <div className="text-center">
             <h1 className="text-base font-bold uppercase">
@@ -258,12 +270,12 @@ export default function StrukPreviewDialog({
               <span>{rupiahFormat(transaksi.dibayar)}</span>
             </div>
 
+            <div className="flex justify-between">
+              <span>Kembali</span>
+              <span>{rupiahFormat(transaksi.kembali ?? 0)}</span>
+            </div>
             {isPenjualan ? (
               <>
-                <div className="flex justify-between">
-                  <span>Kembali</span>
-                  <span>{rupiahFormat(transaksi.kembali ?? 0)}</span>
-                </div>
                 {parseFloat((transaksi.sisa_piutang ?? 0).toString()) > 0 && (
                   <div className="flex justify-between">
                     <span>Sisa Piutang</span>
@@ -278,6 +290,16 @@ export default function StrukPreviewDialog({
                   <span>{rupiahFormat(transaksi.sisa_hutang ?? 0)}</span>
                 </div>
               )
+            )}
+            {transaksi.status !== "Lunas" && transaksi.jatuh_tempo && (
+              <div className="flex justify-between">
+                <span>Jatuh Tempo</span>
+                <span>
+                  {format(new Date(transaksi.jatuh_tempo), "dd MMMM yyyy", {
+                    locale: id,
+                  })}
+                </span>
+              </div>
             )}
           </div>
 

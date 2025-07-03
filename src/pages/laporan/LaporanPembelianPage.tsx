@@ -11,12 +11,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { columns } from "@/components/laporan-pembelian/Columns";
 import { columns } from "@/components/laporan-pembelian/Columns";
 import { DataTable } from "@/components/transaksi-beli/DataTable";
-import { rupiahFormat, getFormattedFilename } from "@/utils/formatting";
+import { rupiahFormat } from "@/utils/formatting";
 import generateLaporanPdf, {
   type ColumnDef,
 } from "@/lib/pdf/generateLaporanPdf";
-import ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
 import {
   Select,
   SelectContent,
@@ -24,10 +22,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { generateExcelReport } from "@/utils/generateExcelReport";
 
 type TransaksiBeli = {
   no_nota: string;
   tanggal: string;
+  nama_supplier: string;
   total: string;
   dibayar: string;
   sisa_hutang: string;
@@ -95,41 +95,47 @@ export default function LaporanPembelianPage() {
       const params = {
         start_date: startDate,
         end_date: endDate,
+        status,
         pagination: false,
       };
       const res = await axiosInstance.get("/laporan/pembelian", { params });
+
+      const result = res.data?.data;
+
       const list: TransaksiBeli[] = res.data?.data?.list || [];
 
+      // Format total dan dibayar
       const formattedList = list.map((item) => ({
         ...item,
         total: rupiahFormat(item.total),
-        dibayar: rupiahFormat(item.dibayar),
         sisa_hutang: rupiahFormat(item.sisa_hutang),
+        dibayar: rupiahFormat(item.dibayar),
       }));
 
       const columns: ColumnDef[] = [
         { header: "No Nota", key: "no_nota" },
         { header: "Tanggal", key: "tanggal" },
+        { header: "Supplier", key: "nama_supplier" },
         { header: "Total", key: "total" },
         { header: "Dibayar", key: "dibayar" },
-        { header: "Sisa Hutang", key: "sisa_hutang" },
         { header: "Status", key: "status" },
+        { header: "Sisa Hutang", key: "sisa_hutang" },
       ];
 
       generateLaporanPdf({
         title: "Buana Situju Dapurang",
-        subtitle: `Laporan pembelian: ${startDate} Sampai ${endDate}`,
+        subtitle: `Laporan Pembelian: ${startDate} Sampai ${endDate}`,
         columns,
         data: formattedList,
         summary: {
-          total_omset: summary.total_pembelian,
-          total_piutang: summary.sisa_hutang,
-          jumlah_transaksi: summary.jumlah_transaksi,
-          rata_rata_transaksi: summary.rata_rata_transaksi,
+          total_pembelian: result.total_pembelian,
+          sisa_hutang: result.sisa_hutang,
+          jumlah_transaksi: result.jumlah_transaksi,
+          rata_rata_transaksi: result.rata_rata_transaksi,
         },
       });
-    } catch (err) {
-      console.error("Gagal unduh PDF:", err);
+    } catch (error) {
+      console.error("Gagal mengunduh PDF:", error);
     }
   };
 
@@ -138,44 +144,40 @@ export default function LaporanPembelianPage() {
       const params = {
         start_date: startDate,
         end_date: endDate,
+        status,
         pagination: false,
       };
       const res = await axiosInstance.get("/laporan/pembelian", { params });
-      const list: TransaksiBeli[] = res.data?.data?.list || [];
 
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet(
-        getFormattedFilename(startDate, endDate)
-      );
+      console.log("data", res);
+      const data: TransaksiBeli[] = res.data?.data?.list || [];
 
-      sheet.columns = [
-        { header: "No Nota", key: "no_nota", width: 20 },
-        { header: "Tanggal", key: "tanggal", width: 20 },
-        { header: "Total", key: "total", width: 15 },
-        { header: "Dibayar", key: "dibayar", width: 15 },
-        { header: "Sisa Hutang", key: "sisa_hutang", width: 15 },
-        { header: "Status", key: "status", width: 15 },
-      ];
+      // Format total dan dibayar
+      const formattedList = data.map((item) => ({
+        ...item,
+        total: rupiahFormat(item.total),
+        sisa_hutang: rupiahFormat(item.sisa_hutang),
+        dibayar: rupiahFormat(item.dibayar),
+      }));
 
-      list.forEach((item) => {
-        sheet.addRow({
-          ...item,
-          total: Number(item.total),
-          dibayar: Number(item.dibayar),
-          sisa_hutang: Number(item.sisa_hutang),
-        });
+      await generateExcelReport({
+        data: formattedList,
+        title: "Pembelian",
+        startDate,
+        endDate,
+        columns: [
+          { header: "No Nota", key: "no_nota" },
+          { header: "Tanggal", key: "tanggal" },
+          { header: "Supplier", key: "nama_supplier" },
+          { header: "Total", key: "total" },
+          { header: "Dibayar", key: "dibayar" },
+          { header: "Status", key: "status" },
+          { header: "Sisa Hutang", key: "sisa_hutang" },
+        ],
+        multipleSheetColumn: "nama_supplier",
       });
-
-      const buffer = await workbook.xlsx.writeBuffer();
-      saveAs(
-        new Blob([buffer]),
-        `${getFormattedFilename(
-          startDate,
-          endDate
-        )} Laporan Pembelian Toko Buana Situju Dapurang.xlsx`
-      );
-    } catch (err) {
-      console.error("Gagal download excel:", err);
+    } catch (error) {
+      console.error("Gagal download excel:", error);
     }
   };
 
@@ -220,10 +222,12 @@ export default function LaporanPembelianPage() {
         </div>
         <div className="mt-1 flex gap-2">
           <Button variant="destructive" onClick={handleDownloadPdf}>
+            PDF
             <DownloadIcon className="w-4 h-4" />
             <FileTextIcon className="w-4 h-4 ml-1" />
           </Button>
           <Button onClick={handleDownloadExcel}>
+            Excel
             <DownloadIcon className="w-4 h-4" />
             <FileSpreadsheetIcon className="w-4 h-4 ml-1" />
           </Button>

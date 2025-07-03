@@ -23,15 +23,9 @@ interface Barang {
 
 interface Props {
   onSelectBarang: (barang: Barang) => void;
-  isBarangInKeranjang: (barangId: string) => boolean;
-  onTambahQtyBarang: (barang: Barang) => void;
 }
 
-export default function CariBarangAutocomplete({
-  onSelectBarang,
-  isBarangInKeranjang,
-  onTambahQtyBarang,
-}: Props) {
+export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Barang[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,25 +34,12 @@ export default function CariBarangAutocomplete({
 
   const handleSelect = useCallback(
     (barang: Barang) => {
-      if (
-        typeof isBarangInKeranjang === "function" &&
-        isBarangInKeranjang(barang.id)
-      ) {
-        console.info("Barang sudah ada di keranjang, tambah qty");
-        onTambahQtyBarang(barang);
-      } else if (typeof onSelectBarang === "function") {
-        onSelectBarang(barang);
-      } else {
-        console.error("onSelectBarang tidak tersedia atau bukan fungsi");
-        return;
-      }
-
-      // Reset setelah berhasil
+      onSelectBarang(barang); // ✅ selalu tambahkan barang ke keranjang
       setQuery("");
       setResults([]);
       setSelectedIdx(-1);
     },
-    [onSelectBarang, onTambahQtyBarang, isBarangInKeranjang]
+    [onSelectBarang]
   );
 
   const fetchBarang = useCallback(
@@ -68,18 +49,14 @@ export default function CariBarangAutocomplete({
         const data = res.data.data || [];
         setResults(data);
 
-        // ✅ Auto-select jika ada barang yang kode_barang === query
+        // ✅ Auto-select hanya jika exact match dengan kode_barang
         const match = data.find((b: Barang) => b.kode_barang === cari);
         if (match) {
           handleSelect(match);
           return;
         }
 
-        // ✅ Jika hanya 1 hasil, auto-pilih (asumsi barcode scanner return parsial kadang)
-        if (data.length === 1) {
-          console.info("Auto-select karena hanya 1 hasil");
-          handleSelect(data[0]);
-        }
+        // ❌ Tidak auto-select meskipun hanya 1 hasil (harus pilih manual)
       } catch {
         setResults([]);
       } finally {
@@ -128,7 +105,7 @@ export default function CariBarangAutocomplete({
         <ul className="absolute z-50 w-full bg-white border shadow-sm mt-1 rounded-md max-h-60 overflow-y-auto text-sm">
           {results.map((barang, idx) => (
             <li
-              key={barang.id}
+              key={`${barang.id}-${idx}`}
               className={cn(
                 "px-3 py-2 cursor-pointer hover:bg-muted",
                 selectedIdx === idx && "bg-muted font-semibold"

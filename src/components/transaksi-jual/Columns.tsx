@@ -36,12 +36,6 @@ export const columns = (
       `Rp${parseFloat(row.getValue("total")).toLocaleString()}`,
   },
   {
-    accessorKey: "diskon",
-    header: "Diskon",
-    cell: ({ row }) =>
-      `Rp${parseFloat(row.getValue("diskon")).toLocaleString()}`,
-  },
-  {
     accessorKey: "dibayar",
     header: "Dibayar",
     cell: ({ row }) =>
@@ -69,6 +63,16 @@ export const columns = (
           {status}
         </span>
       );
+    },
+  },
+  {
+    accessorKey: "jatuh_tempo",
+    header: "Jatuh Tempo",
+    cell: ({ row }) => {
+      const raw = row.getValue("jatuh_tempo") as string;
+      const date = new Date(raw);
+      if (isNaN(date.getTime())) return "-";
+      return format(date, "EEEE, dd MMMM", { locale: id });
     },
   },
   {

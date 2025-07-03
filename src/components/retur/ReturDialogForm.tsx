@@ -87,18 +87,23 @@ export default function ReturDialogForm({
 
   // Mengambil qty maksimum dari detail barang yang dipilih
   const getMaxQtyBarang = () => {
-    if (!selectedBarangTipe || !barangTipeOptions.length || !previewTransaksi)
+    if (
+      !selectedBarangTipe ||
+      !barangTipeOptions.length ||
+      !previewTransaksi?.detail.length
+    ) {
       return 0;
+    }
 
-    const [barang_id, tipe_id] = selectedBarangTipe
-      .split("-")
-      .map((v) => parseInt(v));
+    const [barangIdStr, tipeIdStr] = selectedBarangTipe.split("-");
+    const barangId = parseInt(barangIdStr, 10);
+    const tipeId = parseInt(tipeIdStr, 10);
 
     const found = previewTransaksi.detail.find(
-      (d) => d.barang_id === barang_id && d.tipe_id === tipe_id
+      (d) => Number(d.barang_id) === barangId && Number(d.tipe_id) === tipeId
     );
 
-    return found ? Number(found.qty) : 0;
+    return found ? found.qty : 0;
   };
 
   useEffect(() => {
@@ -371,6 +376,7 @@ export default function ReturDialogForm({
               onChange={(e) => setQty(e.target.value)}
               disabled={!previewTransaksi}
               placeholder={`Max: ${getMaxQtyBarang()}`}
+              max={getMaxQtyBarang()}
             />
           </div>
 

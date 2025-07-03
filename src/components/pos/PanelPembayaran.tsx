@@ -10,6 +10,10 @@ import { axiosInstance } from "@/utils/axios";
 import type { KeranjangItem } from "@/types/pos";
 import { rupiahFormat } from "@/utils/formatting";
 import { Checkbox } from "@/components/ui/checkbox";
+import { addDays } from "date-fns"; // Tambahkan ini paling atas
+import { format, toZonedTime } from "date-fns-tz"; // Tambahkan ini paling atas
+import ConfirmDialog from "@/components/common/ConfirmDialog";
+import axios from "axios";
 
 interface Props {
   keranjang: KeranjangItem[];
@@ -29,7 +33,10 @@ export default function PanelPembayaran({
   const [isOngkir, setIsOngkir] = useState("Tidak");
   const [status, setStatus] = useState<"Lunas" | "Piutang">("Lunas");
   const [customer, setCustomer] = useState("Umum"); // ✅ TAMBAH INI
-
+  const [jatuhTempo, setJatuhTempo] = useState(
+    format(addDays(new Date(), 1), "yyyy-MM-dd")
+  );
+  const [openConfirm, setOpenConfirm] = useState(false);
   const [error, setError] = useState("");
 
   const [isDiskon, setIsDiskon] = useState(false);
@@ -68,10 +75,13 @@ export default function PanelPembayaran({
       ?.state?.user?.id;
 
     // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
-    const tanggal = new Date().toISOString().slice(0, 10);
+
+    const timeZone = "Asia/Makassar";
     const now = new Date();
-    const jamSekarang = now.toTimeString().split(" ")[0]; // contoh: "21:47:22"
-    const tanggalLengkap = `${tanggal} ${jamSekarang}`;
+    const zonedDate = toZonedTime(now, timeZone);
+    const tanggalLengkap = format(zonedDate, "yyyy-MM-dd HH:mm:ss", {
+      timeZone,
+    });
 
     const payload = {
       tanggal: tanggalLengkap,
@@ -83,6 +93,7 @@ export default function PanelPembayaran({
       kembali: status === "Lunas" ? kembali : 0,
       sisa_piutang: sisaPiutang,
       status,
+      jatuh_tempo: status === "Piutang" ? jatuhTempo : tanggalLengkap,
       user_id: Number(userId),
       detail: keranjang.map((item) => ({
         barang_id: Number(item.barang_id),
@@ -109,13 +120,14 @@ export default function PanelPembayaran({
       setStatus("Lunas");
       setError("");
       setCustomer("Umum");
-    } catch (err) {
-      if (err) {
-        // `const msg =
-        //   err?.response?.data?.message ||
-        //   err?.response?.data?.messages?.error ||
-        //   "Gagal menyimpan transaksi.";
-        // setError(msg);`
+      setJatuhTempo(new Date().toISOString().split("T")[0]);
+    } catch (errs) {
+      // console.log(err);
+      if (axios.isAxiosError(errs)) {
+        // console.log(errs?.response?.data?);
+        const msg =
+          errs?.response?.data?.messages?.error || "Gagal menyimpan retur.";
+        setError(msg);
       }
     }
   };
@@ -165,6 +177,17 @@ export default function PanelPembayaran({
               </div>
             </RadioGroup>
           </div>
+          {/* === Input Jatuh Tempo jika Piutang === */}
+          {status === "Piutang" && (
+            <div>
+              <Label className="mb-1">Jatuh Tempo</Label>
+              <Input
+                type="date"
+                value={jatuhTempo}
+                onChange={(e) => setJatuhTempo(e.target.value)}
+              />
+            </div>
+          )}
 
           {/* Ongkir */}
           <div>
@@ -244,6 +267,11 @@ export default function PanelPembayaran({
               onChange={(e) => setBayar(e.target.value)}
             />
           </div>
+          {status === "Piutang" && (
+            <div className="text-sm text-red-600 font-semibold mt-1">
+              Sisa Piutang: {rupiahFormat(sisaPiutang)}
+            </div>
+          )}
           <div className="flex justify-between items-center">
             <Label className="mb-1">Kembali</Label>
             <p className="font-semibold">
@@ -252,10 +280,20 @@ export default function PanelPembayaran({
           </div>
         </div>
 
-        <Button className="w-full" onClick={handleSubmit}>
+        <Button className="w-full" onClick={() => setOpenConfirm(true)}>
           Simpan & Cetak
         </Button>
       </div>
+      <ConfirmDialog
+        open={openConfirm}
+        title="Simpan Transaksi?"
+        message="Data transaksi yang sudah disimpan tidak bisa dihapus."
+        onCancel={() => setOpenConfirm(false)}
+        onConfirm={() => {
+          setOpenConfirm(false);
+          handleSubmit();
+        }}
+      />
     </>
   );
 }

@@ -19,6 +19,7 @@ import { AlertCircleIcon, PencilIcon, TrashIcon } from "lucide-react";
 import { rupiahFormat } from "@/utils/formatting";
 import ConfirmDialog from "../common/ConfirmDialog";
 import axios from "axios";
+import { toZonedTime, format } from "date-fns-tz";
 
 // Tipe data
 interface Supplier {
@@ -78,6 +79,11 @@ export default function TransaksiBeliDialogForm({
 
   const [isDiskon, setIsDiskon] = useState("Tidak");
   const [diskon, setDiskon] = useState("");
+
+  const [jatuhTempo, setJatuhTempo] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split("T")[0]; // format YYYY-MM-DD
+  });
 
   // Tambahan state untuk confirm
   const [confirmType, setConfirmType] = useState<
@@ -152,9 +158,12 @@ export default function TransaksiBeliDialogForm({
     const totalOngkir = isOngkir === "Ya" ? parseFloat(ongkir || "0") : 0;
     const totalFinal = totalBarang + totalOngkir - diskonNum;
 
+    const timeZone = "Asia/Makassar";
     const now = new Date();
-    const jamSekarang = now.toTimeString().split(" ")[0];
-    const tanggalLengkap = `${tanggal} ${jamSekarang}`;
+    const zonedDate = toZonedTime(now, timeZone);
+    const tanggalLengkap = format(zonedDate, "yyyy-MM-dd HH:mm:ss", {
+      timeZone,
+    });
 
     const payload = {
       tanggal: tanggalLengkap,
@@ -165,6 +174,7 @@ export default function TransaksiBeliDialogForm({
       dibayar: parseFloat(dibayar),
       sisa_hutang: status === "Lunas" ? 0 : parseFloat(sisaHutang),
       status,
+      jatuh_tempo: status === "Hutang" ? jatuhTempo : tanggalLengkap,
       user_id: Number(userId),
       detail: finalDetail.map((d) => ({
         barang_id: Number(d.barang_id),
@@ -212,13 +222,14 @@ export default function TransaksiBeliDialogForm({
     setSelectedBarang(null);
     setEditDetailIndex(null);
     setTotalKeseluruhan(0);
+    setJatuhTempo(new Date().toISOString().split("T")[0]);
   };
   // ====================== RENDER ======================
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="w-11/12"
+          className="w-11/12 max-h-[85vh] overflow-auto border rounded"
           aria-describedby=""
           onInteractOutside={(e) => e.preventDefault()}
         >
@@ -359,6 +370,16 @@ export default function TransaksiBeliDialogForm({
                   </div>
                 </RadioGroup>
               </div>
+              {status === "Hutang" && (
+                <div>
+                  <Label className="mb-1">Jatuh Tempo</Label>
+                  <Input
+                    type="date"
+                    value={jatuhTempo}
+                    onChange={(e) => setJatuhTempo(e.target.value)}
+                  />
+                </div>
+              )}
               <div>
                 <Label className="mb-1">Dibayar</Label>
                 <Input

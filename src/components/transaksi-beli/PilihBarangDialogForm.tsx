@@ -189,9 +189,7 @@ export default function PilihBarangDialogForm({
                       <thead className="bg-gray-100">
                         <tr>
                           <th className="border px-2 py-1">Tipe</th>
-                          <th className="border px-2 py-1">
-                            Harga Jual (Modal)
-                          </th>
+                          <th className="border px-2 py-1">Harga Jual</th>
                           <th className="border px-2 py-1">Harga Beli</th>
                         </tr>
                       </thead>

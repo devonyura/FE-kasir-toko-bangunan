@@ -32,13 +32,15 @@ export interface Tipe {
   id: string;
   nama_tipe: string;
   harga_jual: number;
+  stok: any;
 }
 
 export interface KeranjangItem {
-  barang_id: string;
-  nama_barang: string;
-  tipe_id: string;
-  nama_tipe: string;
+  barang_id?: string;
+  nama_barang?: string;
+  kode_barang?: string;
+  tipe_id?: string;
+  nama_tipe?: string;
   qty: number;
   harga_jual: number;
   subtotal: number;
