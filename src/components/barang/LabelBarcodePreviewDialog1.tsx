@@ -10,17 +10,16 @@ import Barcode from "react-barcode"; // install dulu: npm install react-barcode
 import { useRef } from "react";
 import { toPng } from "html-to-image";
 import download from "downloadjs";
+import { singkatNamaBarang } from "@/utils/formatting";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   barang?: {
-    id: string;
-    nama_barang: string;
-    kategori_id: string;
-    kode_barang: string;
-    keterangan: string;
-  } | null;
+    nama_barang: string | undefined;
+    kode_barang_tipe: string;
+    nama_tipe: string | undefined;
+  };
 }
 
 export default function StrukPreviewDialog1({
@@ -38,7 +37,7 @@ export default function StrukPreviewDialog1({
         backgroundColor: "white", // pastikan ada background putih
         pixelRatio: 3, // kualitas tinggi
       });
-      download(dataUrl, `barcode-${barang?.kode_barang || "label"}.png`);
+      download(dataUrl, `barcode-${barang?.kode_barang_tipe || "label"}.png`);
     } catch (err) {
       console.error("Gagal generate gambar:", err);
     }
@@ -64,13 +63,17 @@ export default function StrukPreviewDialog1({
               className="flex flex-col items-center bg-white mb-[1mm]"
               ref={labelRef}
             >
-              <span className="text-[10px]">{barang?.nama_barang}</span>
+              <span className="text-[9px]">
+                {singkatNamaBarang(
+                  `${barang?.nama_barang} ${barang?.nama_tipe}`
+                )}
+              </span>
               <Barcode
                 height={30}
                 width={1.5}
                 fontSize={12}
                 displayValue={true}
-                value={barang?.kode_barang || ""}
+                value={barang?.kode_barang_tipe || ""}
                 marginLeft={10}
                 format="EAN13"
                 marginTop={1}

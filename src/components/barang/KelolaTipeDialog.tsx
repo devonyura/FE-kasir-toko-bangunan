@@ -22,6 +22,7 @@ import { rupiahFormat } from "@/utils/formatting";
 import DeleteConfirmDialog from "./DeleteConfirmDialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import axios from "axios";
+import LabelBarcodePreviewDialog1 from "./LabelBarcodePreviewDialog1";
 
 interface Props {
   open: boolean;
@@ -34,11 +35,18 @@ interface tipe {
   nama_tipe: string;
   harga_beli: string;
   harga_jual: string;
+  kode_barang_tipe: string;
 }
 
 interface BarangInfo {
   nama_barang: string;
   kode_barang: string;
+}
+
+interface InfoBarcode {
+  nama_barang: string | undefined;
+  kode_barang_tipe: string;
+  nama_tipe: string;
 }
 
 export default function KelolatipeDialog({
@@ -60,6 +68,9 @@ export default function KelolatipeDialog({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null);
 
+  const [openPreview, setOpenPreview] = useState(false);
+  const [barcodeData, setBarcodeData] = useState<InfoBarcode | null>(null);
+
   const fetchtipe = useCallback(async () => {
     try {
       console.log("barangId:", barangId);
@@ -69,6 +80,9 @@ export default function KelolatipeDialog({
     } catch {
       setError(`Gagal memuat data tipe:`);
     }
+    setTimeout(() => {
+      setError("");
+    }, 1200);
   }, [barangId]);
 
   const fetchBarangInfo = useCallback(async () => {
@@ -87,10 +101,19 @@ export default function KelolatipeDialog({
     }
   }, [open, barangId, fetchtipe, fetchBarangInfo]);
 
+  const handlePrintBarcode = (kode_barang_tipe: string, nama_tipe: string) => {
+    setBarcodeData({
+      nama_barang: barangInfo?.nama_barang,
+      kode_barang_tipe: kode_barang_tipe,
+      nama_tipe: nama_tipe,
+    });
+    setOpenPreview(true);
+  };
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-5xl">
           <DialogHeader>
             <DialogTitle>Kelola tipe Barang</DialogTitle>
             <DialogDescription>Daftar tipe untuk barang ini.</DialogDescription>
@@ -159,6 +182,7 @@ export default function KelolatipeDialog({
               <thead className="bg-gray-100">
                 <tr>
                   <th className="border px-2 py-1">tipe</th>
+                  <th className="border px-2 py-1">Kode Barang</th>
                   <th className="border px-2 py-1">Harga Beli (modal)</th>
                   <th className="border px-2 py-1">Harga Jual</th>
                   <th className="border px-2 py-1 text-center">Aksi</th>
@@ -169,6 +193,9 @@ export default function KelolatipeDialog({
                   return (
                     <tr key={tipe.id}>
                       <td className="border px-2 py-1">{tipe.nama_tipe}</td>
+                      <td className="border px-2 py-1">
+                        {tipe.kode_barang_tipe}
+                      </td>
                       <td className="border px-2 py-1">
                         {rupiahFormat(tipe.harga_beli)}
                       </td>
@@ -197,6 +224,18 @@ export default function KelolatipeDialog({
                             }}
                           >
                             <TrashIcon className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              handlePrintBarcode(
+                                tipe.kode_barang_tipe,
+                                tipe.nama_tipe
+                              );
+                            }}
+                          >
+                            Print Label
                           </Button>
                         </div>
                       </td>
@@ -254,6 +293,15 @@ export default function KelolatipeDialog({
           setTimeout(() => setError(""), 3000);
         }}
       />
+
+      {/* Dialog Preview Barcode */}
+      {barcodeData && (
+        <LabelBarcodePreviewDialog1
+          open={openPreview}
+          onOpenChange={setOpenPreview}
+          barang={barcodeData}
+        />
+      )}
     </>
   );
 }

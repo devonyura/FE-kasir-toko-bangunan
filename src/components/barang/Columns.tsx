@@ -16,8 +16,7 @@ type Barang = {
 export const Columns = (
   handleEdit: (barang: BarangType) => void,
   handleDelete: (id: string) => void,
-  handleKelolaSatuan: (id: string) => void,
-  handlePrintBarcode: (barang: BarangType) => void
+  handleKelolaSatuan: (id: string) => void
 ): ColumnDef<Barang>[] => [
   {
     accessorKey: "nama_barang",
@@ -48,10 +47,6 @@ export const Columns = (
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-  },
-  {
-    accessorKey: "kode_barang",
-    header: "Kode",
   },
   {
     accessorKey: "keterangan",
@@ -85,15 +80,6 @@ export const Columns = (
             onClick={() => handleKelolaSatuan(barang.id)}
           >
             Lihat Satuan
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              handlePrintBarcode(barang);
-            }}
-          >
-            Print Label
           </Button>
         </div>
       );

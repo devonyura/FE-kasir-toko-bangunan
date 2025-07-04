@@ -53,7 +53,7 @@ export default function BarangDialogForm({
 
   const [nama_barang, setNama_barang] = useState("");
   const [kategori_id, setKategori_id] = useState("");
-  const [kode_barang, setKode_barang] = useState("");
+  // const [kode_barang, setKode_barang] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [kategoriList, setKategoriList] = useState<Kategori[]>([]);
   const [error, setError] = useState("");
@@ -83,7 +83,7 @@ export default function BarangDialogForm({
         // reset form kalau mode tambah
         setNama_barang("");
         // setKategori_id(initialData.kategori_id ?? "");
-        setKode_barang("");
+        // setKode_barang("");
         setKeterangan("");
       }
     }
@@ -94,7 +94,7 @@ export default function BarangDialogForm({
     if (open && isEdit && initialData && kategoriList.length > 0) {
       setNama_barang(initialData.nama_barang);
       setKategori_id(initialData.kategori_id);
-      setKode_barang(initialData.kode_barang);
+      // setKode_barang(initialData.kode_barang);
       setKeterangan(initialData.keterangan);
     }
   }, [open, isEdit, initialData, kategoriList]);
@@ -104,7 +104,7 @@ export default function BarangDialogForm({
     setError("");
     setLoading(true);
     try {
-      const payload = { nama_barang, kategori_id, kode_barang, keterangan };
+      const payload = { nama_barang, kategori_id, keterangan };
       const res = isEdit
         ? await axiosInstance.put(`/barang/${initialData?.id}`, payload)
         : await axiosInstance.post("/barang", payload);
@@ -135,25 +135,6 @@ export default function BarangDialogForm({
     } finally {
       setLoading(false);
     }
-  };
-
-  const generateKodeBarangEAN13 = () => {
-    // Buat 12 digit awal (bisa pakai prefix tertentu jika mau, contoh: "899" untuk produk Indonesia)
-    const prefix = "899"; // optional prefix
-    const randomDigits = Math.floor(Math.random() * 1_000_000_000)
-      .toString()
-      .padStart(9, "0"); // 9 digit acak
-    const baseCode = prefix + randomDigits; // total 12 digit
-
-    // Hitung checksum EAN13
-    const sum = baseCode
-      .split("")
-      .map((digit, idx) => parseInt(digit) * (idx % 2 === 0 ? 1 : 3))
-      .reduce((a, b) => a + b, 0);
-
-    const checkDigit = (10 - (sum % 10)) % 10;
-
-    return baseCode + checkDigit; // hasil akhir 13 digit EAN13
   };
 
   return (
@@ -220,30 +201,6 @@ export default function BarangDialogForm({
                     onClick={() => setKelolaKategoriOpen(true)}
                   >
                     Kelola Kategori
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="kode">Kode Barang</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="kode"
-                    value={kode_barang ?? ""}
-                    onChange={(e) => setKode_barang(e.target.value)}
-                    required
-                    className="flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const kode = generateKodeBarangEAN13();
-                      setKode_barang(kode);
-                    }}
-                  >
-                    Generate
                   </Button>
                 </div>
               </div>

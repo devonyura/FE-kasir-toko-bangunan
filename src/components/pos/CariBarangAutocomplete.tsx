@@ -3,22 +3,18 @@ import { Input } from "@/components/ui/input";
 import { axiosInstance } from "@/utils/axios";
 import { cn } from "@/lib/utils";
 
-interface Barang {
+export interface Barang {
   id: string;
   nama_barang: string;
-  kode_barang: string;
   nama_kategori: string;
-  tipe_default: {
-    id: string;
-    nama_tipe: string;
-    harga_jual: number;
-  };
   semua_tipe: {
     id: string;
     nama_tipe: string;
     harga_jual: number;
     stok: number;
+    kode_barang_tipe: string;
   }[];
+  tipe_default?: { id: string; nama_tipe: string; harga_jual: number };
 }
 
 interface Props {
@@ -46,17 +42,31 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
     async (cari: string) => {
       try {
         const res = await axiosInstance.get(`/barang?search=${cari}`);
-        const data = res.data.data || [];
+        const data: Barang[] = res.data.data || [];
         setResults(data);
 
-        // ✅ Auto-select hanya jika exact match dengan kode_barang
-        const match = data.find((b: Barang) => b.kode_barang === cari);
-        if (match) {
-          handleSelect(match);
+        // ✅ Jika hanya 1 barang & 1 tipe & stok > 0, auto-tambah
+        if (
+          data.length === 1 &&
+          data[0].semua_tipe.length === 1 &&
+          data[0].semua_tipe[0].stok > 0
+        ) {
+          const barang = data[0];
+          const tipe = barang.semua_tipe[0];
+
+          // Bungkus tipe ke dalam bentuk `tipe_default`
+          const barangDenganTipe = {
+            ...barang,
+            tipe_default: {
+              id: tipe.id,
+              nama_tipe: tipe.nama_tipe,
+              harga_jual: tipe.harga_jual,
+            },
+          };
+
+          handleSelect(barangDenganTipe as Barang);
           return;
         }
-
-        // ❌ Tidak auto-select meskipun hanya 1 hasil (harus pilih manual)
       } catch {
         setResults([]);
       } finally {

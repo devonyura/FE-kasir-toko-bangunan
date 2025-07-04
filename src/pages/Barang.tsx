@@ -13,7 +13,6 @@ import KelolatipeDialog from "@/components/barang/KelolaTipeDialog";
 import { DataTable } from "@/components/barang/DataTable";
 import { Columns } from "@/components/barang/Columns";
 import type { Barang } from "@/components/barang/types";
-import LabelBarcodePreviewDialog1 from "@/components/barang/LabelBarcodePreviewDialog1";
 import axios from "axios";
 import { generateExcelReport } from "@/utils/generateExcelReport";
 
@@ -42,8 +41,8 @@ export default function BarangPage() {
   );
   const [kelolaSatuanOpen, setKelolaSatuanOpen] = useState(false);
 
-  const [openPreview, setOpenPreview] = useState(false);
-  const [barcodeData, setBarcodeData] = useState<Barang | null>(null);
+  // const [openPreview, setOpenPreview] = useState(false);
+  // const [barcodeData, setBarcodeData] = useState<Barang | null>(null);
   // const [selectedBarang, setSelectedBarang] = useState<{
   //   nama_barang: string;
   //   kode_barang: string;
@@ -119,7 +118,7 @@ export default function BarangPage() {
         title: "Data Barang",
         columns: [
           { header: "Nama Barang", key: "nama_lengkap", width: 40 },
-          { header: "Kode", key: "kode_barang" },
+          { header: "Kode Barcode", key: "kode_barang_tipe" },
           { header: "Kategori", key: "nama_kategori" },
           { header: "Harga Beli", key: "harga_beli" },
           { header: "Harga Jual", key: "harga_jual" },
@@ -210,10 +209,6 @@ export default function BarangPage() {
               (id) => {
                 setBarangIdUntukSatuan(id);
                 setKelolaSatuanOpen(true);
-              },
-              (barang) => {
-                setBarcodeData(barang);
-                setOpenPreview(true);
               }
             )}
             filterKey="nama_barang"
@@ -250,13 +245,13 @@ export default function BarangPage() {
       />
 
       {/* Dialog Preview Barcode */}
-      {barcodeData && (
+      {/* {barcodeData && (
         <LabelBarcodePreviewDialog1
           open={openPreview}
           onOpenChange={setOpenPreview}
           barang={barcodeData}
         />
-      )}
+      )} */}
     </div>
   );
 }

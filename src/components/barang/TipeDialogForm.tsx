@@ -26,6 +26,7 @@ interface Props {
     nama_tipe: string;
     harga_jual: string;
     harga_beli: string;
+    kode_barang_tipe: string;
   } | null;
 }
 
@@ -45,6 +46,26 @@ export default function TipeDialogForm({
   const [loading, setLoading] = useState(false);
 
   const [namaError, setNamaError] = useState("");
+  const [kode_barang_tipe, setKode_barang_tipe] = useState("");
+
+  const generateKodeBarangEAN13 = () => {
+    // Buat 12 digit awal (bisa pakai prefix tertentu jika mau, contoh: "899" untuk produk Indonesia)
+    const prefix = "899"; // optional prefix
+    const randomDigits = Math.floor(Math.random() * 1_000_000_000)
+      .toString()
+      .padStart(9, "0"); // 9 digit acak
+    const baseCode = prefix + randomDigits; // total 12 digit
+
+    // Hitung checksum EAN13
+    const sum = baseCode
+      .split("")
+      .map((digit, idx) => parseInt(digit) * (idx % 2 === 0 ? 1 : 3))
+      .reduce((a, b) => a + b, 0);
+
+    const checkDigit = (10 - (sum % 10)) % 10;
+
+    return baseCode + checkDigit; // hasil akhir 13 digit EAN13
+  };
 
   useEffect(() => {
     if (open) {
@@ -52,10 +73,12 @@ export default function TipeDialogForm({
         setNama(initialData.nama_tipe);
         setJual(initialData.harga_jual);
         setBeli(initialData.harga_beli);
+        setKode_barang_tipe(initialData.kode_barang_tipe);
       } else {
         setNama("");
         setJual("");
         setBeli("");
+        setKode_barang_tipe("");
       }
       setError("");
     }
@@ -75,6 +98,7 @@ export default function TipeDialogForm({
         nama_tipe: nama,
         harga_jual: parseFloat(jual),
         harga_beli: parseFloat(beli),
+        kode_barang_tipe: kode_barang_tipe,
       };
 
       const res = isEdit
@@ -161,6 +185,29 @@ export default function TipeDialogForm({
                   onChange={(e) => setJual(e.target.value)}
                   required
                 />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="kode">Kode Barang</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="kode"
+                  value={kode_barang_tipe ?? ""}
+                  onChange={(e) => setKode_barang_tipe(e.target.value)}
+                  required
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const kode = generateKodeBarangEAN13();
+                    setKode_barang_tipe(kode);
+                  }}
+                >
+                  Generate
+                </Button>
               </div>
             </div>
           </div>
