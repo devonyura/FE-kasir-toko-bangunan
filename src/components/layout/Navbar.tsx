@@ -22,7 +22,7 @@ export default function Navbar({ toggleSidebar }: NavbarProps) {
         </Link>
       </div>
       <div className="flex items-center gap-3 text-sm">
-        <span>Selamat datang, Devon</span>
+        <span>Selamat datang</span>
         <button
           onClick={handleHardRefresh}
           title="Refresh"
