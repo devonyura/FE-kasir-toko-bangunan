@@ -1,24 +1,23 @@
 import { id } from "date-fns/locale";
 import { format, parseISO } from "date-fns";
 
+// Format rupiah
 export function rupiahFormat(value: string | number, withRp: boolean = true) {
-  // Menghapus titik desimal yang tidak diperlukan
   const cleanValue = value.toString().replace(/\.00$/, "").replace(/\./g, "");
-
-  // Konversi ke angka
   const number = parseInt(cleanValue, 10);
-
   return withRp
     ? "Rp " + number.toLocaleString("id-ID")
     : "" + number.toLocaleString("id-ID");
 }
 
+// Format nama file laporan
 export const getFormattedFilename = (startDate: string, endDate: string) => {
   const tanggalAwal = format(parseISO(startDate), "d MMMM", { locale: id });
   const tanggalAkhir = format(parseISO(endDate), "d MMMM yyyy", { locale: id });
   return `${tanggalAwal} - ${tanggalAkhir} Laporan Penjualan Toko Buana Situju Dapurang`;
 };
 
+// Singkat nama barang
 export function singkatNamaBarang(
   nama: string | undefined
 ): string | undefined {
@@ -34,26 +33,40 @@ export function singkatNamaBarang(
     "pada",
     "di",
   ];
-
-  // Pisah dan filter kata
   if (nama) {
     const kata = nama
       .split(" ")
       .filter(
         (word) => word.length > 0 && !kataUmum.includes(word.toLowerCase())
       );
-
-    // Jika jumlah kata setelah filter <= 2, kembalikan tanpa potong
-    if (kata.length <= 2) {
-      return kata.join(" ");
-    }
-
-    // Jika lebih dari 2 kata, potong kata panjang
+    if (kata.length <= 2) return kata.join(" ");
     return kata
       .map((word) => {
-        if (word.length <= 4) return word; // tetap gunakan jika pendek
-        return word.slice(0, 3); // potong jika panjang
+        if (word.length <= 4) return word;
+        return word.slice(0, 3);
       })
       .join(" ");
+  }
+}
+
+// utils.ts
+export function copas(teks: string): Promise<void> {
+  if (!navigator.clipboard) {
+    return new Promise((resolve, reject) => {
+      const textarea = document.createElement("textarea");
+      textarea.value = teks;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        resolve();
+      } catch (err) {
+        document.body.removeChild(textarea);
+        reject(err);
+      }
+    });
+  } else {
+    return navigator.clipboard.writeText(teks);
   }
 }

@@ -14,6 +14,7 @@ import {
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Button } from "@/components/ui/button";
+import { CopyButton } from "@/components/common/CopyButton";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
@@ -99,7 +100,9 @@ export default function DashboardPage() {
               <tbody>
                 {data.transaksi_hari_ini?.map((trx, idx) => (
                   <tr key={idx} className="odd:bg-white even:bg-gray-50">
-                    <td className="px-4 py-2 border-b">{trx.no_nota}</td>
+                    <td className="px-4 py-2 border-b">
+                      {trx.no_nota} <CopyButton teks={trx.no_nota} />{" "}
+                    </td>
                     <td className="px-4 py-2 border-b">{trx.customer}</td>
                     <td className="px-4 py-2 border-b">
                       Rp{parseFloat(trx.total).toLocaleString("id-ID")}

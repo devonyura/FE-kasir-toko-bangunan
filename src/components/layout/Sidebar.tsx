@@ -1,14 +1,28 @@
 // src/components/layout/Sidebar.tsx
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Menu, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Menu,
+  ChevronDown,
+  ChevronUp,
+  LayoutDashboard,
+  ShoppingCart,
+  FileText,
+  Package,
+  Layers,
+  ReceiptText,
+  Users,
+  Undo,
+  LogOut,
+} from "lucide-react";
 import { Button } from "../ui/button";
 import { useAuthStore } from "../../store/auth";
 
 type MenuItem = {
   label: string;
   path?: string;
-  children?: { label: string; path: string }[];
+  icon?: JSX.Element;
+  children?: { label: string; path: string; icon?: JSX.Element }[];
 };
 
 type SidebarProps = {
@@ -17,22 +31,55 @@ type SidebarProps = {
 };
 
 const menuItems: MenuItem[] = [
-  { label: "Dashboard", path: "/" },
-  { label: "Kasir", path: "/kasir" },
+  {
+    label: "Dashboard",
+    path: "/",
+    icon: <LayoutDashboard className="w-4 h-4 mr-2" />,
+  },
+  {
+    label: "Kasir",
+    path: "/kasir",
+    icon: <ShoppingCart className="w-4 h-4 mr-2" />,
+  },
   {
     label: "Laporan",
+    icon: <FileText className="w-4 h-4 mr-2" />,
     children: [
       { label: "Laporan Bulanan", path: "/laporan-bulanan" },
       { label: "Laporan Penjualan", path: "/laporan-penjualan" },
       { label: "Laporan Pembelian", path: "/laporan-pembelian" },
     ],
   },
-  { label: "Data Barang", path: "/Barang" },
-  { label: "Stok Barang", path: "/stok" },
-  { label: "Transaksi Beli", path: "/transaksi-beli" },
-  { label: "Transaksi Jual (Hutang/Piutang Pembeli)", path: "/transaksi-jual" },
-  { label: "Retur Barang", path: "/retur" },
-  { label: "Akun Manager", path: "/users" },
+  {
+    label: "Data Barang",
+    path: "/Barang",
+    icon: <Package className="w-4 h-4 mr-2" />,
+  },
+  {
+    label: "Stok Barang",
+    path: "/stok",
+    icon: <Layers className="w-4 h-4 mr-2" />,
+  },
+  {
+    label: "Transaksi Beli",
+    path: "/transaksi-beli",
+    icon: <ReceiptText className="w-4 h-4 mr-2" />,
+  },
+  {
+    label: "Transaksi Jual (Hutang/Piutang Pembeli)",
+    path: "/transaksi-jual",
+    icon: <ReceiptText className="w-4 h-4 mr-2" />,
+  },
+  {
+    label: "Retur Barang",
+    path: "/retur",
+    icon: <Undo className="w-4 h-4 mr-2" />,
+  },
+  {
+    label: "Akun Manager",
+    path: "/users",
+    icon: <Users className="w-4 h-4 mr-2" />,
+  },
 ];
 
 export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
@@ -57,14 +104,10 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
     );
   };
 
-  // Ambil role dari localStorage
   const role =
     JSON.parse(localStorage.getItem("auth-storage") || "{}")?.state?.user
       ?.role || "";
 
-  console.log("role", role);
-
-  // Filter menu berdasarkan role
   const filteredMenu = menuItems.filter((item) => {
     if (role === "admin") return true;
     if (role === "owner" && item.label === "Akun Manager") return false;
@@ -83,7 +126,6 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
 
   return (
     <>
-      {/* Tombol toggle sidebar mobile */}
       <button
         className="md:hidden fixed top-4 left-4 z-30 bg-white p-2 rounded shadow"
         onClick={toggleSidebar}
@@ -108,7 +150,10 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
                     onClick={() => toggleMenu(item.label)}
                     className="flex justify-between items-center w-full px-4 py-2 text-sm font-medium hover:bg-gray-100 rounded transition"
                   >
-                    {item.label}
+                    <span className="flex items-center">
+                      {item.icon}
+                      {item.label}
+                    </span>
                     {isOpenMenu ? (
                       <ChevronUp className="w-4 h-4" />
                     ) : (
@@ -124,13 +169,13 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
                           onClick={() => {
                             if (isMobile()) toggleSidebar();
                           }}
-                          className={`block px-4 py-2 rounded-md text-sm hover:bg-gray-100 transition ${
+                          className={`flex items-center px-4 py-2 rounded-md text-sm hover:bg-gray-100 transition ${
                             location.pathname === child.path
                               ? "bg-gray-100 font-semibold"
                               : ""
                           }`}
                         >
-                          {child.label}
+                          <span className="ml-2">{child.label}</span>
                         </Link>
                       ))}
                     </div>
@@ -146,18 +191,24 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
                 onClick={() => {
                   if (isMobile()) toggleSidebar();
                 }}
-                className={`px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition ${
+                className={`flex items-center px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition ${
                   location.pathname === item.path
                     ? "bg-gray-100 font-semibold"
                     : ""
                 }`}
               >
+                {item.icon}
                 {item.label}
               </Link>
             );
           })}
 
-          <Button variant="link" onClick={handleLogout}>
+          <Button
+            variant="link"
+            onClick={handleLogout}
+            className="flex items-center px-4 mt-4 text-sm text-red-600 hover:text-red-700"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
             Logout
           </Button>
         </nav>

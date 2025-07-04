@@ -3,8 +3,8 @@ import axios from "axios";
 import { useAuthStore } from "../store/auth";
 
 export const axiosInstance = axios.create({
-  // baseURL: "http://localhost:8080/api",
-  baseURL: "https://api.buanadapurang.id/api",
+  baseURL: "http://localhost:8080/api",
+  // baseURL: "https://api.buanadapurang.id/api",
 });
 
 // Optional: Auto attach token to every request if available
