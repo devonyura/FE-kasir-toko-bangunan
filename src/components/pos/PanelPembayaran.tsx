@@ -76,7 +76,7 @@ export default function PanelPembayaran({
 
     // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
 
-    const timeZone = "Asia/Makassar";
+    const timeZone = "Asia/Shanghai";
     const now = new Date();
     const zonedDate = toZonedTime(now, timeZone);
     const tanggalLengkap = format(zonedDate, "yyyy-MM-dd HH:mm:ss", {

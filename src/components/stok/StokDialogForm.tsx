@@ -23,6 +23,7 @@ import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import axios from "axios";
+import { toZonedTime, format } from "date-fns-tz";
 
 interface Props {
   open: boolean;
@@ -48,7 +49,7 @@ export default function StokDialogForm({
 }: Props) {
   const [barangId, setBarangId] = useState("");
   const [tipeId, setTipeId] = useState("");
-  const [tanggal, setTanggal] = useState("");
+  // const [tanggal, setTanggal] = useState("");
   const [jumlah, setJumlah] = useState("");
   const [keterangan, setKeterangan] = useState("");
   const [barangList, setBarangList] = useState<Barang[]>([]);
@@ -67,7 +68,7 @@ export default function StokDialogForm({
   const resetForm = () => {
     setBarangId("");
     setTipeId("");
-    setTanggal("");
+    // setTanggal("");
     setJumlah("");
     setKeterangan("");
     setTipeList([]);
@@ -93,14 +94,19 @@ export default function StokDialogForm({
   };
 
   const handleSubmit = async () => {
-    if (!barangId || !tipeId || !tanggal || !jumlah) {
+    if (!barangId || !tipeId || !jumlah) {
       setError("Semua field wajib diisi.");
       return;
     }
     // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
+
+    const timeZone = "Asia/Shanghai";
     const now = new Date();
-    const jamSekarang = now.toTimeString().split(" ")[0]; // contoh: "21:47:22"
-    const tanggalLengkap = `${tanggal} ${jamSekarang}`;
+    const zonedDate = toZonedTime(now, timeZone);
+    const tanggalLengkap = format(zonedDate, "yyyy-MM-dd HH:mm:ss", {
+      timeZone,
+    });
+
     try {
       const payload = {
         barang_id: Number(barangId),
@@ -183,7 +189,7 @@ export default function StokDialogForm({
             </Select>
           </div>
 
-          {/* Tanggal */}
+          {/* Tanggal
           <div className="grid gap-2">
             <Label>Tanggal</Label>
             <Input
@@ -191,7 +197,7 @@ export default function StokDialogForm({
               value={tanggal}
               onChange={(e) => setTanggal(e.target.value)}
             />
-          </div>
+          </div> */}
 
           {/* Jumlah */}
           <div className="grid gap-2">

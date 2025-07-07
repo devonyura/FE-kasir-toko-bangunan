@@ -55,7 +55,7 @@ export default function TransaksiBeliDialogForm({
   onOpenChange,
   onSuccess,
 }: Props) {
-  const [tanggal, setTanggal] = useState("");
+  // const [tanggal, setTanggal] = useState("");
   const [supplierId, setSupplierId] = useState("");
   const [totalKeseluruhan, setTotalKeseluruhan] = useState(0);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -158,7 +158,7 @@ export default function TransaksiBeliDialogForm({
     const totalOngkir = isOngkir === "Ya" ? parseFloat(ongkir || "0") : 0;
     const totalFinal = totalBarang + totalOngkir - diskonNum;
 
-    const timeZone = "Asia/Makassar";
+    const timeZone = "Asia/Shanghai";
     const now = new Date();
     const zonedDate = toZonedTime(now, timeZone);
     const tanggalLengkap = format(zonedDate, "yyyy-MM-dd HH:mm:ss", {
@@ -210,7 +210,7 @@ export default function TransaksiBeliDialogForm({
   };
 
   const resetForm = () => {
-    setTanggal("");
+    // setTanggal("");
     setSupplierId("");
     setOngkir("");
     setIsOngkir("Tidak");
@@ -247,7 +247,7 @@ export default function TransaksiBeliDialogForm({
           <div className="grid grid-cols-[1fr_2fr] gap-10 ">
             {/* ===================== FORM ===================== */}
             <div className="grid grid-cols-1 gap-3">
-              <div>
+              {/* <div>
                 <Label className="mb-1">Tanggal</Label>
                 <Input
                   type="date"
@@ -255,7 +255,7 @@ export default function TransaksiBeliDialogForm({
                   onChange={(e) => setTanggal(e.target.value)}
                   required
                 />
-              </div>
+              </div> */}
               <div>
                 <Label className="mb-1">Supplier</Label>
                 <div className="flex gap-2">
@@ -339,7 +339,7 @@ export default function TransaksiBeliDialogForm({
                         ((parseFloat(diskon) || 0) /
                           (details.reduce((sum, d) => sum + d.subtotal, 0) ||
                             1)) *
-                          100
+                        100
                       )}
                       %
                     </p>
@@ -402,7 +402,7 @@ export default function TransaksiBeliDialogForm({
               <Button
                 type="button"
                 disabled={
-                  details.length === 0 || !supplierId || tanggal.trim() === ""
+                  details.length === 0 || !supplierId
                 }
                 onClick={() => setConfirmType("simpan")}
               >
@@ -500,7 +500,7 @@ export default function TransaksiBeliDialogForm({
                         Total:{" "}
                         {rupiahFormat(
                           totalKeseluruhan +
-                            (isDiskon === "Ya" ? parseFloat(diskon || "0") : 0)
+                          (isDiskon === "Ya" ? parseFloat(diskon || "0") : 0)
                         )}
                       </b>
                     </p>
@@ -650,15 +650,15 @@ export default function TransaksiBeliDialogForm({
           confirmType === "simpan"
             ? "Simpan Transaksi Beli"
             : confirmType === "batal"
-            ? "Batalkan Input Transaksi?"
-            : "Hapus Barang dariTransaksi"
+              ? "Batalkan Input Transaksi?"
+              : "Hapus Barang dariTransaksi"
         }
         message={
           confirmType === "simpan"
             ? "Yakin simpan Transaksi Beli?"
             : confirmType === "batal"
-            ? "Yakin kembali? Semua input akan direset."
-            : "Yakin ingin menghapus barang ini?"
+              ? "Yakin kembali? Semua input akan direset."
+              : "Yakin ingin menghapus barang ini?"
         }
         onCancel={() => {
           setConfirmType(null);

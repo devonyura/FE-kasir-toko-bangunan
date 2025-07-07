@@ -21,6 +21,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import { axiosInstance } from "@/utils/axios";
 import axios from "axios";
+import { toZonedTime, format } from "date-fns-tz";
 
 // Tambahkan tipe ini di atas component
 type TransaksiDetail = {
@@ -67,7 +68,7 @@ export default function ReturDialogForm({
   onOpenChange,
   onSuccess,
 }: Props) {
-  const [tanggal, setTanggal] = useState("");
+  // const [tanggal, setTanggal] = useState("");
   const [jenis, setJenis] = useState("penjualan");
   const [noNota, setNoNota] = useState("");
   const [transaksiId, setTransaksiId] = useState(""); // hidden data
@@ -108,8 +109,8 @@ export default function ReturDialogForm({
 
   useEffect(() => {
     if (open) {
-      const today = new Date().toISOString().slice(0, 10);
-      setTanggal(today);
+      // const today = new Date().toISOString().slice(0, 10);
+      // setTanggal(today);
       setJenis("penjualan");
       setNoNota("");
       setTransaksiId("");
@@ -153,6 +154,7 @@ export default function ReturDialogForm({
       setBarangTipeOptions([]);
       setPreviewTransaksi(null);
     }
+
   };
 
   const handleSubmit = async () => {
@@ -174,11 +176,12 @@ export default function ReturDialogForm({
         return;
       }
 
-      // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
-      const tanggal = new Date().toISOString().slice(0, 10);
+      const timeZone = "Asia/Shanghai";
       const now = new Date();
-      const jamSekarang = now.toTimeString().split(" ")[0]; // contoh: "21:47:22"
-      const tanggalLengkap = `${tanggal} ${jamSekarang}`;
+      const zonedDate = toZonedTime(now, timeZone);
+      const tanggalLengkap = format(zonedDate, "yyyy-MM-dd HH:mm:ss", {
+        timeZone,
+      });
 
       const payload = {
         jenis,
@@ -202,7 +205,6 @@ export default function ReturDialogForm({
       }
     }
   };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -222,14 +224,14 @@ export default function ReturDialogForm({
         )}
 
         <div className="grid gap-4">
-          <div>
+          {/* <div>
             <Label className="mb-1">Tanggal</Label>
             <Input
               type="date"
               value={tanggal}
               onChange={(e) => setTanggal(e.target.value)}
             />
-          </div>
+          </div> */}
 
           <div>
             <Label className="mb-1">Jenis Retur</Label>
@@ -274,12 +276,21 @@ export default function ReturDialogForm({
                     {previewTransaksi.transaksi.tanggal.slice(0, 10)}
                   </span>
                 </p>
-                <p>
-                  Customer:{" "}
-                  <span className="font-medium">
-                    {previewTransaksi.transaksi.customer}
-                  </span>
-                </p>
+                {previewTransaksi.transaksi.customer ? (
+                  <p>
+                    Customer:{" "}
+                    <span className="font-medium">
+                      {previewTransaksi.transaksi.customer}
+                    </span>
+                  </p>
+                ) : (
+                  <p>
+                    Supplier:{" "}
+                    <span className="font-medium">
+                      {previewTransaksi.transaksi.nama_supplier}
+                    </span>
+                  </p>
+                )}
                 <p>
                   Status:{" "}
                   <span className="font-medium">

@@ -13,7 +13,7 @@ import {
   AlertCircleIcon,
   PlusIcon,
   PencilIcon,
-  TrashIcon,
+  // TrashIcon,
   RefreshCcw,
 } from "lucide-react";
 import { axiosInstance } from "@/utils/axios";
@@ -215,7 +215,7 @@ export default function KelolatipeDialog({
                           >
                             <PencilIcon className="w-4 h-4" />
                           </Button>
-                          <Button
+                          {/* <Button
                             variant="destructive"
                             size="icon"
                             onClick={() => {
@@ -224,7 +224,7 @@ export default function KelolatipeDialog({
                             }}
                           >
                             <TrashIcon className="w-4 h-4" />
-                          </Button>
+                          </Button> */}
                           <Button
                             size="sm"
                             variant="outline"

@@ -30,13 +30,32 @@ export default function CariBarangAutocomplete({ onSelectBarang }: Props) {
 
   const handleSelect = useCallback(
     (barang: Barang) => {
-      onSelectBarang(barang); // ✅ selalu tambahkan barang ke keranjang
+      // Cek apakah ada tipe dengan stok > 0
+      const tipeDenganStok = barang.semua_tipe.find((t) => t.stok > 0);
+
+      if (!tipeDenganStok) {
+        alert("Barang ini tidak tersedia karena semua tipenya habis.");
+        return;
+      }
+
+      // Bungkus sebagai tipe_default jika belum ada
+      const barangDenganTipe = {
+        ...barang,
+        tipe_default: {
+          id: tipeDenganStok.id,
+          nama_tipe: tipeDenganStok.nama_tipe,
+          harga_jual: tipeDenganStok.harga_jual,
+        },
+      };
+
+      onSelectBarang(barangDenganTipe as Barang);
       setQuery("");
       setResults([]);
       setSelectedIdx(-1);
     },
     [onSelectBarang]
   );
+
 
   const fetchBarang = useCallback(
     async (cari: string) => {

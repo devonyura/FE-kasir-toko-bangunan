@@ -79,7 +79,7 @@ export const Columns = (
             variant="secondary"
             onClick={() => handleKelolaSatuan(barang.id)}
           >
-            Lihat Satuan
+            Lihat Tipe
           </Button>
         </div>
       );

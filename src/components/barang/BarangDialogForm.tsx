@@ -171,6 +171,16 @@ export default function BarangDialogForm({
                 />
               </div>
 
+              <div className="grid gap-2">
+                <Label htmlFor="keterangan">Keterangan</Label>
+                <Input
+                  id="keterangan"
+                  value={keterangan ?? ""}
+                  onChange={(e) => setKeterangan(e.target.value)}
+                  required
+                />
+              </div>
+
               {/* Select Kategori */}
               <div className="grid gap-2">
                 <Label htmlFor="kategori">Kategori</Label>
