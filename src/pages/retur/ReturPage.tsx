@@ -79,7 +79,7 @@ export default function ReturPage() {
           <Loader2Icon className="animate-spin mr-2 h-4 w-4" /> Loading...
         </Button>
       ) : (
-        <>
+        <div className="w-[90vw]">
           <DataTable columns={columns} data={data} />
           {totalPages > 1 && (
             <div className="flex justify-end gap-2 mt-4">
@@ -102,7 +102,7 @@ export default function ReturPage() {
               </Button>
             </div>
           )}
-        </>
+        </div>
       )}
 
       <ReturDialogForm

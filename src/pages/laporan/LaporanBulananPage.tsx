@@ -146,7 +146,7 @@ export default function LaporanBulananPage() {
   }, [start_date, end_date]);
 
   return (
-    <div className="p-4">
+    <div className="p-4 space-y-6">
       <h1 className="text-2xl font-bold mb-2">Laporan Bulanan</h1>
       <p className="text-sm text-muted-foreground mb-4">
         Rekap laporan berdasarkan bulan. Pilih bulan di bawah:
@@ -162,7 +162,7 @@ export default function LaporanBulananPage() {
         />
       </div>
 
-      <Tabs defaultValue="penjualan" className="w-full">
+      <Tabs defaultValue="penjualan" className="w-[90vw]">
         <TabsList className="mb-4 flex-wrap">
           <TabsTrigger value="penjualan">Penjualan</TabsTrigger>
           <TabsTrigger value="pembelian">Pembelian</TabsTrigger>

@@ -140,7 +140,7 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
       >
         <div className="font-bold text-lg border-b pb-2">Kasir Toko</div>
 
-        <nav className="flex flex-col pt-4 space-y-1">
+        <nav className="flex flex-col pt-4 space-y-1 overflow-y-auto max-h-[calc(100vh-60px)] pr-2">
           {filteredMenu.map((item, index) => {
             if (item.children) {
               const isOpenMenu = openMenus.includes(item.label);

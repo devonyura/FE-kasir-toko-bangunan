@@ -3,7 +3,6 @@ import { createBrowserRouter } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 // import Transaksi from "./pages/Transaksi";
 import Login from "./pages/Login";
-import Register from "./pages/Register";
 import Barang from "./pages/Barang";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TransaksiBeliPage from "./pages/transaksi/TransaksiBeliPage";
@@ -44,5 +43,4 @@ export const router = createBrowserRouter([
       { path: "users", element: <UserPage /> },
     ],
   },
-  { path: "/register", element: <Register /> },
 ]);

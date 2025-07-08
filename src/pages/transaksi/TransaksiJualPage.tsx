@@ -143,7 +143,7 @@ export default function TransaksiJualPage() {
           <Loader2Icon className="animate-spin mr-2 h-4 w-4" /> Loading...
         </Button>
       ) : (
-        <>
+        <div className="w-[90vw]">
           <DataTable
             columns={columns(handlePelunasan, handlePrint)}
             data={data}
@@ -170,7 +170,7 @@ export default function TransaksiJualPage() {
               </Button>
             </div>
           )}
-        </>
+        </div>
       )}
 
       <PelunasanTransaksiDialogForm

@@ -1,6 +1,7 @@
 // src/utils/axios.ts
 import axios from "axios";
 import { useAuthStore } from "../store/auth";
+import { goTo } from "./navigate";
 
 export const axiosInstance = axios.create({
   // baseURL: "http://localhost:8080/api",
@@ -22,7 +23,8 @@ axiosInstance.interceptors.response.use(
     if (error.response?.status === 401) {
       const auth = useAuthStore.getState();
       auth.logout();
-      window.location.href = "/login";
+      // window.location.href = "/login";
+      goTo("/");
     }
     return Promise.reject(error);
   }

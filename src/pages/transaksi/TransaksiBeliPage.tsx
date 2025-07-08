@@ -149,7 +149,7 @@ export default function TransaksiBeliPage() {
           <Loader2Icon className="animate-spin mr-2 h-4 w-4" /> Loading...
         </Button>
       ) : (
-        <>
+        <div className="w-[95vw]">
           <DataTable
             columns={columns(handlePelunasan, handlePrint)}
             data={data}
@@ -175,7 +175,7 @@ export default function TransaksiBeliPage() {
               </Button>
             </div>
           )}
-        </>
+        </div>
       )}
 
       <TransaksiBeliDialogForm

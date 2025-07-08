@@ -39,7 +39,7 @@ export default function TabPenjualan({
   totalPages,
 }: Props) {
   return (
-    <>
+    <div>
       <h2 className="text-xl font-semibold mb-4">Laporan Penjualan</h2>
       <Card className="mb-4">
         <CardHeader>
@@ -75,6 +75,6 @@ export default function TabPenjualan({
         setPage={setPage}
         totalPages={totalPages}
       />
-    </>
+    </div>
   );
 }

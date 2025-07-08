@@ -1,6 +1,7 @@
 // src/components/layout/Navbar.tsx
 import { Menu, RefreshCcw } from "lucide-react";
 import { Link } from "react-router-dom"; // ⬅️ Import Link
+import { goTo } from "@/utils/navigate";
 
 type NavbarProps = {
   toggleSidebar: () => void;
@@ -8,7 +9,8 @@ type NavbarProps = {
 
 export default function Navbar({ toggleSidebar }: NavbarProps) {
   const handleHardRefresh = () => {
-    window.location.href = "/"; // ⬅️ Vanilla redirect full reload
+    // window.location.href = "/"; // ⬅️ Vanilla redirect full reload
+    goTo("/kasir");
   };
   return (
     <header className="h-14 bg-white border-b flex items-center justify-between px-6 fixed left-0 right-0 top-0 z-50 shadow-sm">
