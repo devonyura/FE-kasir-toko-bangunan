@@ -65,7 +65,7 @@ export default defineConfig({
 				]
       },
       devOptions: {
-        enabled: true
+        enabled: false
       },
 			workbox: {
 				globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'], // Semua file penting

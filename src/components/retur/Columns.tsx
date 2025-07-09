@@ -30,6 +30,19 @@ export const columns: ColumnDef<unknown>[] = [
     },
   },
   {
+    accessorKey: "no_nota",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        className="px-0"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        No nota
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+  },
+  {
     accessorKey: "jenis",
     header: ({ column }) => (
       <Button

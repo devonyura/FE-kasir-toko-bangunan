@@ -1,5 +1,4 @@
-// src/components/stok/StokDialogForm.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +23,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import axios from "axios";
 import { toZonedTime, format } from "date-fns-tz";
+import { cn } from "@/lib/utils";
 
 interface Props {
   open: boolean;
@@ -49,18 +49,20 @@ export default function StokDialogForm({
 }: Props) {
   const [barangId, setBarangId] = useState("");
   const [tipeId, setTipeId] = useState("");
-  // const [tanggal, setTanggal] = useState("");
   const [jumlah, setJumlah] = useState("");
   const [keterangan, setKeterangan] = useState("");
-  const [barangList, setBarangList] = useState<Barang[]>([]);
   const [tipeList, setTipeList] = useState<Tipe[]>([]);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<Barang[]>([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const debounceRef = useRef<number>(0);
+
   const userId = JSON.parse(localStorage.getItem("auth-storage") || "{}")?.state
     ?.user?.id;
 
   useEffect(() => {
     if (open) {
-      fetchBarang();
       resetForm();
     }
   }, [open]);
@@ -68,19 +70,23 @@ export default function StokDialogForm({
   const resetForm = () => {
     setBarangId("");
     setTipeId("");
-    // setTanggal("");
     setJumlah("");
     setKeterangan("");
     setTipeList([]);
     setError("");
+    setSearchQuery("");
+    setSearchResults([]);
   };
 
-  const fetchBarang = async () => {
+  const fetchBarang = async (query: string) => {
     try {
-      const res = await axiosInstance.get("/barang");
-      setBarangList(res.data.data || []);
+      setLoadingSearch(true);
+      const res = await axiosInstance.get(`/barang?search=${query}`);
+      setSearchResults(res.data.data || []);
     } catch {
-      setBarangList([]);
+      setSearchResults([]);
+    } finally {
+      setLoadingSearch(false);
     }
   };
 
@@ -93,12 +99,31 @@ export default function StokDialogForm({
     }
   };
 
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => {
+      fetchBarang(searchQuery.trim());
+    }, 300);
+  }, [searchQuery]);
+
+  const handleSelectBarang = (barang: Barang) => {
+    setBarangId(barang.id);
+    setSearchQuery(`${barang.nama_barang} (${barang.nama_kategori})`);
+    setSearchResults([]);
+    fetchTipe(barang.id);
+    setTipeId("");
+  };
+
   const handleSubmit = async () => {
     if (!barangId || !tipeId || !jumlah) {
       setError("Semua field wajib diisi.");
       return;
     }
-    // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
 
     const timeZone = "Asia/Shanghai";
     const now = new Date();
@@ -114,17 +139,15 @@ export default function StokDialogForm({
         tanggal: tanggalLengkap,
         jumlah: Number(jumlah),
         keterangan,
-        jenis: "masuk", // untuk sekarang default masuk
+        jenis: "masuk",
         user_id: userId,
       };
-      console.log(payload);
 
       await axiosInstance.post("/stok/masuk", payload);
       onSuccess();
       onOpenChange(false);
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        console.log(err);
         const msg =
           err?.response?.data?.message || "Gagal menyimpan data stok.";
         setError(msg);
@@ -148,28 +171,31 @@ export default function StokDialogForm({
         )}
 
         <div className="grid gap-4 py-2">
-          {/* Barang */}
-          <div className="grid gap-2">
-            <Label>Barang</Label>
-            <Select
-              value={barangId}
-              onValueChange={(val) => {
-                setBarangId(val);
-                fetchTipe(val);
-                setTipeId(""); // reset tipe saat barang berubah
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Pilih Barang" />
-              </SelectTrigger>
-              <SelectContent>
-                {barangList.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>
+          {/* ✅ Barang Autocomplete */}
+          <div className="grid gap-2 relative">
+            <Label>Cari Barang</Label>
+            <Input
+              placeholder="Cari nama barang..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              autoFocus
+            />
+            {loadingSearch && (
+              <p className="text-sm text-muted-foreground">Memuat...</p>
+            )}
+            {searchResults.length > 0 && (
+              <ul className="absolute z-50 mt-1 bg-white border rounded shadow w-full max-h-60 overflow-y-auto text-sm">
+                {searchResults.map((b) => (
+                  <li
+                    key={b.id}
+                    className={cn("px-3 py-2 cursor-pointer hover:bg-muted")}
+                    onMouseDown={() => handleSelectBarang(b)}
+                  >
                     {b.nama_barang} ({b.nama_kategori})
-                  </SelectItem>
+                  </li>
                 ))}
-              </SelectContent>
-            </Select>
+              </ul>
+            )}
           </div>
 
           {/* Tipe */}
@@ -188,16 +214,6 @@ export default function StokDialogForm({
               </SelectContent>
             </Select>
           </div>
-
-          {/* Tanggal
-          <div className="grid gap-2">
-            <Label>Tanggal</Label>
-            <Input
-              type="date"
-              value={tanggal}
-              onChange={(e) => setTanggal(e.target.value)}
-            />
-          </div> */}
 
           {/* Jumlah */}
           <div className="grid gap-2">
