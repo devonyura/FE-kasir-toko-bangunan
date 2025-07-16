@@ -10,7 +10,7 @@ import Barcode from "react-barcode"; // install dulu: npm install react-barcode
 import { useRef } from "react";
 import { toPng } from "html-to-image";
 import download from "downloadjs";
-import { singkatNamaBarang } from "@/utils/formatting";
+import { rupiahFormat, singkatNamaBarang } from "@/utils/formatting";
 
 interface Props {
   open: boolean;
@@ -19,6 +19,7 @@ interface Props {
     nama_barang: string | undefined;
     kode_barang_tipe: string;
     nama_tipe: string | undefined;
+    harga_jual: string | number;
   };
 }
 
@@ -37,7 +38,7 @@ export default function StrukPreviewDialog1({
         backgroundColor: "white", // pastikan ada background putih
         pixelRatio: 3, // kualitas tinggi
       });
-      download(dataUrl, `barcode-${barang?.kode_barang_tipe || "label"}.png`);
+      download(dataUrl, `${barang?.nama_barang} ${barang?.nama_tipe}-barcode.png`);
     } catch (err) {
       console.error("Gagal generate gambar:", err);
     }
@@ -52,7 +53,7 @@ export default function StrukPreviewDialog1({
         >
           <DialogHeader className="text-center">
             <DialogTitle className="text-xl font-bold">
-              Preview Label
+              Preview Labels
             </DialogTitle>
           </DialogHeader>
           <div
@@ -69,7 +70,7 @@ export default function StrukPreviewDialog1({
                 )}
               </span>
               <Barcode
-                height={30}
+                height={22}
                 width={1.5}
                 fontSize={12}
                 displayValue={true}
@@ -79,6 +80,9 @@ export default function StrukPreviewDialog1({
                 marginTop={1}
                 marginBottom={1}
               />
+              <span className="text-[12px] mt-[1px] font-semibold">
+                Harga: {barang?.harga_jual && rupiahFormat(barang?.harga_jual)}
+              </span>
             </div>
           </div>
 

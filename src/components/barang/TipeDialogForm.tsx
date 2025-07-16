@@ -14,7 +14,9 @@ import { Label } from "@/components/ui/label";
 import { axiosInstance } from "@/utils/axios";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import axios from "axios";
-// import {  } from "ca";
+import { rupiahFormat } from "@/utils/formatting";
+import CurrencyInput from "@/components/ui/CurrencyInput"; // ✅ Import baru
+
 
 interface Props {
   open: boolean;
@@ -38,41 +40,43 @@ export default function TipeDialogForm({
   initialData,
 }: Props) {
   const isEdit = !!initialData;
-
   const [nama, setNama] = useState("");
   const [jual, setJual] = useState("");
   const [beli, setBeli] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   const [namaError, setNamaError] = useState("");
   const [kode_barang_tipe, setKode_barang_tipe] = useState("");
 
+  // Hitung selisih
+  const selisih = parseFloat(jual || "0") - parseFloat(beli || "0");
+
   const generateKodeBarangEAN13 = () => {
-    // Buat 12 digit awal (bisa pakai prefix tertentu jika mau, contoh: "899" untuk produk Indonesia)
-    const prefix = "899"; // optional prefix
+    const prefix = "899";
     const randomDigits = Math.floor(Math.random() * 1_000_000_000)
       .toString()
-      .padStart(9, "0"); // 9 digit acak
-    const baseCode = prefix + randomDigits; // total 12 digit
-
-    // Hitung checksum EAN13
+      .padStart(9, "0");
+    const baseCode = prefix + randomDigits;
     const sum = baseCode
       .split("")
       .map((digit, idx) => parseInt(digit) * (idx % 2 === 0 ? 1 : 3))
       .reduce((a, b) => a + b, 0);
-
     const checkDigit = (10 - (sum % 10)) % 10;
-
-    return baseCode + checkDigit; // hasil akhir 13 digit EAN13
+    return baseCode + checkDigit;
   };
 
   useEffect(() => {
     if (open) {
       if (initialData) {
         setNama(initialData.nama_tipe);
-        setJual(initialData.harga_jual);
-        setBeli(initialData.harga_beli);
+
+        // Hapus angka belakang koma jika ada
+        const jualClean = Math.floor(parseFloat(initialData.harga_jual)).toString();
+        const beliClean = Math.floor(parseFloat(initialData.harga_beli)).toString();
+
+        setJual(jualClean);
+        setBeli(beliClean);
+
         setKode_barang_tipe(initialData.kode_barang_tipe);
       } else {
         setNama("");
@@ -84,11 +88,17 @@ export default function TipeDialogForm({
     }
   }, [open, initialData, barangId]);
 
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {
+        setError("");
+      }, 2500)
+    }
+  }, [error])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    setNamaError(""); // Clear jika valid
-
+    setNamaError("");
     setError("");
     setLoading(true);
 
@@ -98,6 +108,7 @@ export default function TipeDialogForm({
         nama_tipe: nama,
         harga_jual: parseFloat(jual),
         harga_beli: parseFloat(beli),
+        selisih: selisih,
         kode_barang_tipe: kode_barang_tipe,
       };
 
@@ -129,7 +140,6 @@ export default function TipeDialogForm({
           event.preventDefault();
         }}
       >
-        {/* Komponen kalkulator */}
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>{isEdit ? "Edit" : "Tambah"} Tipe</DialogTitle>
@@ -140,7 +150,6 @@ export default function TipeDialogForm({
 
           {error && (
             <Alert variant="destructive" className="mb-4">
-              {/* <AlertCircleIcon className="h-5 w-5" /> */}
               <AlertTitle>Gagal</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
             </Alert>
@@ -166,27 +175,34 @@ export default function TipeDialogForm({
                 </p>
               )}
             </div>
+
             <div className="grid gap-2">
-              <Label htmlFor="beli">Harga Beli (modal)</Label>
-              <Input
+              <Label htmlFor="beli">Harga Beli (Modal)</Label>
+              {/* <Input
                 type="number"
                 value={beli}
                 onChange={(e) => setBeli(e.target.value)}
                 required
-              />
+              /> */}
+              <CurrencyInput value={beli} onChange={setBeli} />
             </div>
+
             <div className="grid gap-2">
-              <Label htmlFor="jual">Harga Jual </Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  value={jual}
-                  className="flex-1"
-                  onChange={(e) => setJual(e.target.value)}
-                  required
-                />
-              </div>
+              <Label htmlFor="jual">Harga Jual</Label>
+              {/* <Input
+                type="number"
+                value={jual}
+                onChange={(e) => setJual(e.target.value)}
+                required
+              /> */}
+              <CurrencyInput value={jual} onChange={setJual} />
+
             </div>
+
+            <div className="text-lg font-medium text-green-600">
+              Selisih: {rupiahFormat(selisih)}
+            </div>
+
             <div className="grid gap-2">
               <Label htmlFor="kode">Kode Barang</Label>
               <div className="flex items-center gap-2">
@@ -196,14 +212,19 @@ export default function TipeDialogForm({
                   onChange={(e) => setKode_barang_tipe(e.target.value)}
                   required
                   className="flex-1"
+                  disabled={isEdit}
                 />
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    const kode = generateKodeBarangEAN13();
-                    setKode_barang_tipe(kode);
+                    if (!isEdit) {
+                      const kode = generateKodeBarangEAN13();
+                      setKode_barang_tipe(kode);
+                    } else {
+                      setError("Kode barang tidak boleh di edit!");
+                    }
                   }}
                 >
                   Generate

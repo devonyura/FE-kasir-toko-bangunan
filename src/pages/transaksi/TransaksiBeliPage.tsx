@@ -135,11 +135,11 @@ export default function TransaksiBeliPage() {
         </Alert>
       )}
 
-      <div className="flex justify-between items-center">
+      <div className="flex justify-left items-center">
         <Input
-          placeholder="Cari nama supplier..."
+          placeholder="Cari nama supplier atau No.Nota..."
           onChange={handleSearchChange}
-          className="max-w-sm"
+          className="max-w-sm me-3"
         />
         <Button onClick={() => setFormOpen(true)}>Tambah Transaksi</Button>
       </div>

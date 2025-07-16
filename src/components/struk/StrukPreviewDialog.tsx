@@ -33,6 +33,7 @@ interface Transaksi {
   dibayar: number;
   kembali?: number;
   jatuh_tempo?: string;
+  keterangan?: string;
   sisa_piutang?: number;
   sisa_hutang?: number;
 }
@@ -190,7 +191,10 @@ export default function StrukPreviewDialog({
                 </div>
               )}
             </div>
-
+            <hr />
+            <div>
+              Keterangan: {transaksi.keterangan}
+            </div>
             <hr />
             <p className="text-center mt-2">
               {isPenjualan

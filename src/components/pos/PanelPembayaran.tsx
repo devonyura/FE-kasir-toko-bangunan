@@ -1,5 +1,7 @@
-// src/components/pos/Panel.pembayaran.tsx
+// src/components/pos/PanelPembayaran.tsx
+
 import { useEffect, useState } from "react";
+import CurrencyInput from "@/components/ui/CurrencyInput"; // ✅ Import baru
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,10 +12,11 @@ import { axiosInstance } from "@/utils/axios";
 import type { KeranjangItem } from "@/types/pos";
 import { rupiahFormat } from "@/utils/formatting";
 import { Checkbox } from "@/components/ui/checkbox";
-import { addDays } from "date-fns"; // Tambahkan ini paling atas
-import { format, toZonedTime } from "date-fns-tz"; // Tambahkan ini paling atas
+import { addDays } from "date-fns";
+import { format, toZonedTime } from "date-fns-tz";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import axios from "axios";
+import { Textarea } from "@/components/ui/textarea"
 
 interface Props {
   keranjang: KeranjangItem[];
@@ -32,7 +35,8 @@ export default function PanelPembayaran({
   const [ongkir, setOngkir] = useState("");
   const [isOngkir, setIsOngkir] = useState("Tidak");
   const [status, setStatus] = useState<"Lunas" | "Piutang">("Lunas");
-  const [customer, setCustomer] = useState("Umum"); // ✅ TAMBAH INI
+  const [customer, setCustomer] = useState("Umum");
+  const [keterangan, setKeterangan] = useState("");
   const [jatuhTempo, setJatuhTempo] = useState(
     format(addDays(new Date(), 1), "yyyy-MM-dd")
   );
@@ -46,9 +50,7 @@ export default function PanelPembayaran({
   const bayarNum = parseFloat(bayar) || 0;
   const diskonNum = parseFloat(diskon) || 0;
   const totalFinal =
-    totalBarang -
-    (isDiskon ? diskonNum : 0) +
-    (isOngkir === "Ya" ? ongkirNum : 0);
+    totalBarang - (isDiskon ? diskonNum : 0) + (isOngkir === "Ya" ? ongkirNum : 0);
   const sisaPiutang = status === "Piutang" ? totalFinal - bayarNum : 0;
 
   useEffect(() => {
@@ -74,8 +76,6 @@ export default function PanelPembayaran({
     const userId = JSON.parse(localStorage.getItem("auth-storage") || "{}")
       ?.state?.user?.id;
 
-    // Format tanggal ke "YYYY-MM-DD HH:mm:ss"
-
     const timeZone = "Asia/Shanghai";
     const now = new Date();
     const zonedDate = toZonedTime(now, timeZone);
@@ -95,6 +95,7 @@ export default function PanelPembayaran({
       status,
       jatuh_tempo: status === "Piutang" ? jatuhTempo : tanggalLengkap,
       user_id: Number(userId),
+      keterangan: keterangan,
       detail: keranjang.map((item) => ({
         barang_id: Number(item.barang_id),
         tipe_id: Number(item.tipe_id),
@@ -106,10 +107,7 @@ export default function PanelPembayaran({
     console.log("payload PanelPembayaran:", payload);
     try {
       const res = await axiosInstance.post("/transaksi-jual", payload);
-      console.log("respon:", res.data);
       const noNota = res.data.data.no_nota;
-      console.log("noNota:", noNota);
-      // printStrukCustom(payload);
       onSuccess();
       onCetak(noNota);
       setBayar("");
@@ -120,11 +118,10 @@ export default function PanelPembayaran({
       setStatus("Lunas");
       setError("");
       setCustomer("Umum");
+      setKeterangan("");
       setJatuhTempo(new Date().toISOString().split("T")[0]);
     } catch (errs) {
-      // console.log(err);
       if (axios.isAxiosError(errs)) {
-        // console.log(errs?.response?.data?);
         const msg =
           errs?.response?.data?.messages?.error || "Gagal menyimpan retur.";
         setError(msg);
@@ -134,10 +131,11 @@ export default function PanelPembayaran({
 
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => setError(""), 3000); // tampil 3 detik
-      return () => clearTimeout(timer); // bersihkan timer saat unmount/change
+      const timer = setTimeout(() => setError(""), 3000);
+      return () => clearTimeout(timer);
     }
   }, [error]);
+
   return (
     <>
       <div className="border rounded p-4 space-y-4 shadow-sm">
@@ -177,7 +175,7 @@ export default function PanelPembayaran({
               </div>
             </RadioGroup>
           </div>
-          {/* === Input Jatuh Tempo jika Piutang === */}
+
           {status === "Piutang" && (
             <div>
               <Label className="mb-1">Jatuh Tempo</Label>
@@ -189,7 +187,6 @@ export default function PanelPembayaran({
             </div>
           )}
 
-          {/* Ongkir */}
           <div>
             <Label className="mb-1">Ongkos Kirim?</Label>
             <RadioGroup
@@ -211,13 +208,10 @@ export default function PanelPembayaran({
           {isOngkir === "Ya" && (
             <div>
               <Label className="mb-1">Biaya Ongkir</Label>
-              <Input
-                type="number"
-                value={ongkir}
-                onChange={(e) => setOngkir(e.target.value)}
-              />
+              <CurrencyInput value={ongkir} onChange={setOngkir} />
             </div>
           )}
+
           {isOngkir === "Ya" && (
             <div className="flex justify-between items-center">
               <Label className="mb-1">Subtotal</Label>
@@ -225,7 +219,6 @@ export default function PanelPembayaran({
             </div>
           )}
 
-          {/* Diskon */}
           <div className="space-y-1">
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -238,12 +231,7 @@ export default function PanelPembayaran({
 
             {isDiskon && (
               <div className="mt-1">
-                <Input
-                  type="number"
-                  placeholder="Masukkan nominal diskon"
-                  value={diskon}
-                  onChange={(e) => setDiskon(e.target.value)}
-                />
+                <CurrencyInput value={diskon} onChange={setDiskon} />
                 <p className="text-xs text-muted-foreground mt-1">
                   Diskon:{" "}
                   {Math.round(((parseFloat(diskon) || 0) / totalBarang) * 100)}%
@@ -261,22 +249,28 @@ export default function PanelPembayaran({
 
           <div>
             <Label className="mb-1">Bayar</Label>
-            <Input
-              type="number"
-              value={bayar}
-              onChange={(e) => setBayar(e.target.value)}
-            />
+            <CurrencyInput value={bayar} onChange={setBayar} />
           </div>
+
           {status === "Piutang" && (
             <div className="text-sm text-red-600 font-semibold mt-1">
               Sisa Piutang: {rupiahFormat(sisaPiutang)}
             </div>
           )}
+
           <div className="flex justify-between items-center">
             <Label className="mb-1">Kembali</Label>
             <p className="font-semibold">
               {kembali > 0 ? rupiahFormat(kembali) : "0"}
             </p>
+          </div>
+          <div>
+            <Label className="mb-1">Keterangan</Label>
+            <Textarea
+              placeholder="isi alamat, no rekening jika transfer bank info lainya."
+              value={keterangan}
+              onChange={(e) => setKeterangan(e.target.value)}
+            />
           </div>
         </div>
 

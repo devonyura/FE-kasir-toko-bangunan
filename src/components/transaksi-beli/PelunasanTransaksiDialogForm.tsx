@@ -19,6 +19,7 @@ import { format } from "date-fns";
 import { rupiahFormat } from "../../utils/formatting";
 import ConfirmDialog from "../common/ConfirmDialog";
 import axios from "axios";
+import CurrencyInput from "@/components/ui/CurrencyInput";
 
 interface Props {
   open: boolean;
@@ -125,13 +126,15 @@ export default function PelunasanTransaksiDialogForm({
           </div>
           <div>
             <Label className="mb-2">Jumlah Pembayaran</Label>
-            <Input
+            {/* <Input
               type="number"
               value={jumlahBayar}
               onChange={(e) => setJumlahBayar(e.target.value)}
               max={parseFloat(transaksi.sisa_hutang)}
               required
-            />
+            /> */}
+            <CurrencyInput value={jumlahBayar}
+              onChange={setJumlahBayar} required />
           </div>
         </div>
 

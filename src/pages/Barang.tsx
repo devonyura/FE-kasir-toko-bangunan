@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon, Loader2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheetIcon } from "lucide-react";
+// import { FileSpreadsheetIcon } from "lucide-react";
 
 import { axiosInstance } from "@/utils/axios";
 import BarangDialogForm from "@/components/barang/BarangDialogForm";
@@ -14,7 +14,7 @@ import { DataTable } from "@/components/barang/DataTable";
 import { Columns } from "@/components/barang/Columns";
 import type { Barang } from "@/components/barang/types";
 import axios from "axios";
-import { generateExcelReport } from "@/utils/generateExcelReport";
+// import { generateExcelReport } from "@/utils/generateExcelReport";
 
 export default function BarangPage() {
   // ----------------------------
@@ -108,28 +108,29 @@ export default function BarangPage() {
     }
   };
 
-  const handleDownloadExcel = async () => {
-    try {
-      const res = await axiosInstance.get("/laporan/barang");
-      const data = res.data?.data || [];
+  // const handleDownloadExcel = async () => {
+  //   try {
+  //     const res = await axiosInstance.get("/laporan/barang");
+  //     const data = res.data?.data || [];
 
-      await generateExcelReport({
-        data,
-        title: "Data Barang",
-        columns: [
-          { header: "Nama Barang", key: "nama_lengkap", width: 40 },
-          { header: "Kode Barcode", key: "kode_barang_tipe" },
-          { header: "Kategori", key: "nama_kategori" },
-          { header: "Harga Beli", key: "harga_beli" },
-          { header: "Harga Jual", key: "harga_jual" },
-          { header: "Stok", key: "stok" },
-        ],
-        multipleSheetColumn: "nama_kategori",
-      });
-    } catch (error) {
-      console.error("Gagal generate Excel:", error);
-    }
-  };
+  //     await generateExcelReport({
+  //       data,
+  //       title: "Data Barang",
+  //       columns: [
+  //         { header: "Nama Barang", key: "nama_lengkap", width: 40 },
+  //         { header: "Kode Barcode", key: "kode_barang_tipe" },
+  //         { header: "Kategori", key: "nama_kategori" },
+  //         { header: "Harga Beli", key: "harga_beli" },
+  //         { header: "Harga Jual", key: "harga_jual" },
+  //         { header: "Selisih", key: "selisih" },
+  //         { header: "Stok", key: "stok" },
+  //       ],
+  //       multipleSheetColumn: "nama_kategori",
+  //     });
+  //   } catch (error) {
+  //     console.error("Gagal generate Excel:", error);
+  //   }
+  // };
 
   // ==============================
   // Render
@@ -156,14 +157,14 @@ export default function BarangPage() {
           >
             Tambah Barang
           </Button>
-          <Button
+          {/* <Button
             variant="outline"
             className="w-full sm:w-fit"
             onClick={handleDownloadExcel}
           >
             <FileSpreadsheetIcon className="w-4 h-4 mr-2" />
             Export Excel
-          </Button>
+          </Button> */}
         </div>
       </div>
 

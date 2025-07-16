@@ -60,6 +60,7 @@ export function copas(teks: string): Promise<void> {
       try {
         document.execCommand("copy");
         document.body.removeChild(textarea);
+        alert("Kode sudah Disalin!");
         resolve();
       } catch (err) {
         document.body.removeChild(textarea);
@@ -67,6 +68,9 @@ export function copas(teks: string): Promise<void> {
       }
     });
   } else {
-    return navigator.clipboard.writeText(teks);
+    return navigator.clipboard.writeText(teks).then(() => {
+      alert("Teks sudah Disalin!");
+    });
   }
 }
+

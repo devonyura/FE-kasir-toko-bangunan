@@ -63,10 +63,11 @@ export default function TransaksiJualPage() {
 
   // Cleanup agar tidak memory leak
   useEffect(() => {
+    setTimeout(() => setError(""), 3200)
     return () => {
       debouncedSearch.cancel();
     };
-  }, [debouncedSearch]);
+  }, [debouncedSearch, error]);
 
   useEffect(() => {
     return () => {
@@ -133,7 +134,7 @@ export default function TransaksiJualPage() {
       )}
 
       <Input
-        placeholder="Cari nama customer..."
+        placeholder="Cari nama customer atau No.Nota ..."
         className="max-w-sm"
         onChange={handleSearchChange}
       />
@@ -179,14 +180,14 @@ export default function TransaksiJualPage() {
         transaksi={
           selectedTransaksi
             ? {
-                id: selectedTransaksi.id ?? null,
-                tanggal: selectedTransaksi.tanggal ?? null,
-                customer: selectedTransaksi.customer ?? null,
-                total: selectedTransaksi.total ?? null,
-                dibayar: selectedTransaksi.dibayar ?? null,
-                sisa_piutang: selectedTransaksi.sisa_piutang ?? null,
-                status: selectedTransaksi.status ?? null,
-              }
+              id: selectedTransaksi.id ?? null,
+              tanggal: selectedTransaksi.tanggal ?? null,
+              customer: selectedTransaksi.customer ?? null,
+              total: selectedTransaksi.total ?? null,
+              dibayar: selectedTransaksi.dibayar ?? null,
+              sisa_piutang: selectedTransaksi.sisa_piutang ?? null,
+              status: selectedTransaksi.status ?? null,
+            }
             : null
         }
         onSuccess={handleSuccess}

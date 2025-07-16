@@ -23,12 +23,16 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { AlertCircleIcon } from "lucide-react";
 import { axiosInstance } from "@/utils/axios";
 import { rupiahFormat } from "@/utils/formatting";
+import CurrencyInput from "@/components/ui/CurrencyInput"; // ✅ Import baru
+
 
 interface TipeBarang {
   id: string;
   nama_tipe: string;
   harga_jual: number;
   harga_beli: number;
+  selisih: number;
+  stok: number;
 }
 
 // Tipe data
@@ -39,6 +43,8 @@ interface DetailBarang {
   nama_tipe: string;
   qty: number;
   harga_beli: number;
+  // selisih: number;
+  // stok: number;
   subtotal: number;
 }
 
@@ -159,7 +165,7 @@ export default function PilihBarangDialogForm({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[700px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>
@@ -179,8 +185,8 @@ export default function PilihBarangDialogForm({
                     {barang.nama_barang}
                   </p>
                   <p className="text-[1rem]">
-                    <span className="font-semibold">Kode Barang:</span>{" "}
-                    {barang.kode_barang}
+                    <span className="font-semibold">Kategori Barang:</span>{" "}
+                    {barang.nama_kategori}
                   </p>
 
                   {/* ✅ Tabel tipe */}
@@ -191,6 +197,8 @@ export default function PilihBarangDialogForm({
                           <th className="border px-2 py-1">Tipe</th>
                           <th className="border px-2 py-1">Harga Jual</th>
                           <th className="border px-2 py-1">Harga Beli</th>
+                          <th className="border px-2 py-1">Selisih</th>
+                          <th className="border px-2 py-1">Stok</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -205,6 +213,12 @@ export default function PilihBarangDialogForm({
                               </td>
                               <td className="border px-2 py-1">
                                 {rupiahFormat(tipe.harga_beli)}
+                              </td>
+                              <td className="border px-2 py-1 text-green-600">
+                                {rupiahFormat(tipe.selisih)}
+                              </td>
+                              <td className="border px-2 py-1">
+                                {tipe.stok}
                               </td>
                             </tr>
                           );
@@ -247,15 +261,12 @@ export default function PilihBarangDialogForm({
             </div>
             <div className="grid gap-2">
               <Label>Harga Beli</Label>
-              <Input
-                type="number"
-                value={hargaBeli}
-                onChange={(e) => setHargaBeli(e.target.value)}
-                required
-              />
+
+              <CurrencyInput value={hargaBeli} onChange={setHargaBeli} placeholder="Masukkan Harga Beli" />
+
             </div>
             <div className="grid gap-2">
-              <Label>Jumlah</Label>
+              <Label>Jumlah yang dibeli <span className="text-gray-600 italic font-light">(akan ditambah ke stok)</span></Label>
               <Input
                 type="number"
                 value={qty}

@@ -20,6 +20,8 @@ import { rupiahFormat } from "@/utils/formatting";
 import ConfirmDialog from "../common/ConfirmDialog";
 import axios from "axios";
 import { toZonedTime, format } from "date-fns-tz";
+import CurrencyInput from "@/components/ui/CurrencyInput"; // ✅ Import baru
+
 
 // Tipe data
 interface Supplier {
@@ -300,11 +302,12 @@ export default function TransaksiBeliDialogForm({
               </div>
               <div style={{ display: isOngkir === "Ya" ? "block" : "none" }}>
                 <Label className="mb-1">Biaya Ongkir</Label>
-                <Input
+                {/* <Input
                   type="number"
                   value={ongkir}
                   onChange={(e) => setOngkir(e.target.value)}
-                />
+                /> */}
+                <CurrencyInput value={ongkir} onChange={setOngkir} />
               </div>
               <div>
                 <Label>Diskon?</Label>
@@ -328,11 +331,13 @@ export default function TransaksiBeliDialogForm({
                 <>
                   <div>
                     <Label className="mb-1">Nominal Diskon</Label>
-                    <Input
+                    {/* <Input
                       type="number"
                       value={diskon}
                       onChange={(e) => setDiskon(e.target.value)}
-                    />
+                    /> */}
+                    <CurrencyInput value={diskon} onChange={setDiskon} />
+
                     <p className="text-xs text-muted-foreground mt-1">
                       Diskon:{" "}
                       {Math.round(
@@ -382,12 +387,13 @@ export default function TransaksiBeliDialogForm({
               )}
               <div>
                 <Label className="mb-1">Dibayar</Label>
-                <Input
+                {/* <Input
                   type="number"
                   value={dibayar}
                   onChange={(e) => setDibayar(e.target.value)}
                   disabled={status === "Lunas"}
-                />
+                /> */}
+                <CurrencyInput value={dibayar} onChange={setDibayar} />
               </div>
               <div style={{ display: status === "Hutang" ? "block" : "none" }}>
                 {/* <Label className="mb-1">Sisa Hutang</Label>

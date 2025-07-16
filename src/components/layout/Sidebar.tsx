@@ -48,6 +48,7 @@ const menuItems: MenuItem[] = [
       { label: "Laporan Bulanan", path: "/laporan-bulanan" },
       { label: "Laporan Penjualan", path: "/laporan-penjualan" },
       { label: "Laporan Pembelian", path: "/laporan-pembelian" },
+      { label: "Laporan Stok", path: "/laporan-stok" },
     ],
   },
   {
@@ -134,9 +135,8 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
       </button>
 
       <aside
-        className={`bg-white border-r fixed top-0 left-0 z-20 h-full w-64 p-4 transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`bg-white border-r fixed top-0 left-0 z-20 h-full w-64 p-4 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="font-bold text-lg border-b pb-2">Kasir Toko</div>
 
@@ -169,11 +169,10 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
                           onClick={() => {
                             if (isMobile()) toggleSidebar();
                           }}
-                          className={`flex items-center px-4 py-2 rounded-md text-sm hover:bg-gray-100 transition ${
-                            location.pathname === child.path
+                          className={`flex items-center px-4 py-2 rounded-md text-sm hover:bg-gray-100 transition ${location.pathname === child.path
                               ? "bg-gray-100 font-semibold"
                               : ""
-                          }`}
+                            }`}
                         >
                           <span className="ml-2">{child.label}</span>
                         </Link>
@@ -191,11 +190,10 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
                 onClick={() => {
                   if (isMobile()) toggleSidebar();
                 }}
-                className={`flex items-center px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition ${
-                  location.pathname === item.path
+                className={`flex items-center px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition ${location.pathname === item.path
                     ? "bg-gray-100 font-semibold"
                     : ""
-                }`}
+                  }`}
               >
                 {item.icon}
                 {item.label}

@@ -13,7 +13,7 @@ import {
   AlertCircleIcon,
   PlusIcon,
   PencilIcon,
-  // TrashIcon,
+  TrashIcon,
   RefreshCcw,
 } from "lucide-react";
 import { axiosInstance } from "@/utils/axios";
@@ -23,6 +23,7 @@ import DeleteConfirmDialog from "./DeleteConfirmDialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import axios from "axios";
 import LabelBarcodePreviewDialog1 from "./LabelBarcodePreviewDialog1";
+import { CopyButton } from "@/components/common/CopyButton"
 
 interface Props {
   open: boolean;
@@ -35,18 +36,22 @@ interface tipe {
   nama_tipe: string;
   harga_beli: string;
   harga_jual: string;
+  selisih: string;
   kode_barang_tipe: string;
+  stok: number;
 }
 
 interface BarangInfo {
   nama_barang: string;
   kode_barang: string;
+  nama_kategori: string;
 }
 
 interface InfoBarcode {
   nama_barang: string | undefined;
   kode_barang_tipe: string;
   nama_tipe: string;
+  harga_jual: string;
 }
 
 export default function KelolatipeDialog({
@@ -57,14 +62,11 @@ export default function KelolatipeDialog({
   const [tipeList, setTipeList] = useState<tipe[]>([]);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [alertMinTipe, setAlertMinTipe] = useState("");
   const [tipeFormOpen, settipeFormOpen] = useState(false);
   const [selectedtipe, setSelectedtipe] = useState<tipe | null>(null);
   const [barangInfo, setBarangInfo] = useState<BarangInfo | null>(null);
 
-  // setup default tipe/convert to default tipe
-  // const tipeDefault = tipeList.find((s) => s.is_tipe_default);
-
-  // State untuk delete
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedDeleteId, setSelectedDeleteId] = useState<string | null>(null);
 
@@ -73,16 +75,12 @@ export default function KelolatipeDialog({
 
   const fetchtipe = useCallback(async () => {
     try {
-      console.log("barangId:", barangId);
       const res = await axiosInstance.get(`/tipe-barang/barang/${barangId}`);
       setTipeList(res.data.data || []);
-      console.log("tipe:", res.data.data);
     } catch {
       setError(`Gagal memuat data tipe:`);
     }
-    setTimeout(() => {
-      setError("");
-    }, 1200);
+    setTimeout(() => setError(""), 1200);
   }, [barangId]);
 
   const fetchBarangInfo = useCallback(async () => {
@@ -99,27 +97,45 @@ export default function KelolatipeDialog({
       fetchtipe();
       fetchBarangInfo();
     }
-  }, [open, barangId, fetchtipe, fetchBarangInfo]);
 
-  const handlePrintBarcode = (kode_barang_tipe: string, nama_tipe: string) => {
+    if (alertMinTipe) {
+      setTimeout(() => setAlertMinTipe(""), 2300)
+    }
+  }, [open, fetchtipe, fetchBarangInfo, alertMinTipe]);
+
+  const handlePrintBarcode = (kode_barang_tipe: string, nama_tipe: string, harga_jual: string) => {
     setBarcodeData({
       nama_barang: barangInfo?.nama_barang,
       kode_barang_tipe: kode_barang_tipe,
       nama_tipe: nama_tipe,
+      harga_jual: harga_jual,
     });
     setOpenPreview(true);
   };
 
+  // ✅ Kontrol menutup dialog
+  const handleOpenChange = (newOpen: boolean) => {
+    if (!newOpen) {
+      if (tipeList.length === 0) {
+        setAlertMinTipe("1 barang minimal harus ada 1 tipe!");
+        return; // blokir
+      }
+      onOpenChange(false); // boleh tutup
+    } else {
+      onOpenChange(true);
+    }
+  };
+
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogContent className="max-w-5xl">
           <DialogHeader>
             <DialogTitle>Kelola tipe Barang</DialogTitle>
             <DialogDescription>Daftar tipe untuk barang ini.</DialogDescription>
           </DialogHeader>
 
-          {/* ✅ Tampilkan info barang */}
+          {/* Info barang */}
           {barangInfo && (
             <div className="mb-4 text-xl text-gray-600">
               <p>
@@ -127,8 +143,8 @@ export default function KelolatipeDialog({
                 <span className="font-semibold">{barangInfo.nama_barang}</span>
               </p>
               <p>
-                <span>Kode Barang:</span>{" "}
-                <span className="font-semibold">{barangInfo.kode_barang}</span>
+                <span>Kategori:</span>{" "}
+                <span className="font-semibold">{barangInfo.nama_kategori}</span>
               </p>
             </div>
           )}
@@ -138,6 +154,14 @@ export default function KelolatipeDialog({
               <AlertCircleIcon className="h-5 w-5" />
               <AlertTitle>Gagal</AlertTitle>
               <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {alertMinTipe && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircleIcon className="h-5 w-5" />
+              <AlertTitle>Info</AlertTitle>
+              <AlertDescription>{alertMinTipe}</AlertDescription>
             </Alert>
           )}
 
@@ -155,14 +179,9 @@ export default function KelolatipeDialog({
             </Alert>
           )}
 
-          {/* ✅ Tombol tambah */}
+          {/* Tombol tambah */}
           <div className="flex justify-end mb-3 gap-2">
-            <Button
-              onClick={() => {
-                fetchtipe();
-              }}
-              size="sm"
-            >
+            <Button onClick={fetchtipe} size="sm">
               <RefreshCcw className="w-4 h-4 mr-1" /> Refresh
             </Button>
             <Button
@@ -176,83 +195,88 @@ export default function KelolatipeDialog({
             </Button>
           </div>
 
-          {/* ✅ Tabel tipe */}
           <ScrollArea className="max-h-[300px] border rounded">
             <table className="w-full border text-sm">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="border px-2 py-1">tipe</th>
+                  <th className="border px-2 py-1">Tipe</th>
                   <th className="border px-2 py-1">Kode Barang</th>
-                  <th className="border px-2 py-1">Harga Beli (modal)</th>
+                  <th className="border px-2 py-1">Harga Beli</th>
                   <th className="border px-2 py-1">Harga Jual</th>
+                  <th className="border px-2 py-1">Selisih</th>
+                  <th className="border px-2 py-1">Stok</th>
                   <th className="border px-2 py-1 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                {tipeList.map((tipe) => {
-                  return (
-                    <tr key={tipe.id}>
-                      <td className="border px-2 py-1">{tipe.nama_tipe}</td>
-                      <td className="border px-2 py-1">
-                        {tipe.kode_barang_tipe}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {rupiahFormat(tipe.harga_beli)}
-                      </td>
-                      <td className="border px-2 py-1">
-                        {rupiahFormat(tipe.harga_jual)}
-                      </td>
-
-                      <td className="border px-2 py-1 text-center">
-                        <div className="flex justify-center items-center gap-x-2 sm:gap-x-1">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => {
-                              setSelectedtipe(tipe);
-                              settipeFormOpen(true);
-                            }}
-                          >
-                            <PencilIcon className="w-4 h-4" />
-                          </Button>
-                          {/* <Button
-                            variant="destructive"
-                            size="icon"
-                            onClick={() => {
-                              setSelectedDeleteId(tipe.id);
-                              setDeleteDialogOpen(true);
-                            }}
-                          >
-                            <TrashIcon className="w-4 h-4" />
-                          </Button> */}
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              handlePrintBarcode(
-                                tipe.kode_barang_tipe,
-                                tipe.nama_tipe
-                              );
-                            }}
-                          >
-                            Print Label
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                {tipeList.map((tipe) => (
+                  <tr key={tipe.id}>
+                    <td className="border px-2 py-1">{tipe.nama_tipe}<CopyButton teks={tipe.nama_tipe} /></td>
+                    <td className="border px-2 py-1">
+                      {tipe.kode_barang_tipe}
+                      <CopyButton teks={tipe.kode_barang_tipe} />
+                    </td>
+                    <td className="border px-2 py-1">
+                      {rupiahFormat(tipe.harga_beli)}
+                    </td>
+                    <td className="border px-2 py-1">
+                      {rupiahFormat(tipe.harga_jual)}
+                    </td>
+                    <td className="border px-2 py-1 font-medium text-green-600">
+                      {rupiahFormat(tipe.selisih)}
+                    </td>
+                    <td className="border px-2 py-1">
+                      {tipe.stok}
+                    </td>
+                    <td className="border px-2 py-1 text-center">
+                      <div className="flex justify-center items-center gap-x-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedtipe(tipe);
+                            settipeFormOpen(true);
+                          }}
+                        >
+                          <PencilIcon className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedDeleteId(tipe.id);
+                            setDeleteDialogOpen(true);
+                          }}
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            handlePrintBarcode(
+                              tipe.kode_barang_tipe,
+                              tipe.nama_tipe,
+                              tipe.harga_jual
+                            )
+                          }
+                        >
+                          Print Label
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </ScrollArea>
 
           <DialogFooter>
-            <Button onClick={() => onOpenChange(false)} variant="outline">
+            <Button onClick={() => handleOpenChange(false)} variant="outline">
               Tutup
             </Button>
           </DialogFooter>
 
-          {/* ✅ Form Tambah/Edit */}
           <TipeDialogForm
             open={tipeFormOpen}
             onOpenChange={(open) => {
@@ -265,7 +289,7 @@ export default function KelolatipeDialog({
           />
         </DialogContent>
       </Dialog>
-      {/* Dialog hapus */}
+
       <DeleteConfirmDialog
         open={deleteDialogOpen}
         onCancel={() => setDeleteDialogOpen(false)}
@@ -290,11 +314,9 @@ export default function KelolatipeDialog({
             setSelectedDeleteId(null);
           }
           setTimeout(() => setSuccessMessage(""), 3000);
-          setTimeout(() => setError(""), 3000);
         }}
       />
 
-      {/* Dialog Preview Barcode */}
       {barcodeData && (
         <LabelBarcodePreviewDialog1
           open={openPreview}
