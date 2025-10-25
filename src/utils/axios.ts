@@ -5,8 +5,8 @@ import { goTo } from "./navigate";
 import { useOnlineStore } from "@/store/useOnlineStore"; // tambahkan ini
 
 export const axiosInstance = axios.create({
-  // baseURL: "http://localhost:8080/api",
-  baseURL: "https://api.buanadapurang.id/api",
+  baseURL: "http://localhost:8080/api",
+  // baseURL: "https://api.buanadapurang.id/api",
 });
 
 // Optional: Auto attach token to every request if available

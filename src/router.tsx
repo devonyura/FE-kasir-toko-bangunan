@@ -9,6 +9,7 @@ import TransaksiBeliPage from "./pages/transaksi/TransaksiBeliPage";
 import StokPage from "./pages/stok/StokPage";
 import KasirPage from "./pages/kasir/KasirPage";
 import TransaksiJualPage from "./pages/transaksi/TransaksiJualPage";
+import TransaksiJualPiutangPage from "./pages/transaksi/TransaksiJualPiutangPage";
 import UserPage from "./pages/UserPage";
 import ReturPage from "./pages/retur/ReturPage";
 import DashboardPage from "./pages/DashboardPage";
@@ -36,6 +37,7 @@ export const router = createBrowserRouter([
       { path: "retur", element: <ReturPage /> },
       { path: "transaksi-beli", element: <TransaksiBeliPage /> },
       { path: "transaksi-jual", element: <TransaksiJualPage /> },
+      { path: "transaksi-jual-piutang", element: <TransaksiJualPiutangPage /> },
       { path: "kasir", element: <KasirPage /> },
       { path: "stok", element: <StokPage /> },
       { path: "laporan-bulanan", element: <LaporanBulananPage /> },

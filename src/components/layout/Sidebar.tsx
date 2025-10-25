@@ -62,14 +62,17 @@ const menuItems: MenuItem[] = [
     icon: <Layers className="w-4 h-4 mr-2" />,
   },
   {
-    label: "Transaksi Beli",
+    label: "Transaksi Beli Stok",
     path: "/transaksi-beli",
     icon: <ReceiptText className="w-4 h-4 mr-2" />,
   },
   {
-    label: "Transaksi Jual (Hutang/Piutang Pembeli)",
-    path: "/transaksi-jual",
+    label: "Transaksi Penjualan",
     icon: <ReceiptText className="w-4 h-4 mr-2" />,
+    children: [
+      { label: "Transaksi Penjualan barang", path: "/transaksi-jual" },
+      { label: "Catatan Hutang Pembeli", path: "/transaksi-jual-piutang" },
+    ],
   },
   {
     label: "Retur Barang",
@@ -135,8 +138,9 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
       </button>
 
       <aside
-        className={`bg-white border-r fixed top-0 left-0 z-20 h-full w-64 p-4 transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`bg-white border-r fixed top-0 left-0 z-20 h-full w-64 p-4 transition-transform duration-300 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
       >
         <div className="font-bold text-lg border-b pb-2">Kasir Toko</div>
 
@@ -169,10 +173,11 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
                           onClick={() => {
                             if (isMobile()) toggleSidebar();
                           }}
-                          className={`flex items-center px-4 py-2 rounded-md text-sm hover:bg-gray-100 transition ${location.pathname === child.path
+                          className={`flex items-center px-4 py-2 rounded-md text-sm hover:bg-gray-100 transition ${
+                            location.pathname === child.path
                               ? "bg-gray-100 font-semibold"
                               : ""
-                            }`}
+                          }`}
                         >
                           <span className="ml-2">{child.label}</span>
                         </Link>
@@ -190,10 +195,11 @@ export default function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
                 onClick={() => {
                   if (isMobile()) toggleSidebar();
                 }}
-                className={`flex items-center px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition ${location.pathname === item.path
+                className={`flex items-center px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition ${
+                  location.pathname === item.path
                     ? "bg-gray-100 font-semibold"
                     : ""
-                  }`}
+                }`}
               >
                 {item.icon}
                 {item.label}

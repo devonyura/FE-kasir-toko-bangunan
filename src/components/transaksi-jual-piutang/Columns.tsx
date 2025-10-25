@@ -18,7 +18,7 @@ export const columns = (
       const raw = row.getValue("tanggal") as string;
       const date = new Date(raw);
       if (isNaN(date.getTime())) return "-";
-      return format(date, "EE, dd MMM yyyy", { locale: id });
+      return format(date, "EEE, dd MMM yyyy", { locale: id });
     },
   },
   {
@@ -47,24 +47,24 @@ export const columns = (
     cell: ({ row }) =>
       `Rp${parseFloat(row.getValue("sisa_piutang")).toLocaleString()}`,
   },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      return (
-        <span
-          className={
-            status === "Lunas"
-              ? "text-green-600 font-semibold"
-              : "text-red-600 font-semibold"
-          }
-        >
-          {status}
-        </span>
-      );
-    },
-  },
+  // {
+  //   accessorKey: "status",
+  //   header: "Status",
+  //   cell: ({ row }) => {
+  //     const status = row.getValue("status") as string;
+  //     return (
+  //       <span
+  //         className={
+  //           status === "Lunas"
+  //             ? "text-green-600 font-semibold"
+  //             : "text-red-600 font-semibold"
+  //         }
+  //       >
+  //         {status}
+  //       </span>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "jatuh_tempo",
     header: "Jatuh Tempo",
@@ -72,7 +72,7 @@ export const columns = (
       const raw = row.getValue("jatuh_tempo") as string;
       const date = new Date(raw);
       if (isNaN(date.getTime())) return "-";
-      return format(date, "EEEE, dd MMMM", { locale: id });
+      return format(date, "EEE, dd MMM yyyy", { locale: id });
     },
   },
   {
@@ -82,6 +82,15 @@ export const columns = (
       const transaksi = row.original;
       return (
         <div className="flex gap-2">
+          {transaksi.status === "Piutang" && (
+            <Button
+              size="sm"
+              variant="default"
+              onClick={() => handlePelunasan(transaksi)}
+            >
+              Pelunasan
+            </Button>
+          )}
           <Button
             size="sm"
             variant="secondary"
